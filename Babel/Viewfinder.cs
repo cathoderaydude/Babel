@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
+using System.Threading;
 
 namespace Babel
 {
@@ -11,12 +12,17 @@ namespace Babel
     {
         ready,
         snapped,
+        OCRing,
+        OCRed,
         translating,
         translated,
     }
 
     public partial class frmViewFinder : Form
-    {
+    {       
+        public List<OCRResult> Rects;
+        public bool Marking;
+        
         public frmViewFinder()
         {
             InitializeComponent();
@@ -25,6 +31,10 @@ namespace Babel
         private void Viewfinder_Load(object sender, EventArgs e)
         {
             Text = "Viewfinder - Ready";
+            Rects = new List<OCRResult>();
+            PhraseRects = new List<PhraseRect>();
+
+            bgwTranslate.RunWorkerAsync();
         }
 
         private Image Snap()
@@ -60,10 +70,19 @@ namespace Babel
                     btnClear.Enabled = false;
                     break;
 
-                case State.snapped:
-                    Text = "Viewfinder - Snapped";
+                case State.OCRing:
+                    Text = "Viewfinder - Recognizing...";
                     btnSnap.Enabled = false;
-                    btnTranslate.Enabled = true;
+                    btnTranslate.Enabled = false;
+                    btnRevert.Enabled = false;
+                    btnSave.Enabled = false;
+                    btnClear.Enabled = false;
+                    break;
+
+                case State.OCRed:
+                    Text = "Viewfinder - Select text";
+                    btnSnap.Enabled = false;
+                    btnTranslate.Enabled = false;
                     btnRevert.Enabled = false;
                     btnSave.Enabled = true;
                     btnClear.Enabled = true;
@@ -94,45 +113,17 @@ namespace Babel
             pbxDisplay.Image = snap = Snap();
 
             ChangeState(State.snapped);
-        }
 
-        /*private void btnTranslate_Click(object sender, EventArgs e)
-        {
             edit = snap.Copy();
 
-            var ocrs = GoogleHandler.TranslateImage(edit);
+            ChangeState(State.OCRing);
 
-            if (ocrs.Count() > 0)
-            {
-                var first = ocrs.First();
-                edit.FillRect(first.poly.FitRect(), Color.Black);
-                edit.DrawString(
-                    first.translatedText,
-                    Color.White,
-                    first.poly.FitRect());
-
-                foreach (var ocr in ocrs.Skip(1))
-                {
-                    FillPoly(ocr.poly, Color.Black);
-                    graphics.DrawString(
-                        ocr.translatedText,
-                        SystemFonts.DefaultFont,
-                        new SolidBrush(Color.White), ocr.poly.First());
-                }
-            }
-
-            pbxDisplay.Image = edit;
-
-            ChangeState(State.translated);
-        }*/
+            bgwOCR.RunWorkerAsync();
+        }
 
         private void btnTranslate_Click(object sender, EventArgs e)
         {
-            edit = snap.Copy();
-
-            ChangeState(State.translating);
-
-            bgwGoogle.RunWorkerAsync();
+            // This will do translation later
         }
 
         private void btnRevert_Click(object sender, EventArgs e)
@@ -165,45 +156,234 @@ namespace Babel
             settings.Show();
         }
 
-        private void bgwGoogle_DoWork(object sender, System.ComponentModel.DoWorkEventArgs e)
+        private void bgwTranslate_DoWork(object sender, System.ComponentModel.DoWorkEventArgs e)
         {
-            Stopwatch stopwatch = new Stopwatch();
-
-            stopwatch.Start();
-            var ocrs = GoogleHandler.TranslateImage(edit);
-            stopwatch.Stop();
-            string translateTime = string.Format("{0:00}:{1:00}:{2:00}.{3:000}",
-                stopwatch.Elapsed.Hours,
-                stopwatch.Elapsed.Minutes,
-                stopwatch.Elapsed.Seconds,
-                stopwatch.Elapsed.Milliseconds);
-            stopwatch.Reset();
-
-            if (ocrs.Count() > 0)
+            while (true)
             {
-                var first = ocrs.First();
-                edit.FillRect(first.poly.FitRect(), Color.Black);
-                edit.DrawString(
-                    first.translatedText,
-                    Color.White,
-                    first.poly.FitRect());
-
-                /*foreach (var ocr in ocrs.Skip(1))
+                bool DidTranslate = false;
+                foreach(PhraseRect PRect in PhraseRects)
                 {
-                    FillPoly(ocr.poly, Color.Black);
-                    graphics.DrawString(
-                        ocr.translatedText,
-                        SystemFonts.DefaultFont,
-                        new SolidBrush(Color.White), ocr.poly.First());
-                }*/
+                    if (PRect.Translated == false)
+                    {
+                        List<string> st = new List<string>();
+                        st.Add(PRect.ToBeTranslated);
+                        var result = GoogleHandler.Translate(st);
+                        if (result.Count() > 0)
+                        {
+                            Console.WriteLine("Translated " + PRect.ToBeTranslated + " as " + result.First().text);
+                            PRect.TranslatedText = result.First().text;
+                        } else
+                        {
+                            Console.WriteLine("No translation found for: " + PRect.ToBeTranslated);
+                        }
+                        PRect.Translated = true;
+                        //var translations = Translate(sourceStrings, ocrs.First().locale).ToArray();
+                        //ocrs = ocrs.Zip(translations, InsertTranslation).ToArray();
+                        DidTranslate = true;
+                    }
+                }
+
+                if (DidTranslate)
+                {
+                    Console.WriteLine("Nothing to translate, sleeping...");
+                } else {
+                    Console.WriteLine("Translations done, sleeping...");
+                }
+                /*Stopwatch stopwatch = new Stopwatch();
+
+                stopwatch.Start();
+                var ocrs = GoogleHandler.TranslateImage(edit);
+                stopwatch.Stop();
+                string translateTime = string.Format("{0:00}:{1:00}:{2:00}.{3:000}",
+                    stopwatch.Elapsed.Hours,
+                    stopwatch.Elapsed.Minutes,
+                    stopwatch.Elapsed.Seconds,
+                    stopwatch.Elapsed.Milliseconds);
+                stopwatch.Reset();
+
+                if (ocrs.Count() > 0)
+                {
+                    var first = ocrs.First();
+                    edit.FillRect(first.poly.FitRect(), Color.Black);
+                    edit.DrawString(
+                        first.translatedText,
+                        Color.White,
+                        first.poly.FitRect());
+
+                    /*foreach (var ocr in ocrs.Skip(1))
+                    {
+                        FillPoly(ocr.poly, Color.Black);
+                        graphics.DrawString(
+                            ocr.translatedText,
+                            SystemFonts.DefaultFont,
+                            new SolidBrush(Color.White), ocr.poly.First());
+                    }*/
+                //}
+
+                Thread.Sleep(500);
             }
         }
 
-        private void bgwGoogle_RunWorkerCompleted(object sender, System.ComponentModel.RunWorkerCompletedEventArgs e)
+        private void bgwTranslate_RunWorkerCompleted(object sender, System.ComponentModel.RunWorkerCompletedEventArgs e)
         {
             pbxDisplay.Image = edit;
 
             ChangeState(State.translated);
+        }
+
+        private void bgwOCR_DoWork(object sender, System.ComponentModel.DoWorkEventArgs e)
+        {
+            var ocrs = GoogleHandler.RecognizeImage(edit);
+            foreach(OCRResult ocr in ocrs)
+            {
+                Rects.Add(ocr);
+            }
+        }
+
+        private void bgwOCR_RunWorkerCompleted(object sender, System.ComponentModel.RunWorkerCompletedEventArgs e)
+        {
+            ChangeState(State.OCRed);
+            pbxDisplay.Invalidate();
+        }
+
+        private void pbxDisplay_Paint(object sender, PaintEventArgs e)
+        {
+            Graphics g = e.Graphics;
+            foreach (OCRResult ocr in Rects)
+            {
+
+                g.FillPolygon(new SolidBrush(Color.FromArgb(100, 128, 50, 128)), ocr.poly);
+                if (ocr.selected)
+                {
+                    g.DrawPolygon(new Pen(Color.Pink, 1.0f), ocr.poly);
+                }
+                else
+                {
+                    g.DrawPolygon(new Pen(Color.Purple, 1.0f), ocr.poly);
+                }
+            }
+
+            //g.DrawRectangle(Pens.White, new Rectangle(MouseStart, new Size(100, 100)));
+            if (Marking)
+            {
+                g.DrawLine(Pens.White, MouseStart.X, MouseStart.Y, MouseStart.X, MouseEnd.Y);
+                g.DrawLine(Pens.White, MouseStart.X, MouseStart.Y, MouseEnd.X, MouseStart.Y);
+                g.DrawLine(Pens.White, MouseEnd.X, MouseEnd.Y, MouseEnd.X, MouseStart.Y);
+                g.DrawLine(Pens.White, MouseEnd.X, MouseEnd.Y, MouseStart.X, MouseEnd.Y);
+            }
+
+            foreach (PhraseRect PRect in PhraseRects)
+            {
+                g.FillRectangle(new SolidBrush(Color.FromArgb(128, 0, 0, 0)), PRect.Location);
+                g.DrawRectangle(Pens.Green, PRect.Location);
+                g.DrawString(
+                        PRect.ToBeTranslated,
+                        DefaultFont,
+                        Brushes.Gray,
+                        PRect.Location);
+                g.DrawString(
+                        PRect.TranslatedText,
+                        DefaultFont,
+                        Brushes.White,
+                        PRect.Location);
+            }
+        }
+
+        Point MouseStart;
+        Point MouseEnd;
+
+        List<PhraseRect> PhraseRects;
+
+        public class PhraseRect
+        {
+            public Rectangle Location;
+            public string ToBeTranslated;
+            public string TranslatedText;
+            public bool Translated;
+            public PhraseRect(Rectangle Location)
+            {
+                Translated = false;
+                this.Location = Location;
+            }
+            public PhraseRect(Point p1, Point p2)
+            {
+                Translated = false;
+                this.Location = new Rectangle(p1.X, p1.Y, p2.X - p1.X, p2.Y - p1.Y);
+            }
+        }
+
+        List<OCRResult> GetRectsInPhrase(PhraseRect PRect)
+        {
+            List<OCRResult> Results = new List<OCRResult>();
+
+            foreach (OCRResult ocr in Rects)
+            {
+                Rectangle rect = ocr.poly.FitRect();
+                if (PRect.Location.Contains(rect))
+                {
+                    Results.Add(ocr);
+                }
+            }
+            return (Results);
+        }
+
+        void MarkItems()
+        {
+
+            foreach (PhraseRect PRect in PhraseRects)
+            {
+                List<OCRResult> Results = GetRectsInPhrase(PRect);
+                string CombinedPhrase = "";
+                foreach (OCRResult Result in Results)
+                {
+                    CombinedPhrase += Result.text + " ";
+                }
+                PRect.ToBeTranslated = CombinedPhrase;
+            }
+        }
+
+        private void pbxDisplay_MouseDown(object sender, MouseEventArgs e)
+        {
+            MouseStart = e.Location;
+            MouseEnd = e.Location;
+            //btnActuallyTranslate.Enabled = false;
+            pbxDisplay.Invalidate();
+            Marking = true;
+        }
+
+        private void pbxDisplay_MouseUp(object sender, MouseEventArgs e)
+        {
+            PhraseRect testrect = new PhraseRect(MouseStart, MouseEnd);
+            if (GetRectsInPhrase(testrect).Count > 0)
+                PhraseRects.Add(new PhraseRect(MouseStart, MouseEnd));
+            MarkItems();
+            Marking = false;
+            pbxDisplay.Invalidate();
+        }
+
+        private void pbxDisplay_MouseMove(object sender, MouseEventArgs e)
+        {
+            if (Marking)
+            {
+                MouseEnd = e.Location;
+                pbxDisplay.Invalidate();
+            }
+        }
+
+        private void tsmExit_Click(object sender, EventArgs e)
+        {
+            Application.Exit();
+        }
+
+        private void tmrTranslate_Tick(object sender, EventArgs e)
+        {
+            foreach(PhraseRect PRect in PhraseRects)
+            {
+                if (PRect.Translated == false)
+                {
+
+                }
+            }
         }
     }
 
