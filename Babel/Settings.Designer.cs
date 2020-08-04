@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Settings));
             this.txtKeyFile = new System.Windows.Forms.TextBox();
             this.txtProjectName = new System.Windows.Forms.TextBox();
             this.lblTargetLocale = new System.Windows.Forms.Label();
@@ -38,13 +39,16 @@
             this.btnBrowseKeyFile = new System.Windows.Forms.Button();
             this.ofdKeyFile = new System.Windows.Forms.OpenFileDialog();
             this.cmbLocale = new System.Windows.Forms.ComboBox();
+            this.cbxDummy = new System.Windows.Forms.CheckBox();
+            this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.groupBox1.SuspendLayout();
             this.SuspendLayout();
             // 
             // txtKeyFile
             // 
             this.txtKeyFile.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.txtKeyFile.Location = new System.Drawing.Point(94, 38);
+            this.txtKeyFile.Location = new System.Drawing.Point(88, 39);
             this.txtKeyFile.Name = "txtKeyFile";
             this.txtKeyFile.Size = new System.Drawing.Size(297, 20);
             this.txtKeyFile.TabIndex = 1;
@@ -54,7 +58,7 @@
             // 
             this.txtProjectName.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.txtProjectName.Location = new System.Drawing.Point(94, 64);
+            this.txtProjectName.Location = new System.Drawing.Point(88, 65);
             this.txtProjectName.Name = "txtProjectName";
             this.txtProjectName.Size = new System.Drawing.Size(378, 20);
             this.txtProjectName.TabIndex = 2;
@@ -63,7 +67,7 @@
             // lblTargetLocale
             // 
             this.lblTargetLocale.AutoSize = true;
-            this.lblTargetLocale.Location = new System.Drawing.Point(12, 15);
+            this.lblTargetLocale.Location = new System.Drawing.Point(6, 16);
             this.lblTargetLocale.Name = "lblTargetLocale";
             this.lblTargetLocale.Size = new System.Drawing.Size(76, 13);
             this.lblTargetLocale.TabIndex = 3;
@@ -72,7 +76,7 @@
             // lblKeyFile
             // 
             this.lblKeyFile.AutoSize = true;
-            this.lblKeyFile.Location = new System.Drawing.Point(41, 41);
+            this.lblKeyFile.Location = new System.Drawing.Point(35, 42);
             this.lblKeyFile.Name = "lblKeyFile";
             this.lblKeyFile.Size = new System.Drawing.Size(47, 13);
             this.lblKeyFile.TabIndex = 4;
@@ -81,7 +85,7 @@
             // lblProjectName
             // 
             this.lblProjectName.AutoSize = true;
-            this.lblProjectName.Location = new System.Drawing.Point(14, 67);
+            this.lblProjectName.Location = new System.Drawing.Point(8, 68);
             this.lblProjectName.Name = "lblProjectName";
             this.lblProjectName.Size = new System.Drawing.Size(74, 13);
             this.lblProjectName.TabIndex = 5;
@@ -89,7 +93,7 @@
             // 
             // btnOk
             // 
-            this.btnOk.Location = new System.Drawing.Point(316, 90);
+            this.btnOk.Location = new System.Drawing.Point(310, 91);
             this.btnOk.Name = "btnOk";
             this.btnOk.Size = new System.Drawing.Size(75, 23);
             this.btnOk.TabIndex = 7;
@@ -99,7 +103,7 @@
             // 
             // btnCancel
             // 
-            this.btnCancel.Location = new System.Drawing.Point(397, 90);
+            this.btnCancel.Location = new System.Drawing.Point(391, 91);
             this.btnCancel.Name = "btnCancel";
             this.btnCancel.Size = new System.Drawing.Size(75, 23);
             this.btnCancel.TabIndex = 8;
@@ -109,7 +113,7 @@
             // 
             // btnBrowseKeyFile
             // 
-            this.btnBrowseKeyFile.Location = new System.Drawing.Point(397, 35);
+            this.btnBrowseKeyFile.Location = new System.Drawing.Point(391, 36);
             this.btnBrowseKeyFile.Name = "btnBrowseKeyFile";
             this.btnBrowseKeyFile.Size = new System.Drawing.Size(75, 23);
             this.btnBrowseKeyFile.TabIndex = 9;
@@ -128,32 +132,57 @@
             this.cmbLocale.Items.AddRange(new object[] {
             "en",
             "es"});
-            this.cmbLocale.Location = new System.Drawing.Point(94, 12);
+            this.cmbLocale.Location = new System.Drawing.Point(88, 13);
             this.cmbLocale.Name = "cmbLocale";
             this.cmbLocale.Size = new System.Drawing.Size(121, 21);
             this.cmbLocale.TabIndex = 10;
             this.cmbLocale.SelectedIndexChanged += new System.EventHandler(this.comboBox1_SelectedIndexChanged);
             // 
+            // cbxDummy
+            // 
+            this.cbxDummy.AutoSize = true;
+            this.cbxDummy.Location = new System.Drawing.Point(377, 12);
+            this.cbxDummy.Name = "cbxDummy";
+            this.cbxDummy.Size = new System.Drawing.Size(85, 17);
+            this.cbxDummy.TabIndex = 11;
+            this.cbxDummy.Text = "Dummy data";
+            this.cbxDummy.UseVisualStyleBackColor = true;
+            // 
+            // groupBox1
+            // 
+            this.groupBox1.Controls.Add(this.lblTargetLocale);
+            this.groupBox1.Controls.Add(this.cbxDummy);
+            this.groupBox1.Controls.Add(this.txtKeyFile);
+            this.groupBox1.Controls.Add(this.cmbLocale);
+            this.groupBox1.Controls.Add(this.txtProjectName);
+            this.groupBox1.Controls.Add(this.btnBrowseKeyFile);
+            this.groupBox1.Controls.Add(this.lblKeyFile);
+            this.groupBox1.Controls.Add(this.btnCancel);
+            this.groupBox1.Controls.Add(this.lblProjectName);
+            this.groupBox1.Controls.Add(this.btnOk);
+            this.groupBox1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.groupBox1.Location = new System.Drawing.Point(5, 5);
+            this.groupBox1.Name = "groupBox1";
+            this.groupBox1.Size = new System.Drawing.Size(477, 126);
+            this.groupBox1.TabIndex = 12;
+            this.groupBox1.TabStop = false;
+            // 
             // Settings
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(480, 125);
-            this.Controls.Add(this.cmbLocale);
-            this.Controls.Add(this.btnBrowseKeyFile);
-            this.Controls.Add(this.btnCancel);
-            this.Controls.Add(this.btnOk);
-            this.Controls.Add(this.lblProjectName);
-            this.Controls.Add(this.lblKeyFile);
-            this.Controls.Add(this.lblTargetLocale);
-            this.Controls.Add(this.txtProjectName);
-            this.Controls.Add(this.txtKeyFile);
+            this.ClientSize = new System.Drawing.Size(487, 136);
+            this.Controls.Add(this.groupBox1);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "Settings";
+            this.Padding = new System.Windows.Forms.Padding(5);
+            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             this.Text = "Settings";
             this.Load += new System.EventHandler(this.Settings_Load);
+            this.groupBox1.ResumeLayout(false);
+            this.groupBox1.PerformLayout();
             this.ResumeLayout(false);
-            this.PerformLayout();
 
         }
 
@@ -169,5 +198,7 @@
         private System.Windows.Forms.Button btnBrowseKeyFile;
         private System.Windows.Forms.OpenFileDialog ofdKeyFile;
         private System.Windows.Forms.ComboBox cmbLocale;
+        private System.Windows.Forms.CheckBox cbxDummy;
+        private System.Windows.Forms.GroupBox groupBox1;
     }
 }

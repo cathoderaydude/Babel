@@ -35,12 +35,14 @@
             this.tsbSnap = new System.Windows.Forms.ToolStripButton();
             this.tsbRevert = new System.Windows.Forms.ToolStripButton();
             this.tsbClear = new System.Windows.Forms.ToolStripButton();
-            this.tsbSave = new System.Windows.Forms.ToolStripButton();
+            this.tsbSave = new System.Windows.Forms.ToolStripSplitButton();
+            this.tsbSaveTranslated = new System.Windows.Forms.ToolStripMenuItem();
+            this.tsbSaveRaw = new System.Windows.Forms.ToolStripMenuItem();
             this.tsbSettings = new System.Windows.Forms.ToolStripButton();
+            this.toolStripButton1 = new System.Windows.Forms.ToolStripButton();
             this.sfdDisplay = new System.Windows.Forms.SaveFileDialog();
             this.bgwOCR = new System.ComponentModel.BackgroundWorker();
             this.bgwTranslate = new System.ComponentModel.BackgroundWorker();
-            this.toolStripButton1 = new System.Windows.Forms.ToolStripButton();
             ((System.ComponentModel.ISupportInitialize)(this.pbxDisplay)).BeginInit();
             this.tscMain.ContentPanel.SuspendLayout();
             this.tscMain.TopToolStripPanel.SuspendLayout();
@@ -94,7 +96,7 @@
             this.toolStripButton1});
             this.toolStrip1.Location = new System.Drawing.Point(3, 0);
             this.toolStrip1.Name = "toolStrip1";
-            this.toolStrip1.Size = new System.Drawing.Size(172, 25);
+            this.toolStrip1.Size = new System.Drawing.Size(150, 25);
             this.toolStrip1.TabIndex = 1;
             this.toolStrip1.Text = "toolStrip1";
             // 
@@ -133,13 +135,29 @@
             // tsbSave
             // 
             this.tsbSave.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.tsbSave.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.tsbSaveTranslated,
+            this.tsbSaveRaw});
             this.tsbSave.Image = ((System.Drawing.Image)(resources.GetObject("tsbSave.Image")));
             this.tsbSave.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.tsbSave.Name = "tsbSave";
-            this.tsbSave.Size = new System.Drawing.Size(23, 22);
-            this.tsbSave.Text = "Save Image";
-            this.tsbSave.ToolTipText = "Save image";
-            this.tsbSave.Click += new System.EventHandler(this.btnSave_Click);
+            this.tsbSave.Size = new System.Drawing.Size(32, 22);
+            this.tsbSave.Text = "Save";
+            this.tsbSave.ButtonClick += new System.EventHandler(this.btnSave_Click);
+            // 
+            // tsbSaveTranslated
+            // 
+            this.tsbSaveTranslated.Name = "tsbSaveTranslated";
+            this.tsbSaveTranslated.Size = new System.Drawing.Size(183, 22);
+            this.tsbSaveTranslated.Text = "Save with translation";
+            this.tsbSaveTranslated.Click += new System.EventHandler(this.btnSave_Click);
+            // 
+            // tsbSaveRaw
+            // 
+            this.tsbSaveRaw.Name = "tsbSaveRaw";
+            this.tsbSaveRaw.Size = new System.Drawing.Size(183, 22);
+            this.tsbSaveRaw.Text = "Save raw screenshot";
+            this.tsbSaveRaw.Click += new System.EventHandler(this.tsbSaveRaw_Click);
             // 
             // tsbSettings
             // 
@@ -151,9 +169,20 @@
             this.tsbSettings.Text = "Settings";
             this.tsbSettings.Click += new System.EventHandler(this.settingsToolStripMenuItem_Click);
             // 
+            // toolStripButton1
+            // 
+            this.toolStripButton1.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.toolStripButton1.Image = ((System.Drawing.Image)(resources.GetObject("toolStripButton1.Image")));
+            this.toolStripButton1.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.toolStripButton1.Name = "toolStripButton1";
+            this.toolStripButton1.Size = new System.Drawing.Size(23, 22);
+            this.toolStripButton1.Text = "toolStripButton1";
+            this.toolStripButton1.Click += new System.EventHandler(this.toolStripButton1_Click);
+            // 
             // sfdDisplay
             // 
             this.sfdDisplay.DefaultExt = "png";
+            this.sfdDisplay.Filter = "PNG|*.png";
             // 
             // bgwOCR
             // 
@@ -166,22 +195,13 @@
             this.bgwTranslate.DoWork += new System.ComponentModel.DoWorkEventHandler(this.bgwTranslate_DoWork);
             this.bgwTranslate.RunWorkerCompleted += new System.ComponentModel.RunWorkerCompletedEventHandler(this.bgwTranslate_RunWorkerCompleted);
             // 
-            // toolStripButton1
-            // 
-            this.toolStripButton1.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.toolStripButton1.Image = ((System.Drawing.Image)(resources.GetObject("toolStripButton1.Image")));
-            this.toolStripButton1.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.toolStripButton1.Name = "toolStripButton1";
-            this.toolStripButton1.Size = new System.Drawing.Size(23, 22);
-            this.toolStripButton1.Text = "toolStripButton1";
-            this.toolStripButton1.Click += new System.EventHandler(this.toolStripButton1_Click);
-            // 
             // frmViewFinder
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(931, 600);
             this.Controls.Add(this.tscMain);
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.KeyPreview = true;
             this.Name = "frmViewFinder";
             this.Padding = new System.Windows.Forms.Padding(5);
@@ -213,8 +233,10 @@
         private System.Windows.Forms.ToolStripButton tsbSnap;
         private System.Windows.Forms.ToolStripButton tsbRevert;
         private System.Windows.Forms.ToolStripButton tsbClear;
-        private System.Windows.Forms.ToolStripButton tsbSave;
         private System.Windows.Forms.ToolStripButton tsbSettings;
+        private System.Windows.Forms.ToolStripSplitButton tsbSave;
+        private System.Windows.Forms.ToolStripMenuItem tsbSaveRaw;
+        private System.Windows.Forms.ToolStripMenuItem tsbSaveTranslated;
         private System.Windows.Forms.ToolStripButton toolStripButton1;
     }
 }
