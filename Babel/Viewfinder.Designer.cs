@@ -42,7 +42,6 @@
             this.toolStripButton1 = new System.Windows.Forms.ToolStripButton();
             this.sfdDisplay = new System.Windows.Forms.SaveFileDialog();
             this.bgwOCR = new System.ComponentModel.BackgroundWorker();
-            this.bgwTranslate = new System.ComponentModel.BackgroundWorker();
             ((System.ComponentModel.ISupportInitialize)(this.pbxDisplay)).BeginInit();
             this.tscMain.ContentPanel.SuspendLayout();
             this.tscMain.TopToolStripPanel.SuspendLayout();
@@ -189,12 +188,6 @@
             this.bgwOCR.DoWork += new System.ComponentModel.DoWorkEventHandler(this.bgwOCR_DoWork);
             this.bgwOCR.RunWorkerCompleted += new System.ComponentModel.RunWorkerCompletedEventHandler(this.bgwOCR_RunWorkerCompleted);
             // 
-            // bgwTranslate
-            // 
-            this.bgwTranslate.WorkerSupportsCancellation = true;
-            this.bgwTranslate.DoWork += new System.ComponentModel.DoWorkEventHandler(this.bgwTranslate_DoWork);
-            this.bgwTranslate.RunWorkerCompleted += new System.ComponentModel.RunWorkerCompletedEventHandler(this.bgwTranslate_RunWorkerCompleted);
-            // 
             // frmViewFinder
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -227,8 +220,6 @@
         private System.Windows.Forms.PictureBox pbxDisplay;
         private System.Windows.Forms.ToolStripContainer tscMain;
         private System.Windows.Forms.SaveFileDialog sfdDisplay;
-        private System.ComponentModel.BackgroundWorker bgwOCR;
-        private System.ComponentModel.BackgroundWorker bgwTranslate;
         private System.Windows.Forms.ToolStrip toolStrip1;
         private System.Windows.Forms.ToolStripButton tsbSnap;
         private System.Windows.Forms.ToolStripButton tsbRevert;
@@ -238,6 +229,7 @@
         private System.Windows.Forms.ToolStripMenuItem tsbSaveRaw;
         private System.Windows.Forms.ToolStripMenuItem tsbSaveTranslated;
         private System.Windows.Forms.ToolStripButton toolStripButton1;
+        private System.ComponentModel.BackgroundWorker bgwOCR;
     }
 }
 

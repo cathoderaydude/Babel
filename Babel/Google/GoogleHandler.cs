@@ -38,6 +38,7 @@ namespace Babel.Google
         {
             this.text = text; this.locale = locale; this.poly = poly;
         }
+        public Rectangle fitRect => poly.FitRect();
     }
 
     public class TranslationResult

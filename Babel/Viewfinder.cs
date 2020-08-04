@@ -22,7 +22,6 @@ namespace Babel
         translated,
     }
 
-
     public partial class frmViewFinder : Form
     {
         public List<PhraseRect> PhraseRects; // Track user-selected phrases
@@ -51,30 +50,15 @@ namespace Babel
         public class PhraseRect
         {
             public Rectangle Location;
-            public string RawText;
-            public string TranslatedText;
-            public bool Translated;
-            public string translationTime;
+            public AsyncTranslation translation;
             public bool Hovered;
             public bool Clicked;
             public bool Selected;
 
-            public PhraseRect(Rectangle Location)
+            public PhraseRect(Point p1, Point p2, string text, Action<AsyncTranslation> callback)
             {
-                Translated = false;
-                this.Location = Location;
-            }
-
-            private Rectangle Points2Rect(Point p1, Point p2) => new Rectangle(
-                Math.Min(p1.X, p2.X),
-                Math.Min(p1.Y, p2.Y),
-                Math.Abs(p1.X - p2.X),
-                Math.Abs(p1.Y - p2.Y));
-
-            public PhraseRect(Point p1, Point p2)
-            {
-                Translated = false;
-                this.Location = Points2Rect(p1, p2);
+                Location = Helpers.Points2Rect(p1, p2);
+                translation = new AsyncTranslation(text, callback);
             }
         }
 
@@ -84,28 +68,13 @@ namespace Babel
             ChangeState(State.ready);
             OCRResults = new List<OCRResult>();
             PhraseRects = new List<PhraseRect>();
-
-            bgwTranslate.RunWorkerAsync();
         }
 
         // Takes a screenshot of what's behind the window and returns it
         private Image Snap()
         {
-            int x = pbxDisplay.RectangleToScreen(pbxDisplay.ClientRectangle).X;
-            int y = pbxDisplay.RectangleToScreen(pbxDisplay.ClientRectangle).Y;
-            int width = pbxDisplay.Size.Width;
-            int height = pbxDisplay.Size.Height;
-
-            WindowFunctions.HideAllTooltips(); // Hide all open tooltips since the user might be hovering over a toolbar button
-
-            IntPtr hdcSrc = GDI32.User32.GetWindowDC(GDI32.User32.GetDesktopWindow());
-            IntPtr hdcDst = GDI32.CreateCompatibleDC(hdcSrc);
-            IntPtr bitmap = GDI32.CreateCompatibleBitmap(hdcSrc, width, height);
-            GDI32.SelectObject(hdcDst, bitmap);
-
-            GDI32.BitBlt(hdcDst, 0, 0, width, height, hdcSrc, x, y, GDI32.TernaryRasterOperations.SRCCOPY);
-
-            return Image.FromHbitmap(bitmap);
+            return Grabbing.Grabbing.Grab(pbxDisplay.RectangleToScreen(pbxDisplay.ClientRectangle));
+            
         }
 
         // Keeps all our buttons enabled/disabled as needed
@@ -224,81 +193,6 @@ namespace Babel
             Application.Exit();
         }
 
-        //===== Functions to perform translation of any phrases that have been selected but not yet translated
-        private void bgwTranslate_DoWork(object sender, System.ComponentModel.DoWorkEventArgs e)
-        {
-            while (true) // Loop forever
-            {
-                bool DidTranslate = false;
-                try
-                {
-                    // Walk over all user-selected phrases that aren't yet translated
-                    foreach (PhraseRect PRect in PhraseRects.Where(x => x.Translated == false))
-                    {
-                        // This is necessary to fit the input that the function requires
-                        List<string> st = new List<string>();
-                        st.Add(PRect.RawText);
-
-                        // Translate the phrase
-                        Stopwatch stopwatch = new Stopwatch();
-                        stopwatch.Start();
-                        IEnumerable<TranslationResult> result;
-                        if (!Properties.Settings.Default.dummyData) // Dummy out Google calls during testing
-                        {
-                            result = GoogleHandler.Translate(st);
-                        } else
-                        {
-                            List<TranslationResult> DummyData = new List<TranslationResult>();
-                            for(int x=0;x<10;x++)
-                            {
-                                DummyData.Add(new TranslationResult("Test text", "Nambia"));
-                            }
-                            result = DummyData;
-                        }
-                        stopwatch.Stop();
-
-
-                        if (result.Count() > 0)
-                        {
-                            Console.WriteLine("Translated " + PRect.RawText + " as " + result.First().text);
-                            PRect.TranslatedText = result.First().text;
-                            PRect.translationTime = string.Format("{0:00}:{1:00}:{2:00}.{3:000}",
-                                stopwatch.Elapsed.Hours,
-                                stopwatch.Elapsed.Minutes,
-                                stopwatch.Elapsed.Seconds,
-                                stopwatch.Elapsed.Milliseconds);
-                        }
-                        else
-                        {
-                            Console.WriteLine("No translation found for: " + PRect.RawText);
-                        }
-                        PRect.Translated = true; // Mark the phrase as translated (even if it failed, so we don't retry)
-                        DidTranslate = true;
-
-                    }
-
-                    if (DidTranslate)
-                    {
-                        pbxDisplay.Invalidate(); // Redraw the output
-                        Console.WriteLine("Translations done, sleeping...");
-                    }
-                } catch (InvalidOperationException eIOE)
-                {
-                    // This should resolve all cases where the user deletes or adds a phrase while translation is in progress
-                    Console.WriteLine("Phrase set changed, sleeping...");
-                }
-
-                Thread.Sleep(500); // Wait for the user to make further selections
-            }
-        }
-
-        private void bgwTranslate_RunWorkerCompleted(object sender, System.ComponentModel.RunWorkerCompletedEventArgs e)
-        {
-            pbxDisplay.Image = edit;
-
-            ChangeState(State.translated);
-        }
-
 
         //====== Functions to identify which words are in the image
 
@@ -405,11 +299,11 @@ namespace Babel
                 if (PRect.Clicked) BoxColor = Pens.DarkBlue;
                 g.DrawRectangle(BoxColor, PRect.Location); // Draw outline
 
-                if (!PRect.Translated)
+                if (!PRect.translation.isDone)
                 {
                     // Draw untranslated text
                     g.DrawString(
-                            PRect.RawText,
+                            PRect.translation.rawText,
                             DefaultFont,
                             Brushes.Gray,
                             PRect.Location);
@@ -419,15 +313,15 @@ namespace Babel
                     // Draw translated text
 
                     // Fit font to bounding box
-                    Font LargeFont = GetAdjustedFont(g, PRect.TranslatedText, DefaultFont, PRect.Location, 256, 6, true);
+                    Font LargeFont = GetAdjustedFont(g, PRect.translation.translatedText, DefaultFont, PRect.Location, 256, 6, true);
 
                     // Center-justify text
-                    int JustifySpace = (int)(PRect.Location.Width - g.MeasureString(PRect.TranslatedText, LargeFont).Width) / 2;
+                    int JustifySpace = (int)(PRect.Location.Width - g.MeasureString(PRect.translation.translatedText, LargeFont).Width) / 2;
                     Point AdjustedPosition = new Point(PRect.Location.Left + JustifySpace, PRect.Location.Top);
 
                     // Draw translated text
                     g.DrawString(
-                            PRect.TranslatedText,
+                            PRect.translation.translatedText,
                             LargeFont,
                             Brushes.White,
                             AdjustedPosition);
@@ -435,9 +329,9 @@ namespace Babel
 
                 // This would draw the time it took to translate, but it seems to take 0:00. Might be a bug, will check later.
                 Font BoldFont = new Font(DefaultFont, FontStyle.Bold);
-                SizeF TimeLength = g.MeasureString(PRect.translationTime, BoldFont);
+                SizeF TimeLength = g.MeasureString(PRect.translation.timeStamp, BoldFont);
                 
-                g.DrawString(PRect.translationTime, 
+                g.DrawString(PRect.translation.timeStamp, 
                     BoldFont, 
                     Brushes.Gray, 
                     new Point(PRect.Location.Right - (int) TimeLength.Width, PRect.Location.Bottom - (int) TimeLength.Height));
@@ -481,13 +375,15 @@ namespace Babel
             if (Marking == true) // We were drawing a bounding box
             {
                 // Find out if any words were selected and, if so, create a phrase box around them
-                PhraseRect testrect = new PhraseRect(MouseStart, MouseEnd);
-                if (GetRectsInPhrase(testrect).Count > 0 && testrect.Location.Width > 25 && testrect.Location.Height > 15)
+                Rectangle testrect = Helpers.Points2Rect(MouseStart, MouseEnd);
+                if (GetRectsInPhrase(testrect).Count > 0 && testrect.Width > 25 && testrect.Height > 15)
                 {
                     tsbRevert.Enabled = true; // Enable the Revert button to clear phrases
-                    PhraseRects.Add(new PhraseRect(MouseStart, MouseEnd));
+                    PhraseRects.Add(new PhraseRect(MouseStart, MouseEnd, GetTextInRect(testrect), ignore =>
+                    {
+                        pbxDisplay.Invalidate();
+                    }));
                 }
-                MarkItems();
                 Marking = false;
             } else { // We were selecting/dragging
                 PhraseRect PRect = GetPhraseAtPoint(e.Location);
@@ -537,19 +433,24 @@ namespace Babel
 
         //========== Helper functions
         // Find all words that are underneath a given phrase selection
-        List<OCRResult> GetRectsInPhrase(PhraseRect PRect)
+        List<OCRResult> GetRectsInPhrase(Rectangle rect)
         {
             List<OCRResult> Results = new List<OCRResult>();
 
             foreach (OCRResult ocr in OCRResults)
             {
-                Rectangle rect = ocr.poly.FitRect();
-                if (PRect.Location.IntersectsWith(rect))
+                if (rect.IntersectsWith(ocr.fitRect))
                 {
                     Results.Add(ocr);
                 }
             }
-            return (Results);
+
+            return Results;
+        }
+
+        List<OCRResult> GetRectsInPhrase(PhraseRect PRect)
+        {
+            return GetRectsInPhrase(PRect.Location);
         }
 
         // Find a phrase at a given point, for mouse collision etc.
@@ -563,19 +464,11 @@ namespace Babel
         }
 
         // Find the words that are under each selected phrase, concatenate them, and stuff them in the phrase.
-        void MarkItems()
+        string GetTextInRect(Rectangle rect)
         {
-
-            foreach (PhraseRect PRect in PhraseRects)
-            {
-                List<OCRResult> Results = GetRectsInPhrase(PRect);
-                string CombinedPhrase = "";
-                foreach (OCRResult Result in Results)
-                {
-                    CombinedPhrase += Result.text + " ";
-                }
-                PRect.RawText = CombinedPhrase;
-            }
+            return GetRectsInPhrase(rect)
+                .Select(ocr => ocr.text)
+                .Aggregate((l, r) => l + " " + r);
         }
 
         // Find the biggest font to fit a given rect
@@ -643,6 +536,15 @@ namespace Babel
             Text2Text text2Text = new Text2Text();
             text2Text.Show();
         }
+    }
+    
+    public static class Helpers
+    {
+        public static Rectangle Points2Rect(Point p1, Point p2) => new Rectangle(
+            Math.Min(p1.X, p2.X),
+            Math.Min(p1.Y, p2.Y),
+            Math.Abs(p1.X - p2.X),
+            Math.Abs(p1.Y - p2.Y));
     }
 
     // Image extension methods to make various things better.
