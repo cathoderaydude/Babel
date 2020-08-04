@@ -17,7 +17,7 @@
 using System;
 using System.Runtime.InteropServices;
 
-namespace Babel
+namespace Babel.Grabbing
 {
     class GDI32
     {

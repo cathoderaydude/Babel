@@ -19,13 +19,25 @@ namespace Babel
 
         private void Settings_Load(object sender, EventArgs e)
         {
+            cmbLocale.Text = Properties.Settings.Default.targetLocale;
             txtKeyFile.Text = Properties.Settings.Default.apiKeyPath;
             txtProjectName.Text = Properties.Settings.Default.projectName;
+        }
+
+        private void comboBox1_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            Properties.Settings.Default.targetLocale = cmbLocale.Text;
         }
 
         private void txtKeyFile_TextChanged(object sender, EventArgs e)
         {
             Properties.Settings.Default.apiKeyPath = txtKeyFile.Text;
+        }
+
+        private void btnBrowseKeyFile_Click(object sender, EventArgs e)
+        {
+            if (ofdKeyFile.ShowDialog() == DialogResult.OK)
+                txtKeyFile.Text = ofdKeyFile.FileName;
         }
 
         private void txtProjectName_TextChanged(object sender, EventArgs e)
@@ -42,12 +54,6 @@ namespace Babel
         private void btnCancel_Click(object sender, EventArgs e)
         {
             Close();
-        }
-
-        private void btnBrowseKeyFile_Click(object sender, EventArgs e)
-        {
-            if (ofdKeyFile.ShowDialog() == DialogResult.OK)
-                txtKeyFile.Text = ofdKeyFile.FileName;
         }
     }
 }

@@ -17,7 +17,7 @@ using GImage = Google.Cloud.Vision.V1.Image;
 using System.Threading;
 using System.Diagnostics;
 
-namespace Babel
+namespace Babel.Google
 {
     static class Extensions
     {

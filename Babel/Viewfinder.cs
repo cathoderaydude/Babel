@@ -5,6 +5,8 @@ using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
 using System.Threading;
+using Babel.Grabbing;
+using Babel.Google;
 
 namespace Babel
 {
@@ -21,8 +23,6 @@ namespace Babel
 
     public partial class frmViewFinder : Form
     {
-        public bool DUMMY_DATA = true;
-
         public List<PhraseRect> PhraseRects; // Track user-selected phrases
         public List<OCRResult> OCRResults; // Track identified words
         
@@ -56,10 +56,17 @@ namespace Babel
                 Translated = false;
                 this.Location = Location;
             }
+
+            private Rectangle Points2Rect(Point p1, Point p2) => new Rectangle(
+                Math.Min(p1.X, p2.X),
+                Math.Min(p1.Y, p2.Y),
+                Math.Abs(p1.X - p2.X),
+                Math.Abs(p1.Y - p2.Y));
+
             public PhraseRect(Point p1, Point p2)
             {
                 Translated = false;
-                this.Location = new Rectangle(p1.X, p1.Y, p2.X - p1.X, p2.Y - p1.Y);
+                this.Location = Points2Rect(p1, p2);
             }
         }
 
@@ -212,7 +219,7 @@ namespace Babel
                         Stopwatch stopwatch = new Stopwatch();
                         stopwatch.Start();
                         IEnumerable<TranslationResult> result;
-                        if (!DUMMY_DATA) // Dummy out Google calls during testing
+                        if (!Properties.Settings.Default.dummyData) // Dummy out Google calls during testing
                         {
                             result = GoogleHandler.Translate(st);
                         } else
@@ -274,7 +281,7 @@ namespace Babel
         private void bgwOCR_DoWork(object sender, System.ComponentModel.DoWorkEventArgs e)
         {
             IEnumerable<OCRResult> ocrs;
-            if (!DUMMY_DATA) // Dummy out data for testing
+            if (!Properties.Settings.Default.dummyData) // Dummy out data for testing
             {
                 ocrs = GoogleHandler.RecognizeImage(edit);
             } else
@@ -354,7 +361,7 @@ namespace Babel
             // Draw user bounding box
             if (Marking)
             {
-                g.DrawRectangle(Pens.White, BitmapExt.FitRect(new Point[] { MouseStart, MouseEnd }));
+                g.DrawRectangle(Pens.White, BitmapExt.FitRect(MouseStart, MouseEnd));
             }
 
 
@@ -402,13 +409,13 @@ namespace Babel
                 }
                 
                 // This would draw the time it took to translate, but it seems to take 0:00. Might be a bug, will check later.
-                /*Font BoldFont = new Font(DefaultFont, FontStyle.Bold);
+                Font BoldFont = new Font(DefaultFont, FontStyle.Bold);
                 SizeF TimeLength = g.MeasureString(PRect.translationTime, BoldFont);
                 
                 g.DrawString(PRect.translationTime, 
                     BoldFont, 
                     Brushes.Gray, 
-                    new Point(PRect.Location.Right - (int) TimeLength.Width, PRect.Location.Bottom - (int) TimeLength.Height));*/
+                    new Point(PRect.Location.Right - (int) TimeLength.Width, PRect.Location.Bottom - (int) TimeLength.Height));
             }
         }
 
@@ -604,6 +611,12 @@ namespace Babel
                                 roundToMultiple(Rect.Width, quantX),
                                 roundToMultiple(Rect.Height, quantY));
         }
+
+        private void toolStripButton1_Click(object sender, EventArgs e)
+        {
+            Text2Text text2Text = new Text2Text();
+            text2Text.Show();
+        }
     }
 
     // Image extension methods to make various things better.
@@ -621,6 +634,16 @@ namespace Babel
             int h = maxY - minY;
 
             return new Rectangle(minX, minY, w, h);
+        }
+
+        public static Rectangle FitRect(Point a, Point b)
+        {
+            int x = Math.Min(a.X, b.X);
+            int w = Math.Abs(a.X - b.X);
+            int y = Math.Min(a.Y, b.Y);
+            int h = Math.Abs(a.Y - b.Y);
+
+            return new Rectangle(x, y, w, h);
         }
 
         public static Image LoadFromFile(string filePath)

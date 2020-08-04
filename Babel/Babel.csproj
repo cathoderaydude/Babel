@@ -127,7 +127,9 @@
     <Compile Include="Controls.Designer.cs">
       <DependentUpon>Controls.cs</DependentUpon>
     </Compile>
-    <Compile Include="GDI32.cs" />
+    <Compile Include="Google\GoogleAsync.cs" />
+    <Compile Include="Grabbing\GDI32.cs" />
+    <Compile Include="Grabbing\Grabbing.cs" />
     <Compile Include="Properties\Settings.Designer.cs">
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
@@ -139,13 +141,19 @@
     <Compile Include="Settings.Designer.cs">
       <DependentUpon>Settings.cs</DependentUpon>
     </Compile>
+    <Compile Include="Text2Text.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Text2Text.Designer.cs">
+      <DependentUpon>Text2Text.cs</DependentUpon>
+    </Compile>
     <Compile Include="Viewfinder.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="Viewfinder.Designer.cs">
       <DependentUpon>Viewfinder.cs</DependentUpon>
     </Compile>
-    <Compile Include="GoogleHandler.cs" />
+    <Compile Include="Google\GoogleHandler.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <EmbeddedResource Include="Controls.resx">
@@ -153,6 +161,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Settings.resx">
       <DependentUpon>Settings.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Text2Text.resx">
+      <DependentUpon>Text2Text.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Viewfinder.resx">
       <DependentUpon>Viewfinder.cs</DependentUpon>
@@ -175,6 +186,7 @@
   <ItemGroup>
     <None Include="App.config" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="..\packages\Grpc.Core.2.27.0\build\net45\Grpc.Core.targets" Condition="Exists('..\packages\Grpc.Core.2.27.0\build\net45\Grpc.Core.targets')" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
