@@ -178,6 +178,7 @@
             this.TransparencyKey = System.Drawing.Color.Fuchsia;
             this.Load += new System.EventHandler(this.Viewfinder_Load);
             this.KeyDown += new System.Windows.Forms.KeyEventHandler(this.frmViewFinder_KeyDown);
+            this.KeyUp += new System.Windows.Forms.KeyEventHandler(this.frmViewFinder_KeyUp);
             ((System.ComponentModel.ISupportInitialize)(this.pbxDisplay)).EndInit();
             this.tscMain.ContentPanel.ResumeLayout(false);
             this.tscMain.TopToolStripPanel.ResumeLayout(false);

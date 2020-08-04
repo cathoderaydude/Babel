@@ -18,8 +18,11 @@ namespace Babel
         translated,
     }
 
+
     public partial class frmViewFinder : Form
     {
+        public bool DUMMY_DATA = true;
+
         public List<PhraseRect> PhraseRects; // Track user-selected phrases
         public List<OCRResult> OCRResults; // Track identified words
         
@@ -153,8 +156,6 @@ namespace Babel
         // Clear phrases
         private void btnRevert_Click(object sender, EventArgs e)
         {
-            // These create a race condition and need to be mutexed, otherwise an in-progress
-            // worker thread will attempt to iterate over or update members after clear
             OCRResults.Clear();
             PhraseRects.Clear();
 
@@ -164,8 +165,6 @@ namespace Babel
         // Erase everything and prepare for another snap
         private void btnClear_Click(object sender, EventArgs e)
         {
-            // These create a race condition and need to be mutexed, otherwise an in-progress
-            // worker thread will attempt to iterate over or update members after clear
             OCRResults.Clear();
             PhraseRects.Clear();
 
@@ -212,7 +211,19 @@ namespace Babel
                         // Translate the phrase
                         Stopwatch stopwatch = new Stopwatch();
                         stopwatch.Start();
-                        var result = GoogleHandler.Translate(st);
+                        IEnumerable<TranslationResult> result;
+                        if (!DUMMY_DATA) // Dummy out Google calls during testing
+                        {
+                            result = GoogleHandler.Translate(st);
+                        } else
+                        {
+                            List<TranslationResult> DummyData = new List<TranslationResult>();
+                            for(int x=0;x<10;x++)
+                            {
+                                DummyData.Add(new TranslationResult("Test text", "Nambia"));
+                            }
+                            result = DummyData;
+                        }
                         stopwatch.Stop();
 
 
@@ -262,7 +273,26 @@ namespace Babel
 
         private void bgwOCR_DoWork(object sender, System.ComponentModel.DoWorkEventArgs e)
         {
-            var ocrs = GoogleHandler.RecognizeImage(edit);
+            IEnumerable<OCRResult> ocrs;
+            if (!DUMMY_DATA) // Dummy out data for testing
+            {
+                ocrs = GoogleHandler.RecognizeImage(edit);
+            } else
+            {
+                List<OCRResult> DummyOCRs = new List<OCRResult>();
+                for(int x=0;x<5;x++)
+                {
+                    Point[] PointSet = new Point[] {
+                        new Point(160, 100 + (60 * x)),
+                        new Point(100, 100 + (60 * x)),
+                        new Point(100, 140 + (60 * x)),
+                        new Point(160, 140 + (60 * x))
+                    };
+                    DummyOCRs.Add(new OCRResult("Test Text", "BS", PointSet));
+                }
+                ocrs = DummyOCRs;
+            }
+
             foreach(OCRResult ocr in ocrs)
             {
                 OCRResults.Add(ocr);
@@ -275,7 +305,7 @@ namespace Babel
             pbxDisplay.Invalidate();
         }
 
-        //======= Graphics events
+        //======= Keyboard events
 
         // Handle keyboard input
         private void frmViewFinder_KeyDown(object sender, KeyEventArgs e)
@@ -284,8 +314,23 @@ namespace Babel
             {
                 // Delete any selected phrase
                 PhraseRects.RemoveAll(t => t.Selected == true);
+            } else if (e.KeyCode == Keys.ControlKey)
+            {
+                CtrlDown = true;
             }
+            Console.WriteLine(e.KeyCode);
         }
+
+        private void frmViewFinder_KeyUp(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.ControlKey)
+            {
+                CtrlDown = false;
+            }
+            Console.WriteLine("Un-" + e.KeyCode);
+        }
+
+        //======= Graphics events
 
         // Draw all the graphics on top of the image
         private void pbxDisplay_Paint(object sender, PaintEventArgs e)
@@ -312,17 +357,6 @@ namespace Babel
                 g.DrawRectangle(Pens.White, BitmapExt.FitRect(new Point[] { MouseStart, MouseEnd }));
             }
 
-            int roundToMultiple(int d, int multiple)
-            {
-                return (int) Math.Round((double) (d / multiple)) * multiple;
-            }
-            Rectangle QuantizeRect(Rectangle Rect, int quantX, int quantY)
-            {
-                return new Rectangle(roundToMultiple(Rect.X, quantX),
-                                    roundToMultiple(Rect.Y, quantY),
-                                    roundToMultiple(Rect.Width, quantX),
-                                    roundToMultiple(Rect.Height, quantY));
-            }
 
             // Draw phrases
             foreach (PhraseRect PRect in PhraseRects)
@@ -345,7 +379,7 @@ namespace Babel
                     g.DrawString(
                             PRect.RawText,
                             DefaultFont,
-                            Brushes.White,
+                            Brushes.Gray,
                             PRect.Location);
                 }
                 else
@@ -359,7 +393,7 @@ namespace Babel
                     int JustifySpace = (int) (PRect.Location.Width - g.MeasureString(PRect.TranslatedText, LargeFont).Width) / 2;
                     Point AdjustedPosition = new Point(PRect.Location.Left + JustifySpace, PRect.Location.Top);
 
-                    // Draw
+                    // Draw translated text
                     g.DrawString(
                             PRect.TranslatedText,
                             LargeFont,
@@ -381,12 +415,13 @@ namespace Babel
         public bool StartingDrag;
         public bool Dragging;
         public PhraseRect DrugPhrase;
+        public bool CtrlDown;
 
         // Begin dragging
         private void pbxDisplay_MouseDown(object sender, MouseEventArgs e)
         {
             PhraseRect PRect = GetPhraseAtPoint(e.Location);
-            if (PRect != null)
+            if (PRect != null && !CtrlDown)
             {
                 // There was a phrase under the mouse, so start a drag/select rather than a bounding box
                 foreach (PhraseRect TPRect in PhraseRects) { TPRect.Clicked = false; TPRect.Selected = false; } // Clear phrase states
@@ -414,7 +449,7 @@ namespace Babel
             {
                 // Find out if any words were selected and, if so, create a phrase box around them
                 PhraseRect testrect = new PhraseRect(MouseStart, MouseEnd);
-                if (GetRectsInPhrase(testrect).Count > 0)
+                if (GetRectsInPhrase(testrect).Count > 0 && testrect.Location.Width > 25 && testrect.Location.Height > 15)
                 {
                     tsbRevert.Enabled = true; // Enable the Revert button to clear phrases
                     PhraseRects.Add(new PhraseRect(MouseStart, MouseEnd));
@@ -439,15 +474,6 @@ namespace Babel
             StartingDrag = false;
             Dragging = false;
             pbxDisplay.Invalidate();
-        }
-
-        // Get the largest difference between coords in a pair of points
-        int GetPointDiff(Point p1, Point p2)
-        {
-            int xdiff = Math.Abs(p1.X - p2.X);
-            int ydiff = Math.Abs(p1.Y - p2.Y);
-            Console.WriteLine(xdiff.ToString() + "," + ydiff.ToString());
-            if (xdiff > ydiff) { return xdiff; } else { return ydiff; }
         }
 
         private void pbxDisplay_MouseMove(object sender, MouseEventArgs e)
@@ -485,7 +511,7 @@ namespace Babel
             foreach (OCRResult ocr in OCRResults)
             {
                 Rectangle rect = ocr.poly.FitRect();
-                if (PRect.Location.Contains(rect))
+                if (PRect.Location.IntersectsWith(rect))
                 {
                     Results.Add(ocr);
                 }
@@ -550,6 +576,33 @@ namespace Babel
             {
                 return originalFont;
             }
+        }
+
+        // Get the largest difference between coords in a pair of points
+        int GetPointDiff(Point p1, Point p2)
+        {
+            int xdiff = Math.Abs(p1.X - p2.X);
+            int ydiff = Math.Abs(p1.Y - p2.Y);
+            if (xdiff > ydiff) { return xdiff; } else { return ydiff; }
+        }
+
+        // Get the largest dimension of a rectangle
+        int GetRectMax(Rectangle Rect)
+        {
+            if (Rect.Width > Rect.Height) { return Rect.Width; } else { return Rect.Height; }
+        }
+
+        // Round a number to its closest multiple
+        int roundToMultiple(int d, int multiple)
+        {
+            return (int)Math.Round((double)(d / multiple)) * multiple;
+        }
+        Rectangle QuantizeRect(Rectangle Rect, int quantX, int quantY)
+        {
+            return new Rectangle(roundToMultiple(Rect.X, quantX),
+                                roundToMultiple(Rect.Y, quantY),
+                                roundToMultiple(Rect.Width, quantX),
+                                roundToMultiple(Rect.Height, quantY));
         }
     }
 

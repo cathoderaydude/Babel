@@ -33,12 +33,23 @@ namespace Babel
         public Point[] poly;
         public bool selected;
         public string translationTime;
+        public OCRResult() { }
+        public OCRResult(string text, string locale, Point[] poly)
+        {
+            this.text = text; this.locale = locale; this.poly = poly;
+        }
     }
 
     public class TranslationResult
     {
         public string text;
         public string locale;
+        public TranslationResult() { }
+        public TranslationResult(string text, string locale)
+        {
+            this.text = text;
+            this.locale = locale; 
+        }
     }
 
     public class GoogleHandler
