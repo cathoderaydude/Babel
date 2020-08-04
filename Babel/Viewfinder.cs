@@ -28,13 +28,19 @@ namespace Babel
         public List<PhraseRect> PhraseRects; // Track user-selected phrases
         public List<OCRResult> OCRResults; // Track identified words
         
-        // For bounding-box code
+        // For bounding box code
         public bool Marking;
         Point MouseStart;
         Point MouseEnd;
+        public bool StartingDrag;
+        public bool Dragging;
+        public PhraseRect DrugPhrase;
+        public bool CtrlDown;
 
+        // Image buffers
         private Image snap = null; // Exact image captured from screenshot
         private Image edit = null; // Modified image
+
 
         public frmViewFinder()
         {
@@ -68,6 +74,7 @@ namespace Babel
         private void Viewfinder_Load(object sender, EventArgs e)
         {
             Text = "Viewfinder - Ready";
+            ChangeState(State.ready);
             OCRResults = new List<OCRResult>();
             PhraseRects = new List<PhraseRect>();
 
@@ -90,8 +97,6 @@ namespace Babel
             GDI32.SelectObject(hdcDst, bitmap);
 
             GDI32.BitBlt(hdcDst, 0, 0, width, height, hdcSrc, x, y, GDI32.TernaryRasterOperations.SRCCOPY);
-
-            
 
             return Image.FromHbitmap(bitmap);
         }
@@ -147,8 +152,8 @@ namespace Babel
 
         private void btnSnap_Click(object sender, EventArgs e)
         {
-            pbxDisplay.Image = snap = Snap();
-            edit = snap.Copy();
+            snap = Snap();
+            pbxDisplay.Image = edit = snap.Copy();
             ChangeState(State.OCRing);
             bgwOCR.RunWorkerAsync(); // OCR the image to find out where words are
         }
@@ -180,12 +185,26 @@ namespace Babel
             ChangeState(State.ready);
         }
 
-        // Save image - this doesn't work right now because the onpaint approach doesn't modify the underlying image
-        // But we could possibly copy the canvas as-painted and put it back into the Image first to fix this
+        // Save image to disk
         private void btnSave_Click(object sender, EventArgs e)
         {
             if (sfdDisplay.ShowDialog() == DialogResult.OK)
-                pbxDisplay.Image.Save(sfdDisplay.FileName);
+            {
+                // Copy the current snap, run the graphics draw routine on it and save it
+                Image tempImage = snap.Copy();
+                Graphics g = Graphics.FromImage(tempImage);
+                DrawImage(g);
+                tempImage.Save(sfdDisplay.FileName);
+            }
+        }
+        // Save unmodified screenshot to disk
+        private void tsbSaveRaw_Click(object sender, EventArgs e)
+        {
+            if (sfdDisplay.ShowDialog() == DialogResult.OK)
+            {
+                // Copy the current snap and save it as-is
+                snap.Save(sfdDisplay.FileName);
+            }
         }
 
         private void settingsToolStripMenuItem_Click(object sender, EventArgs e)
@@ -279,11 +298,12 @@ namespace Babel
         private void bgwOCR_DoWork(object sender, System.ComponentModel.DoWorkEventArgs e)
         {
             IEnumerable<OCRResult> ocrs;
-            if (!DUMMY_DATA) // Dummy out data for testing
+            if (!DUMMY_DATA) // If true, return dummy data
             {
-                ocrs = GoogleHandler.RecognizeImage(edit);
+                ocrs = GoogleHandler.RecognizeImage(edit); // Actually do the API call to Google
             } else
             {
+                // Make some junk data to return
                 List<OCRResult> DummyOCRs = new List<OCRResult>();
                 for(int x=0;x<5;x++)
                 {
@@ -321,26 +341,26 @@ namespace Babel
                 PhraseRects.RemoveAll(t => t.Selected == true);
             } else if (e.KeyCode == Keys.ControlKey)
             {
-                CtrlDown = true;
+                CtrlDown = true; // For drawing overlapping bounding boxes
             }
-            Console.WriteLine(e.KeyCode);
         }
 
         private void frmViewFinder_KeyUp(object sender, KeyEventArgs e)
         {
             if (e.KeyCode == Keys.ControlKey)
             {
-                CtrlDown = false;
+                CtrlDown = false; // For drawing overlapping bounding boxes
             }
-            Console.WriteLine("Un-" + e.KeyCode);
         }
+
+
 
         //======= Graphics events
 
         // Draw all the graphics on top of the image
-        private void pbxDisplay_Paint(object sender, PaintEventArgs e)
+        // This is generalized so it can be used either by onpaint or by the image save routine
+        private void DrawImage(Graphics g)
         {
-            Graphics g = e.Graphics;
             // Draw identified words
             foreach (OCRResult ocr in OCRResults)
             {
@@ -369,10 +389,10 @@ namespace Babel
                 //Rectangle DisplayRect = QuantizeRect(PRect.Location, 8, 8); // This was quantizing the display location of the box, but this is a bad idea as it turns out and may not ever be practical
 
                 g.FillRectangle(new SolidBrush(Color.FromArgb(230, 0, 0, 0)), PRect.Location); // Background
-                
+
                 // Pick color for outline
                 Pen BoxColor = Pens.Green;
-                // The order of these statements is critical, leave them be
+                // The order of these statements is critical, leave them as-is
                 if (PRect.Hovered) BoxColor = Pens.LightGreen;
                 if (PRect.Selected) BoxColor = Pens.LightBlue;
                 if (PRect.Clicked) BoxColor = Pens.DarkBlue;
@@ -395,7 +415,7 @@ namespace Babel
                     Font LargeFont = GetAdjustedFont(g, PRect.TranslatedText, DefaultFont, PRect.Location, 256, 6, true);
 
                     // Center-justify text
-                    int JustifySpace = (int) (PRect.Location.Width - g.MeasureString(PRect.TranslatedText, LargeFont).Width) / 2;
+                    int JustifySpace = (int)(PRect.Location.Width - g.MeasureString(PRect.TranslatedText, LargeFont).Width) / 2;
                     Point AdjustedPosition = new Point(PRect.Location.Left + JustifySpace, PRect.Location.Top);
 
                     // Draw translated text
@@ -405,7 +425,7 @@ namespace Babel
                             Brushes.White,
                             AdjustedPosition);
                 }
-                
+
                 // This would draw the time it took to translate, but it seems to take 0:00. Might be a bug, will check later.
                 /*Font BoldFont = new Font(DefaultFont, FontStyle.Bold);
                 SizeF TimeLength = g.MeasureString(PRect.translationTime, BoldFont);
@@ -417,12 +437,14 @@ namespace Babel
             }
         }
 
-        public bool StartingDrag;
-        public bool Dragging;
-        public PhraseRect DrugPhrase;
-        public bool CtrlDown;
+        private void pbxDisplay_Paint(object sender, PaintEventArgs e)
+        {
+            // Call the image drawing routine against the canvas
+            Graphics g = e.Graphics;
+            DrawImage(g);
+        }
 
-        // Begin dragging
+        // Begin drawing or dragging bounding box
         private void pbxDisplay_MouseDown(object sender, MouseEventArgs e)
         {
             PhraseRect PRect = GetPhraseAtPoint(e.Location);
@@ -446,8 +468,7 @@ namespace Babel
             pbxDisplay.Invalidate();
         }
 
-        // Finish dragging
-
+        // Finish drawing/dragging
         private void pbxDisplay_MouseUp(object sender, MouseEventArgs e)
         {
             if (Marking == true) // We were drawing a bounding box
@@ -483,20 +504,20 @@ namespace Babel
 
         private void pbxDisplay_MouseMove(object sender, MouseEventArgs e)
         {
-            if (Marking)
+            if (Marking) // We're drawing a bounding box, set the second endpoint
             {
                 MouseEnd = e.Location;
                 pbxDisplay.Invalidate();
-            } else if (StartingDrag) {
+            } else if (StartingDrag) { // Delay a few pixels to make sure a drag is really happening
                 if (GetPointDiff(MouseStart, e.Location) > 5) { StartingDrag = false; Dragging = true; }
-            } else if (Dragging) {
+            } else if (Dragging) { // We're dragging, move the selected bounding box
                 int diffX = MouseStart.X - e.X;
                 int diffY = MouseStart.Y - e.Y;
                 DrugPhrase.Location.X -= diffX;
                 DrugPhrase.Location.Y -= diffY;
                 MouseStart = e.Location;
                 pbxDisplay.Invalidate();
-            } else {
+            } else { // Just highlight whatever box the mouse is over
                 foreach(PhraseRect TPRect in PhraseRects) { TPRect.Hovered = false; } // Clear all phrase hover states
                 PhraseRect PRect = GetPhraseAtPoint(e.Location); // Check if we're over a phrase
                 if (PRect != null)
@@ -614,7 +635,7 @@ namespace Babel
     // Image extension methods to make various things better.
     static class BitmapExt
     {
-        static Graphics GetGraphics(this Image image) => Graphics.FromImage(image);
+        public static Graphics GetGraphics(this Image image) => Graphics.FromImage(image);
 
         public static Rectangle FitRect(this Point[] poly)
         {
@@ -668,6 +689,14 @@ namespace Babel
         public static void DrawString(this Image image, string text, Color color, Rectangle rect)
         {
             image.GetGraphics().DrawString(text, SystemFonts.DefaultFont, new SolidBrush(color), rect);
+        }
+        public static void DrawString(this Image image, string text, Font font, Color color, Rectangle rect)
+        {
+            image.GetGraphics().DrawString(text, font, new SolidBrush(color), rect);
+        }
+        public static void DrawString(this Image image, string text, Font font, Color color, Point location)
+        {
+            image.GetGraphics().DrawString(text, font, new SolidBrush(color), location);
         }
     }
 
