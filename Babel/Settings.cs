@@ -22,16 +22,17 @@ namespace Babel
             cmbLocale.Text = Properties.Settings.Default.targetLocale;
             txtKeyFile.Text = Properties.Settings.Default.apiKeyPath;
             txtProjectName.Text = Properties.Settings.Default.projectName;
+            cbxDummy.Checked = Properties.Settings.Default.dummyData;
         }
 
         private void comboBox1_SelectedIndexChanged(object sender, EventArgs e)
         {
-            Properties.Settings.Default.targetLocale = cmbLocale.Text;
+            
         }
 
         private void txtKeyFile_TextChanged(object sender, EventArgs e)
         {
-            Properties.Settings.Default.apiKeyPath = txtKeyFile.Text;
+            
         }
 
         private void btnBrowseKeyFile_Click(object sender, EventArgs e)
@@ -42,11 +43,14 @@ namespace Babel
 
         private void txtProjectName_TextChanged(object sender, EventArgs e)
         {
-            Properties.Settings.Default.projectName = txtProjectName.Text;
+            
         }
 
         private void btnOk_Click(object sender, EventArgs e)
         {
+            Properties.Settings.Default.targetLocale = cmbLocale.Text;
+            Properties.Settings.Default.apiKeyPath = txtKeyFile.Text;
+            Properties.Settings.Default.projectName = txtProjectName.Text;
             Properties.Settings.Default.Save();
             Close();
         }

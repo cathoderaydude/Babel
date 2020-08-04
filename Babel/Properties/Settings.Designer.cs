@@ -62,9 +62,9 @@ namespace Babel.Properties {
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("False")]
-        public string dummyData {
+        public bool dummyData {
             get {
-                return ((string)(this["dummyData"]));
+                return ((bool)(this["dummyData"]));
             }
             set {
                 this["dummyData"] = value;
