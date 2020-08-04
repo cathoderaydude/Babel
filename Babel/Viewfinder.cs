@@ -290,34 +290,52 @@ namespace Babel
             // Draw bounding box
             if (Marking)
             {
-                g.DrawRectangle(Pens.White, BitmapExt.FitRect(new Point[]{ MouseStart, MouseEnd }));
+                g.DrawRectangle(Pens.White, BitmapExt.FitRect(new Point[] { MouseStart, MouseEnd }));
+            }
+
+            int roundToMultiple(int d, int multiple)
+            {
+                return (int) Math.Round((double) (d / multiple)) * multiple;
+            }
+            Rectangle QuantizeRect(Rectangle Rect, int quantX, int quantY)
+            {
+                return new Rectangle(roundToMultiple(Rect.X, quantX),
+                                    roundToMultiple(Rect.Y, quantY),
+                                    roundToMultiple(Rect.Width, quantX),
+                                    roundToMultiple(Rect.Height, quantY));
             }
 
             // Draw selected phrases
             foreach (PhraseRect PRect in PhraseRects)
             {
-                g.FillRectangle(new SolidBrush(Color.FromArgb(128, 0, 0, 0)), PRect.Location);
-                g.DrawRectangle(Pens.Green, PRect.Location);
+                Rectangle DisplayRect = QuantizeRect(PRect.Location, 8, 8);
+
+                g.FillRectangle(new SolidBrush(Color.FromArgb(230, 0, 0, 0)), DisplayRect); // Bounding box
+                g.DrawRectangle(Pens.Green, DisplayRect); // Background
+
+                // Untranslated text
                 g.DrawString(
                         PRect.RawText,
                         DefaultFont,
                         Brushes.Gray,
-                        PRect.Location);
+                        DisplayRect);
 
-                
+                // Translated text
+                Font LargeFont = GetAdjustedFont(g, PRect.TranslatedText, DefaultFont, PRect.Location, 256, 12, true);
                 g.DrawString(
                         PRect.TranslatedText,
-                        DefaultFont,
+                        LargeFont,
                         Brushes.White,
-                        PRect.Location);
+                        DisplayRect);
                 
-                Font BoldFont = new Font(DefaultFont, FontStyle.Bold);
+                // This would draw the time it took to translate, but it seems to take 0:00. Might be a bug, will check later.
+                /*Font BoldFont = new Font(DefaultFont, FontStyle.Bold);
                 SizeF TimeLength = g.MeasureString(PRect.translationTime, BoldFont);
                 
                 g.DrawString(PRect.translationTime, 
                     BoldFont, 
                     Brushes.Gray, 
-                    new Point(PRect.Location.Right - (int) TimeLength.Width, PRect.Location.Bottom - (int) TimeLength.Height));
+                    new Point(PRect.Location.Right - (int) TimeLength.Width, PRect.Location.Bottom - (int) TimeLength.Height));*/
             }
         }
 
@@ -387,8 +405,8 @@ namespace Babel
             }
         }
 
-        // MSDN function for finding the biggest font to fit a given space
-        public Font GetAdjustedFont(Graphics g, string graphicString, Font originalFont, int containerWidth, int maxFontSize, int minFontSize, bool smallestOnFail)
+        // Find the biggest font to fit a given rect
+        public Font GetAdjustedFont(Graphics g, string graphicString, Font originalFont, Rectangle Container, int maxFontSize, int minFontSize, bool smallestOnFail)
         {
             Font testFont = null;
             // We utilize MeasureString which we get via a control instance           
@@ -399,7 +417,9 @@ namespace Babel
                 // Test the string with the new size
                 SizeF adjustedSizeNew = g.MeasureString(graphicString, testFont);
 
-                if (containerWidth > Convert.ToInt32(adjustedSizeNew.Width))
+                if (Container.Width > Convert.ToInt32(adjustedSizeNew.Width) &&
+                    Container.Height > Convert.ToInt32(adjustedSizeNew.Height)
+                    )
                 {
                     // Good font, return it
                     return testFont;
