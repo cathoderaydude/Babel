@@ -51,6 +51,7 @@ namespace Babel
             Properties.Settings.Default.targetLocale = cmbLocale.Text;
             Properties.Settings.Default.apiKeyPath = txtKeyFile.Text;
             Properties.Settings.Default.projectName = txtProjectName.Text;
+            Properties.Settings.Default.dummyData = cbxDummy.Checked;
             Properties.Settings.Default.Save();
             Close();
         }

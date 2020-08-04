@@ -307,7 +307,7 @@ namespace Babel
             IEnumerable<OCRResult> ocrs;
             if (!Properties.Settings.Default.dummyData) // Dummy out data for testing
             {
-                ocrs = GoogleHandler.RecognizeImage(edit); // Actually do the API call to Google
+                ocrs = GoogleHandler.RecognizeImage(edit.Copy()); // Actually do the API call to Google
             } else
             {
                 // Make some junk data to return
