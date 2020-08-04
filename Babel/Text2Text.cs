@@ -25,32 +25,38 @@ namespace Babel
             dirty = true;
         }
 
+        // This has no mechanism for ensuring that the callbacks return in order.
+        // I hope to never care about it that much.
         Queue<string> ts = new Queue<string>();
 
-        private void Translation_callback(string s)
+        private void Translation_callback(AsyncTranslation tr)
         {
-            ts.Enqueue(s);
+            ts.Enqueue(tr.translatedText);
+            Invalidate();
         }
 
         private void tRefresh_Tick(object sender, EventArgs e)
         {
-            // Manage inputs
             if (dirty)
             {
-                var translation = new AsyncTranslation(txtInput.Text);
-                translation.callback += Translation_callback;
+                new AsyncTranslation(txtInput.Text, Translation_callback);
                 dirty = false;
             }
-
-            // Manage outputs
-            if (ts.Count > 0)
-                txtOutput.Text = ts.Dequeue();
         }
 
         private void toolStripButton1_Click(object sender, EventArgs e)
         {
             tRefresh.Enabled = !tsbPause.Checked;
             dirty = true;
+        }
+
+        private void Text2Text_Paint(object sender, PaintEventArgs e)
+        {
+            if (ts.Count > 0)
+                txtOutput.Text = ts.Dequeue();
+
+            if (ts.Count > 0)
+                Invalidate();
         }
     }
 }

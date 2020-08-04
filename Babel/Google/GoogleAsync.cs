@@ -39,17 +39,69 @@ namespace Babel.Google
             text = ann.Description;
             rect = FitRect(ann.BoundingPoly.Vertices);
         }
+
+        #region Dummy Data
+
+        private OCRBox() { }
+
+        private static readonly int dummyBoxSize = 100;
+        private static readonly int gutterSize = 10;
+        private static readonly int gridSize = 5;
+        private static int dummyBigBoxSize => (dummyBoxSize * gridSize) + (gutterSize * (gridSize - 1));
+
+        internal static OCRBox DummyBigBox() =>
+            new OCRBox
+            {
+                rect = new Rectangle(gutterSize, gutterSize, dummyBigBoxSize, dummyBigBoxSize),
+                text = "BIG BOX",
+            };
+
+        internal static OCRBox DummySmallBox(int idx)
+        {
+            if ((idx < 0)|| (idx >= gridSize * gridSize)) throw new ArgumentOutOfRangeException();
+
+            int gx = idx % gridSize;
+            int gy = idx / gridSize;
+
+            int bx = (gutterSize + dummyBoxSize) * gx;
+            int by = (gutterSize + dummyBoxSize) * gy;
+
+            return new OCRBox
+            {
+                rect = new Rectangle(bx, by, dummyBoxSize, dummyBoxSize),
+                text = "SMALL BOX " + (idx + 1),
+            };
+        }
+
+        internal static OCRBox[] DummySmallBoxes() => 
+            Enumerable.Range(0, gridSize * gridSize)
+                .Select(DummySmallBox)
+                .ToArray();
+
+        #endregion
     }
 
     public class AsyncOCR
     {
         // pre-OCR
         public SImage image { get; private set; }
+        private Action<AsyncOCR> callback;
 
-        public AsyncOCR(SImage image)
+        public AsyncOCR(SImage image, Action<AsyncOCR> callback = null)
         {
             this.image = image;
-            task = Task.Run(DoOCR);
+
+            if (Properties.Settings.Default.dummyData)
+            {
+                bigBox = OCRBox.DummyBigBox();
+                smallBoxes = OCRBox.DummySmallBoxes();
+                timeStamp = "[dummy]";
+                callback?.Invoke(this);
+            }
+            else
+            {
+                task = Task.Run(DoOCR);
+            }
         }
 
         // do the OCR
@@ -106,6 +158,8 @@ namespace Babel.Google
                 sw.Elapsed.Minutes,
                 sw.Elapsed.Seconds,
                 sw.Elapsed.Milliseconds);
+
+            callback?.Invoke(this);
         }
     }
 
@@ -113,14 +167,25 @@ namespace Babel.Google
     {
         // pre-translation
         public string rawText { get; private set; }
-
-        public AsyncTranslation(string text)
+        private event Action<AsyncTranslation> callback;
+        
+        public AsyncTranslation(string text, Action<AsyncTranslation> callback = null)
         {
             rawText = text;
-            task = Task.Run(DoTranslation);
-        }
 
-        public event Action<string> callback;
+            if (Properties.Settings.Default.dummyData)
+            {
+                translatedText = rawText;
+                detectedLocale = Properties.Settings.Default.targetLocale;
+                timeStamp = "[dummy]";
+                callback?.Invoke(this);
+            }
+            else
+            {
+                this.callback += callback;
+                task = Task.Run(DoTranslation);
+            }
+        }
 
         // do the translation
         Task task;
@@ -139,8 +204,6 @@ namespace Babel.Google
         public string translatedText { get; private set; }
         public string detectedLocale { get; private set; }
         public string timeStamp { get; private set; }
-
-        private static int counter = 0;
 
         private async Task DoTranslation()
         {
@@ -167,8 +230,7 @@ namespace Babel.Google
 
             // Really only anticipating a single result here
             Translation tr = response.Translations.First();
-            translatedText = WebUtility.HtmlDecode(tr.TranslatedText) + "[" + counter + "]";
-            counter += 1;
+            translatedText = WebUtility.HtmlDecode(tr.TranslatedText);
             detectedLocale = tr.DetectedLanguageCode;
 
             timeStamp = string.Format("{0:00}:{1:00}:{2:00}.{3:000}",
@@ -177,11 +239,7 @@ namespace Babel.Google
                 sw.Elapsed.Seconds,
                 sw.Elapsed.Milliseconds);
 
-            callback?.Invoke(translatedText);
+            callback?.Invoke(this);
         }
-    }
-
-    public static class GoogleAsync
-    {
     }
 }

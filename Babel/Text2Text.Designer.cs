@@ -139,6 +139,7 @@
             this.Controls.Add(this.toolStripContainer1);
             this.Name = "Text2Text";
             this.Text = "Text2Text";
+            this.Paint += new System.Windows.Forms.PaintEventHandler(this.Text2Text_Paint);
             this.toolStripContainer1.ContentPanel.ResumeLayout(false);
             this.toolStripContainer1.TopToolStripPanel.ResumeLayout(false);
             this.toolStripContainer1.TopToolStripPanel.PerformLayout();
