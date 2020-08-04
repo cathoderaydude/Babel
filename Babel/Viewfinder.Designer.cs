@@ -28,7 +28,6 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.components = new System.ComponentModel.Container();
             this.pnlDisplay = new System.Windows.Forms.Panel();
             this.pbxDisplay = new System.Windows.Forms.PictureBox();
             this.btnSnap = new System.Windows.Forms.Button();
@@ -36,16 +35,15 @@
             this.btnRevert = new System.Windows.Forms.Button();
             this.btnSave = new System.Windows.Forms.Button();
             this.tscMain = new System.Windows.Forms.ToolStripContainer();
-            this.menuStrip1 = new System.Windows.Forms.MenuStrip();
-            this.sfdDisplay = new System.Windows.Forms.SaveFileDialog();
-            this.bgwOCR = new System.ComponentModel.BackgroundWorker();
             this.btnTranslate = new System.Windows.Forms.Button();
-            this.bgwTranslate = new System.ComponentModel.BackgroundWorker();
+            this.menuStrip1 = new System.Windows.Forms.MenuStrip();
             this.toolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
             this.tsmSettings = new System.Windows.Forms.ToolStripMenuItem();
-            this.tsmExit = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
-            this.tmrTranslate = new System.Windows.Forms.Timer(this.components);
+            this.tsmExit = new System.Windows.Forms.ToolStripMenuItem();
+            this.sfdDisplay = new System.Windows.Forms.SaveFileDialog();
+            this.bgwOCR = new System.ComponentModel.BackgroundWorker();
+            this.bgwTranslate = new System.ComponentModel.BackgroundWorker();
             this.pnlDisplay.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pbxDisplay)).BeginInit();
             this.tscMain.ContentPanel.SuspendLayout();
@@ -150,26 +148,6 @@
             // 
             this.tscMain.TopToolStripPanel.Controls.Add(this.menuStrip1);
             // 
-            // menuStrip1
-            // 
-            this.menuStrip1.Dock = System.Windows.Forms.DockStyle.None;
-            this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.toolStripMenuItem1});
-            this.menuStrip1.Location = new System.Drawing.Point(0, 0);
-            this.menuStrip1.Name = "menuStrip1";
-            this.menuStrip1.Size = new System.Drawing.Size(800, 24);
-            this.menuStrip1.TabIndex = 0;
-            this.menuStrip1.Text = "menuStrip1";
-            // 
-            // sfdDisplay
-            // 
-            this.sfdDisplay.DefaultExt = "png";
-            // 
-            // bgwOCR
-            // 
-            this.bgwOCR.DoWork += new System.ComponentModel.DoWorkEventHandler(this.bgwOCR_DoWork);
-            this.bgwOCR.RunWorkerCompleted += new System.ComponentModel.RunWorkerCompletedEventHandler(this.bgwOCR_RunWorkerCompleted);
-            // 
             // btnTranslate
             // 
             this.btnTranslate.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
@@ -182,10 +160,16 @@
             this.btnTranslate.UseVisualStyleBackColor = true;
             this.btnTranslate.Click += new System.EventHandler(this.btnTranslate_Click);
             // 
-            // bgwTranslate
+            // menuStrip1
             // 
-            this.bgwTranslate.DoWork += new System.ComponentModel.DoWorkEventHandler(this.bgwTranslate_DoWork);
-            this.bgwTranslate.RunWorkerCompleted += new System.ComponentModel.RunWorkerCompletedEventHandler(this.bgwTranslate_RunWorkerCompleted);
+            this.menuStrip1.Dock = System.Windows.Forms.DockStyle.None;
+            this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.toolStripMenuItem1});
+            this.menuStrip1.Location = new System.Drawing.Point(0, 0);
+            this.menuStrip1.Name = "menuStrip1";
+            this.menuStrip1.Size = new System.Drawing.Size(800, 24);
+            this.menuStrip1.TabIndex = 0;
+            this.menuStrip1.Text = "menuStrip1";
             // 
             // toolStripMenuItem1
             // 
@@ -200,26 +184,35 @@
             // tsmSettings
             // 
             this.tsmSettings.Name = "tsmSettings";
-            this.tsmSettings.Size = new System.Drawing.Size(180, 22);
+            this.tsmSettings.Size = new System.Drawing.Size(116, 22);
             this.tsmSettings.Text = "Settings";
             this.tsmSettings.Click += new System.EventHandler(this.settingsToolStripMenuItem_Click);
-            // 
-            // tsmExit
-            // 
-            this.tsmExit.Name = "tsmExit";
-            this.tsmExit.Size = new System.Drawing.Size(180, 22);
-            this.tsmExit.Text = "Exit";
-            this.tsmExit.Click += new System.EventHandler(this.tsmExit_Click);
             // 
             // toolStripSeparator1
             // 
             this.toolStripSeparator1.Name = "toolStripSeparator1";
-            this.toolStripSeparator1.Size = new System.Drawing.Size(177, 6);
+            this.toolStripSeparator1.Size = new System.Drawing.Size(113, 6);
             // 
-            // tmrTranslate
+            // tsmExit
             // 
-            this.tmrTranslate.Enabled = true;
-            this.tmrTranslate.Tick += new System.EventHandler(this.tmrTranslate_Tick);
+            this.tsmExit.Name = "tsmExit";
+            this.tsmExit.Size = new System.Drawing.Size(116, 22);
+            this.tsmExit.Text = "Exit";
+            this.tsmExit.Click += new System.EventHandler(this.tsmExit_Click);
+            // 
+            // sfdDisplay
+            // 
+            this.sfdDisplay.DefaultExt = "png";
+            // 
+            // bgwOCR
+            // 
+            this.bgwOCR.DoWork += new System.ComponentModel.DoWorkEventHandler(this.bgwOCR_DoWork);
+            this.bgwOCR.RunWorkerCompleted += new System.ComponentModel.RunWorkerCompletedEventHandler(this.bgwOCR_RunWorkerCompleted);
+            // 
+            // bgwTranslate
+            // 
+            this.bgwTranslate.DoWork += new System.ComponentModel.DoWorkEventHandler(this.bgwTranslate_DoWork);
+            this.bgwTranslate.RunWorkerCompleted += new System.ComponentModel.RunWorkerCompletedEventHandler(this.bgwTranslate_RunWorkerCompleted);
             // 
             // frmViewFinder
             // 
@@ -264,7 +257,6 @@
         private System.Windows.Forms.ToolStripMenuItem tsmSettings;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator1;
         private System.Windows.Forms.ToolStripMenuItem tsmExit;
-        private System.Windows.Forms.Timer tmrTranslate;
     }
 }
 

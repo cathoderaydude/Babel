@@ -32,6 +32,7 @@ namespace Babel
         public string translatedText;
         public Point[] poly;
         public bool selected;
+        public string translationTime;
     }
 
     public class TranslationResult

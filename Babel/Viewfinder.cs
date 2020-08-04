@@ -19,24 +19,53 @@ namespace Babel
     }
 
     public partial class frmViewFinder : Form
-    {       
-        public List<OCRResult> Rects;
-        public bool Marking;
+    {
+        public List<PhraseRect> PhraseRects; // Track user-selected phrases
+        public List<OCRResult> OCRResults; // Track identified words
         
+        // For bounding-box code
+        public bool Marking;
+        Point MouseStart;
+        Point MouseEnd;
+
+        private Image snap = null; // Exact image captured from screenshot
+        private Image edit = null; // Modified image
+
         public frmViewFinder()
         {
             InitializeComponent();
         }
 
+        // Contains a rectangle the user has drawn around one or more words to be translated as a single phrase
+        public class PhraseRect
+        {
+            public Rectangle Location;
+            public string RawText;
+            public string TranslatedText;
+            public bool Translated;
+            public string translationTime;
+            public PhraseRect(Rectangle Location)
+            {
+                Translated = false;
+                this.Location = Location;
+            }
+            public PhraseRect(Point p1, Point p2)
+            {
+                Translated = false;
+                this.Location = new Rectangle(p1.X, p1.Y, p2.X - p1.X, p2.Y - p1.Y);
+            }
+        }
+
         private void Viewfinder_Load(object sender, EventArgs e)
         {
             Text = "Viewfinder - Ready";
-            Rects = new List<OCRResult>();
+            OCRResults = new List<OCRResult>();
             PhraseRects = new List<PhraseRect>();
 
             bgwTranslate.RunWorkerAsync();
         }
 
+        // Takes a screenshot of what's behind the window and returns it
         private Image Snap()
         {
             int x = PointToScreen(tscMain.ContentPanel.Location).X;
@@ -54,9 +83,7 @@ namespace Babel
             return Image.FromHbitmap(bitmap);
         }
 
-        private Image snap = null;
-        private Image edit = null;
-
+        // Keeps all our buttons enabled/disabled as needed
         private void ChangeState(State newState)
         {
             switch(newState)
@@ -108,46 +135,53 @@ namespace Babel
             }
         }
 
+        //====== Button events
+
         private void btnSnap_Click(object sender, EventArgs e)
         {
             pbxDisplay.Image = snap = Snap();
-
-            ChangeState(State.snapped);
-
             edit = snap.Copy();
-
             ChangeState(State.OCRing);
-
-            bgwOCR.RunWorkerAsync();
+            bgwOCR.RunWorkerAsync(); // OCR the image to find out where words are
         }
 
         private void btnTranslate_Click(object sender, EventArgs e)
         {
-            // This will do translation later
+            // Translation is now automatic so this should be removed
         }
 
+        // Clear phrases
         private void btnRevert_Click(object sender, EventArgs e)
         {
-            edit = null;
+            // These create a race condition and need to be mutexed, otherwise an in-progress
+            // worker thread will attempt to iterate over or update members after clear
+            OCRResults.Clear();
+            PhraseRects.Clear();
 
-            pbxDisplay.Image = snap;
-
-            ChangeState(State.snapped);
+            ChangeState(State.OCRed);
         }
 
+        // Erase everything and prepare for another snap
+        private void btnClear_Click(object sender, EventArgs e)
+        {
+            // These create a race condition and need to be mutexed, otherwise an in-progress
+            // worker thread will attempt to iterate over or update members after clear
+            OCRResults.Clear();
+            PhraseRects.Clear();
+
+            edit = snap = null; // Erase images
+
+            pbxDisplay.Image = null; // Make the window transparent
+
+            ChangeState(State.ready);
+        }
+
+        // Save image - this doesn't work right now because the onpaint approach doesn't modify the underlying image
+        // But we could possibly copy the canvas as-painted and put it back into the Image first to fix this
         private void btnSave_Click(object sender, EventArgs e)
         {
             if (sfdDisplay.ShowDialog() == DialogResult.OK)
                 pbxDisplay.Image.Save(sfdDisplay.FileName);
-        }
-
-        private void btnClear_Click(object sender, EventArgs e)
-        {
-            edit = snap = null;
-
-            pbxDisplay.Image = null;
-
-            ChangeState(State.ready);
         }
 
         private void settingsToolStripMenuItem_Click(object sender, EventArgs e)
@@ -155,72 +189,55 @@ namespace Babel
             Settings settings = new Settings();
             settings.Show();
         }
+        private void tsmExit_Click(object sender, EventArgs e)
+        {
+            Application.Exit();
+        }
 
+        //===== Functions to perform translation of any phrases that have been selected but not yet translated
         private void bgwTranslate_DoWork(object sender, System.ComponentModel.DoWorkEventArgs e)
         {
-            while (true)
+            while (true) // Loop forever
             {
                 bool DidTranslate = false;
-                foreach(PhraseRect PRect in PhraseRects)
+                // Walk over all user-selected phrases that aren't yet translated
+                foreach (PhraseRect PRect in PhraseRects.Where(x => x.Translated == false))
                 {
-                    if (PRect.Translated == false)
+                    // This is necessary to fit the input that the function requires
+                    List<string> st = new List<string>();
+                    st.Add(PRect.RawText);
+
+                    // Translate the phrase
+                    Stopwatch stopwatch = new Stopwatch();
+                    stopwatch.Start();
+                    var result = GoogleHandler.Translate(st);
+                    stopwatch.Stop();
+                    
+
+                    if (result.Count() > 0)
                     {
-                        List<string> st = new List<string>();
-                        st.Add(PRect.ToBeTranslated);
-                        var result = GoogleHandler.Translate(st);
-                        if (result.Count() > 0)
-                        {
-                            Console.WriteLine("Translated " + PRect.ToBeTranslated + " as " + result.First().text);
-                            PRect.TranslatedText = result.First().text;
-                        } else
-                        {
-                            Console.WriteLine("No translation found for: " + PRect.ToBeTranslated);
-                        }
-                        PRect.Translated = true;
-                        //var translations = Translate(sourceStrings, ocrs.First().locale).ToArray();
-                        //ocrs = ocrs.Zip(translations, InsertTranslation).ToArray();
-                        DidTranslate = true;
+                        Console.WriteLine("Translated " + PRect.RawText + " as " + result.First().text);
+                        PRect.TranslatedText = result.First().text;
+                        PRect.translationTime = string.Format("{0:00}:{1:00}:{2:00}.{3:000}",
+                            stopwatch.Elapsed.Hours,
+                            stopwatch.Elapsed.Minutes,
+                            stopwatch.Elapsed.Seconds,
+                            stopwatch.Elapsed.Milliseconds);
+                    } else
+                    {
+                        Console.WriteLine("No translation found for: " + PRect.RawText);
                     }
+                    PRect.Translated = true; // Mark the phrase as translated (even if it failed, so we don't retry)
+                    DidTranslate = true;
                 }
 
                 if (DidTranslate)
                 {
-                    Console.WriteLine("Nothing to translate, sleeping...");
-                } else {
+                    pbxDisplay.Invalidate(); // Redraw the output
                     Console.WriteLine("Translations done, sleeping...");
                 }
-                /*Stopwatch stopwatch = new Stopwatch();
 
-                stopwatch.Start();
-                var ocrs = GoogleHandler.TranslateImage(edit);
-                stopwatch.Stop();
-                string translateTime = string.Format("{0:00}:{1:00}:{2:00}.{3:000}",
-                    stopwatch.Elapsed.Hours,
-                    stopwatch.Elapsed.Minutes,
-                    stopwatch.Elapsed.Seconds,
-                    stopwatch.Elapsed.Milliseconds);
-                stopwatch.Reset();
-
-                if (ocrs.Count() > 0)
-                {
-                    var first = ocrs.First();
-                    edit.FillRect(first.poly.FitRect(), Color.Black);
-                    edit.DrawString(
-                        first.translatedText,
-                        Color.White,
-                        first.poly.FitRect());
-
-                    /*foreach (var ocr in ocrs.Skip(1))
-                    {
-                        FillPoly(ocr.poly, Color.Black);
-                        graphics.DrawString(
-                            ocr.translatedText,
-                            SystemFonts.DefaultFont,
-                            new SolidBrush(Color.White), ocr.poly.First());
-                    }*/
-                //}
-
-                Thread.Sleep(500);
+                Thread.Sleep(500); // Wait for the user to make further selections
             }
         }
 
@@ -231,12 +248,15 @@ namespace Babel
             ChangeState(State.translated);
         }
 
+
+        //====== Functions to identify which words are in the image
+
         private void bgwOCR_DoWork(object sender, System.ComponentModel.DoWorkEventArgs e)
         {
             var ocrs = GoogleHandler.RecognizeImage(edit);
             foreach(OCRResult ocr in ocrs)
             {
-                Rects.Add(ocr);
+                OCRResults.Add(ocr);
             }
         }
 
@@ -246,10 +266,14 @@ namespace Babel
             pbxDisplay.Invalidate();
         }
 
+        //======= Graphics events
+
+        // Draw all the graphics on top of the image
         private void pbxDisplay_Paint(object sender, PaintEventArgs e)
         {
             Graphics g = e.Graphics;
-            foreach (OCRResult ocr in Rects)
+            // Draw identified words
+            foreach (OCRResult ocr in OCRResults)
             {
 
                 g.FillPolygon(new SolidBrush(Color.FromArgb(100, 128, 50, 128)), ocr.poly);
@@ -263,99 +287,59 @@ namespace Babel
                 }
             }
 
-            //g.DrawRectangle(Pens.White, new Rectangle(MouseStart, new Size(100, 100)));
+            // Draw bounding box
             if (Marking)
             {
-                g.DrawLine(Pens.White, MouseStart.X, MouseStart.Y, MouseStart.X, MouseEnd.Y);
-                g.DrawLine(Pens.White, MouseStart.X, MouseStart.Y, MouseEnd.X, MouseStart.Y);
-                g.DrawLine(Pens.White, MouseEnd.X, MouseEnd.Y, MouseEnd.X, MouseStart.Y);
-                g.DrawLine(Pens.White, MouseEnd.X, MouseEnd.Y, MouseStart.X, MouseEnd.Y);
+                g.DrawRectangle(Pens.White, BitmapExt.FitRect(new Point[]{ MouseStart, MouseEnd }));
             }
 
+            // Draw selected phrases
             foreach (PhraseRect PRect in PhraseRects)
             {
                 g.FillRectangle(new SolidBrush(Color.FromArgb(128, 0, 0, 0)), PRect.Location);
                 g.DrawRectangle(Pens.Green, PRect.Location);
                 g.DrawString(
-                        PRect.ToBeTranslated,
+                        PRect.RawText,
                         DefaultFont,
                         Brushes.Gray,
                         PRect.Location);
+
+                
                 g.DrawString(
                         PRect.TranslatedText,
                         DefaultFont,
                         Brushes.White,
                         PRect.Location);
+                
+                Font BoldFont = new Font(DefaultFont, FontStyle.Bold);
+                SizeF TimeLength = g.MeasureString(PRect.translationTime, BoldFont);
+                
+                g.DrawString(PRect.translationTime, 
+                    BoldFont, 
+                    Brushes.Gray, 
+                    new Point(PRect.Location.Right - (int) TimeLength.Width, PRect.Location.Bottom - (int) TimeLength.Height));
             }
         }
 
-        Point MouseStart;
-        Point MouseEnd;
-
-        List<PhraseRect> PhraseRects;
-
-        public class PhraseRect
-        {
-            public Rectangle Location;
-            public string ToBeTranslated;
-            public string TranslatedText;
-            public bool Translated;
-            public PhraseRect(Rectangle Location)
-            {
-                Translated = false;
-                this.Location = Location;
-            }
-            public PhraseRect(Point p1, Point p2)
-            {
-                Translated = false;
-                this.Location = new Rectangle(p1.X, p1.Y, p2.X - p1.X, p2.Y - p1.Y);
-            }
-        }
-
-        List<OCRResult> GetRectsInPhrase(PhraseRect PRect)
-        {
-            List<OCRResult> Results = new List<OCRResult>();
-
-            foreach (OCRResult ocr in Rects)
-            {
-                Rectangle rect = ocr.poly.FitRect();
-                if (PRect.Location.Contains(rect))
-                {
-                    Results.Add(ocr);
-                }
-            }
-            return (Results);
-        }
-
-        void MarkItems()
-        {
-
-            foreach (PhraseRect PRect in PhraseRects)
-            {
-                List<OCRResult> Results = GetRectsInPhrase(PRect);
-                string CombinedPhrase = "";
-                foreach (OCRResult Result in Results)
-                {
-                    CombinedPhrase += Result.text + " ";
-                }
-                PRect.ToBeTranslated = CombinedPhrase;
-            }
-        }
-
+        // Begin dragging a bounding box
         private void pbxDisplay_MouseDown(object sender, MouseEventArgs e)
         {
             MouseStart = e.Location;
             MouseEnd = e.Location;
-            //btnActuallyTranslate.Enabled = false;
             pbxDisplay.Invalidate();
             Marking = true;
         }
 
+        // Finish dragging a bounding box
+        // Find out if any words were selected and, if so, create a phrase box around them
         private void pbxDisplay_MouseUp(object sender, MouseEventArgs e)
         {
             PhraseRect testrect = new PhraseRect(MouseStart, MouseEnd);
             if (GetRectsInPhrase(testrect).Count > 0)
+            {
+                btnRevert.Enabled = true;
                 PhraseRects.Add(new PhraseRect(MouseStart, MouseEnd));
+            }
             MarkItems();
             Marking = false;
             pbxDisplay.Invalidate();
@@ -370,23 +354,72 @@ namespace Babel
             }
         }
 
-        private void tsmExit_Click(object sender, EventArgs e)
+        //========== Helper functions
+        // Find all words that are underneath a given phrase selection
+        List<OCRResult> GetRectsInPhrase(PhraseRect PRect)
         {
-            Application.Exit();
+            List<OCRResult> Results = new List<OCRResult>();
+
+            foreach (OCRResult ocr in OCRResults)
+            {
+                Rectangle rect = ocr.poly.FitRect();
+                if (PRect.Location.Contains(rect))
+                {
+                    Results.Add(ocr);
+                }
+            }
+            return (Results);
         }
 
-        private void tmrTranslate_Tick(object sender, EventArgs e)
+        // Find the words that are under each selected phrase, concatenate them, and stuff them in the phrase.
+        void MarkItems()
         {
-            foreach(PhraseRect PRect in PhraseRects)
-            {
-                if (PRect.Translated == false)
-                {
 
+            foreach (PhraseRect PRect in PhraseRects)
+            {
+                List<OCRResult> Results = GetRectsInPhrase(PRect);
+                string CombinedPhrase = "";
+                foreach (OCRResult Result in Results)
+                {
+                    CombinedPhrase += Result.text + " ";
                 }
+                PRect.RawText = CombinedPhrase;
+            }
+        }
+
+        // MSDN function for finding the biggest font to fit a given space
+        public Font GetAdjustedFont(Graphics g, string graphicString, Font originalFont, int containerWidth, int maxFontSize, int minFontSize, bool smallestOnFail)
+        {
+            Font testFont = null;
+            // We utilize MeasureString which we get via a control instance           
+            for (int adjustedSize = maxFontSize; adjustedSize >= minFontSize; adjustedSize--)
+            {
+                testFont = new Font(originalFont.Name, adjustedSize, originalFont.Style);
+
+                // Test the string with the new size
+                SizeF adjustedSizeNew = g.MeasureString(graphicString, testFont);
+
+                if (containerWidth > Convert.ToInt32(adjustedSizeNew.Width))
+                {
+                    // Good font, return it
+                    return testFont;
+                }
+            }
+
+            // If you get here there was no fontsize that worked
+            // return minimumSize or original?
+            if (smallestOnFail)
+            {
+                return testFont;
+            }
+            else
+            {
+                return originalFont;
             }
         }
     }
 
+    // Image extension methods to make various things better.
     static class BitmapExt
     {
         static Graphics GetGraphics(this Image image) => Graphics.FromImage(image);
