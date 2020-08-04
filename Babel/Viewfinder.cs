@@ -327,33 +327,37 @@ namespace Babel
             // Draw phrases
             foreach (PhraseRect PRect in PhraseRects)
             {
-                Rectangle DisplayRect = QuantizeRect(PRect.Location, 8, 8);
+                //Rectangle DisplayRect = QuantizeRect(PRect.Location, 8, 8); // This was quantizing the display location of the box, but this is a bad idea as it turns out and may not ever be practical
 
-                g.FillRectangle(new SolidBrush(Color.FromArgb(230, 0, 0, 0)), DisplayRect); // Background
+                g.FillRectangle(new SolidBrush(Color.FromArgb(230, 0, 0, 0)), PRect.Location); // Background
+                
+                // Pick color for outline
                 Pen BoxColor = Pens.Green;
+                // The order of these statements is critical, leave them be
                 if (PRect.Hovered) BoxColor = Pens.LightGreen;
                 if (PRect.Selected) BoxColor = Pens.LightBlue;
                 if (PRect.Clicked) BoxColor = Pens.DarkBlue;
-                g.DrawRectangle(BoxColor, DisplayRect); // Outline
+                g.DrawRectangle(BoxColor, PRect.Location); // Draw outline
 
                 if (!PRect.Translated)
                 {
-                    // Untranslated text
+                    // Draw untranslated text
                     g.DrawString(
                             PRect.RawText,
                             DefaultFont,
-                            Brushes.Gray,
-                            DisplayRect);
+                            Brushes.White,
+                            PRect.Location);
                 }
                 else
                 {
-                    // Translated text
+                    // Draw translated text
+
                     // Fit font to bounding box
                     Font LargeFont = GetAdjustedFont(g, PRect.TranslatedText, DefaultFont, PRect.Location, 256, 6, true);
 
                     // Center-justify text
-                    int JustifySpace = (int) (DisplayRect.Width - g.MeasureString(PRect.TranslatedText, LargeFont).Width) / 2;
-                    Point AdjustedPosition = new Point(DisplayRect.Left + JustifySpace, DisplayRect.Top);
+                    int JustifySpace = (int) (PRect.Location.Width - g.MeasureString(PRect.TranslatedText, LargeFont).Width) / 2;
+                    Point AdjustedPosition = new Point(PRect.Location.Left + JustifySpace, PRect.Location.Top);
 
                     // Draw
                     g.DrawString(
@@ -374,7 +378,9 @@ namespace Babel
             }
         }
 
+        public bool StartingDrag;
         public bool Dragging;
+        public PhraseRect DrugPhrase;
 
         // Begin dragging
         private void pbxDisplay_MouseDown(object sender, MouseEventArgs e)
@@ -386,6 +392,9 @@ namespace Babel
                 foreach (PhraseRect TPRect in PhraseRects) { TPRect.Clicked = false; TPRect.Selected = false; } // Clear phrase states
                 PRect.Clicked = true;
                 PRect.Selected = false;
+                MouseStart = e.Location;
+                StartingDrag = true;
+                DrugPhrase = PRect;
             }
             else
             {
@@ -427,7 +436,18 @@ namespace Babel
                     foreach (PhraseRect TPRect in PhraseRects) { TPRect.Clicked = false; TPRect.Selected = false; } // Clear other phrase states
                 }
             }
+            StartingDrag = false;
+            Dragging = false;
             pbxDisplay.Invalidate();
+        }
+
+        // Get the largest difference between coords in a pair of points
+        int GetPointDiff(Point p1, Point p2)
+        {
+            int xdiff = Math.Abs(p1.X - p2.X);
+            int ydiff = Math.Abs(p1.Y - p2.Y);
+            Console.WriteLine(xdiff.ToString() + "," + ydiff.ToString());
+            if (xdiff > ydiff) { return xdiff; } else { return ydiff; }
         }
 
         private void pbxDisplay_MouseMove(object sender, MouseEventArgs e)
@@ -435,6 +455,15 @@ namespace Babel
             if (Marking)
             {
                 MouseEnd = e.Location;
+                pbxDisplay.Invalidate();
+            } else if (StartingDrag) {
+                if (GetPointDiff(MouseStart, e.Location) > 5) { StartingDrag = false; Dragging = true; }
+            } else if (Dragging) {
+                int diffX = MouseStart.X - e.X;
+                int diffY = MouseStart.Y - e.Y;
+                DrugPhrase.Location.X -= diffX;
+                DrugPhrase.Location.Y -= diffY;
+                MouseStart = e.Location;
                 pbxDisplay.Invalidate();
             } else {
                 foreach(PhraseRect TPRect in PhraseRects) { TPRect.Hovered = false; } // Clear all phrase hover states
