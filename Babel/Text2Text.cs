@@ -25,13 +25,10 @@ namespace Babel
             dirty = true;
         }
 
-        // This has no mechanism for ensuring that the callbacks return in order.
-        // I hope to never care about it that much.
-        Queue<string> ts = new Queue<string>();
+        Queue<AsyncTranslation> ts = new Queue<AsyncTranslation>();
 
         private void Translation_callback(AsyncTranslation tr)
         {
-            ts.Enqueue(tr.translatedText);
             Invalidate();
         }
 
@@ -39,7 +36,7 @@ namespace Babel
         {
             if (dirty)
             {
-                new AsyncTranslation(txtInput.Text, Translation_callback);
+                ts.Enqueue(new AsyncTranslation(txtInput.Text, Translation_callback));
                 dirty = false;
             }
         }
@@ -52,8 +49,8 @@ namespace Babel
 
         private void Text2Text_Paint(object sender, PaintEventArgs e)
         {
-            if (ts.Count > 0)
-                txtOutput.Text = ts.Dequeue();
+            while ((ts.Count > 0) && ts.Peek().isDone)
+                txtOutput.Text = ts.Dequeue().translatedText;
 
             if (ts.Count > 0)
                 Invalidate();
