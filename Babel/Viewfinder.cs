@@ -44,6 +44,10 @@ namespace Babel
             public string TranslatedText;
             public bool Translated;
             public string translationTime;
+            public bool Hovered;
+            public bool Clicked;
+            public bool Selected;
+
             public PhraseRect(Rectangle Location)
             {
                 Translated = false;
@@ -66,6 +70,7 @@ namespace Babel
         }
 
         // Takes a screenshot of what's behind the window and returns it
+        // BUG: There are several coordinate issues that result in snap getting a few pixels off
         private Image Snap()
         {
             int x = PointToScreen(tscMain.ContentPanel.Location).X;
@@ -90,47 +95,42 @@ namespace Babel
             {
                 case State.ready:
                     Text = "Viewfinder - Ready";
-                    btnSnap.Enabled = true;
-                    btnTranslate.Enabled = false;
-                    btnRevert.Enabled = false;
-                    btnSave.Enabled = false;
-                    btnClear.Enabled = false;
+                    tsbSnap.Enabled = true;
+                    tsbRevert.Enabled = false;
+                    tsbSave.Enabled = false;
+                    tsbClear.Enabled = false;
                     break;
 
                 case State.OCRing:
                     Text = "Viewfinder - Recognizing...";
-                    btnSnap.Enabled = false;
-                    btnTranslate.Enabled = false;
-                    btnRevert.Enabled = false;
-                    btnSave.Enabled = false;
-                    btnClear.Enabled = false;
+                    tsbSnap.Enabled = false;
+                    tsbRevert.Enabled = false;
+                    tsbSave.Enabled = false;
+                    tsbClear.Enabled = false;
                     break;
 
                 case State.OCRed:
                     Text = "Viewfinder - Select text";
-                    btnSnap.Enabled = false;
-                    btnTranslate.Enabled = false;
-                    btnRevert.Enabled = false;
-                    btnSave.Enabled = true;
-                    btnClear.Enabled = true;
+                    tsbSnap.Enabled = false;
+                    tsbRevert.Enabled = false;
+                    tsbSave.Enabled = true;
+                    tsbClear.Enabled = true;
                     break;
 
                 case State.translating:
                     Text = "Viewfinder - Translating...";
-                    btnSnap.Enabled = false;
-                    btnTranslate.Enabled = false;
-                    btnRevert.Enabled = false;
-                    btnSave.Enabled = false;
-                    btnClear.Enabled = false;
+                    tsbSnap.Enabled = false;
+                    tsbRevert.Enabled = false;
+                    tsbSave.Enabled = false;
+                    tsbClear.Enabled = false;
                     break;
 
                 case State.translated:
                     Text = "Viewfinder - Translated";
-                    btnSnap.Enabled = false;
-                    btnTranslate.Enabled = false;
-                    btnRevert.Enabled = true;
-                    btnSave.Enabled = true;
-                    btnClear.Enabled = true;
+                    tsbSnap.Enabled = false;
+                    tsbRevert.Enabled = true;
+                    tsbSave.Enabled = true;
+                    tsbClear.Enabled = true;
                     break;
             }
         }
@@ -200,41 +200,50 @@ namespace Babel
             while (true) // Loop forever
             {
                 bool DidTranslate = false;
-                // Walk over all user-selected phrases that aren't yet translated
-                foreach (PhraseRect PRect in PhraseRects.Where(x => x.Translated == false))
+                try
                 {
-                    // This is necessary to fit the input that the function requires
-                    List<string> st = new List<string>();
-                    st.Add(PRect.RawText);
-
-                    // Translate the phrase
-                    Stopwatch stopwatch = new Stopwatch();
-                    stopwatch.Start();
-                    var result = GoogleHandler.Translate(st);
-                    stopwatch.Stop();
-                    
-
-                    if (result.Count() > 0)
+                    // Walk over all user-selected phrases that aren't yet translated
+                    foreach (PhraseRect PRect in PhraseRects.Where(x => x.Translated == false))
                     {
-                        Console.WriteLine("Translated " + PRect.RawText + " as " + result.First().text);
-                        PRect.TranslatedText = result.First().text;
-                        PRect.translationTime = string.Format("{0:00}:{1:00}:{2:00}.{3:000}",
-                            stopwatch.Elapsed.Hours,
-                            stopwatch.Elapsed.Minutes,
-                            stopwatch.Elapsed.Seconds,
-                            stopwatch.Elapsed.Milliseconds);
-                    } else
-                    {
-                        Console.WriteLine("No translation found for: " + PRect.RawText);
+                        // This is necessary to fit the input that the function requires
+                        List<string> st = new List<string>();
+                        st.Add(PRect.RawText);
+
+                        // Translate the phrase
+                        Stopwatch stopwatch = new Stopwatch();
+                        stopwatch.Start();
+                        var result = GoogleHandler.Translate(st);
+                        stopwatch.Stop();
+
+
+                        if (result.Count() > 0)
+                        {
+                            Console.WriteLine("Translated " + PRect.RawText + " as " + result.First().text);
+                            PRect.TranslatedText = result.First().text;
+                            PRect.translationTime = string.Format("{0:00}:{1:00}:{2:00}.{3:000}",
+                                stopwatch.Elapsed.Hours,
+                                stopwatch.Elapsed.Minutes,
+                                stopwatch.Elapsed.Seconds,
+                                stopwatch.Elapsed.Milliseconds);
+                        }
+                        else
+                        {
+                            Console.WriteLine("No translation found for: " + PRect.RawText);
+                        }
+                        PRect.Translated = true; // Mark the phrase as translated (even if it failed, so we don't retry)
+                        DidTranslate = true;
+
                     }
-                    PRect.Translated = true; // Mark the phrase as translated (even if it failed, so we don't retry)
-                    DidTranslate = true;
-                }
 
-                if (DidTranslate)
+                    if (DidTranslate)
+                    {
+                        pbxDisplay.Invalidate(); // Redraw the output
+                        Console.WriteLine("Translations done, sleeping...");
+                    }
+                } catch (InvalidOperationException eIOE)
                 {
-                    pbxDisplay.Invalidate(); // Redraw the output
-                    Console.WriteLine("Translations done, sleeping...");
+                    // This should resolve all cases where the user deletes or adds a phrase while translation is in progress
+                    Console.WriteLine("Phrase set changed, sleeping...");
                 }
 
                 Thread.Sleep(500); // Wait for the user to make further selections
@@ -268,6 +277,16 @@ namespace Babel
 
         //======= Graphics events
 
+        // Handle keyboard input
+        private void frmViewFinder_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Delete)
+            {
+                // Delete any selected phrase
+                PhraseRects.RemoveAll(t => t.Selected == true);
+            }
+        }
+
         // Draw all the graphics on top of the image
         private void pbxDisplay_Paint(object sender, PaintEventArgs e)
         {
@@ -287,7 +306,7 @@ namespace Babel
                 }
             }
 
-            // Draw bounding box
+            // Draw user bounding box
             if (Marking)
             {
                 g.DrawRectangle(Pens.White, BitmapExt.FitRect(new Point[] { MouseStart, MouseEnd }));
@@ -305,28 +324,44 @@ namespace Babel
                                     roundToMultiple(Rect.Height, quantY));
             }
 
-            // Draw selected phrases
+            // Draw phrases
             foreach (PhraseRect PRect in PhraseRects)
             {
                 Rectangle DisplayRect = QuantizeRect(PRect.Location, 8, 8);
 
-                g.FillRectangle(new SolidBrush(Color.FromArgb(230, 0, 0, 0)), DisplayRect); // Bounding box
-                g.DrawRectangle(Pens.Green, DisplayRect); // Background
+                g.FillRectangle(new SolidBrush(Color.FromArgb(230, 0, 0, 0)), DisplayRect); // Background
+                Pen BoxColor = Pens.Green;
+                if (PRect.Hovered) BoxColor = Pens.LightGreen;
+                if (PRect.Selected) BoxColor = Pens.LightBlue;
+                if (PRect.Clicked) BoxColor = Pens.DarkBlue;
+                g.DrawRectangle(BoxColor, DisplayRect); // Outline
 
-                // Untranslated text
-                g.DrawString(
-                        PRect.RawText,
-                        DefaultFont,
-                        Brushes.Gray,
-                        DisplayRect);
+                if (!PRect.Translated)
+                {
+                    // Untranslated text
+                    g.DrawString(
+                            PRect.RawText,
+                            DefaultFont,
+                            Brushes.Gray,
+                            DisplayRect);
+                }
+                else
+                {
+                    // Translated text
+                    // Fit font to bounding box
+                    Font LargeFont = GetAdjustedFont(g, PRect.TranslatedText, DefaultFont, PRect.Location, 256, 6, true);
 
-                // Translated text
-                Font LargeFont = GetAdjustedFont(g, PRect.TranslatedText, DefaultFont, PRect.Location, 256, 12, true);
-                g.DrawString(
-                        PRect.TranslatedText,
-                        LargeFont,
-                        Brushes.White,
-                        DisplayRect);
+                    // Center-justify text
+                    int JustifySpace = (int) (DisplayRect.Width - g.MeasureString(PRect.TranslatedText, LargeFont).Width) / 2;
+                    Point AdjustedPosition = new Point(DisplayRect.Left + JustifySpace, DisplayRect.Top);
+
+                    // Draw
+                    g.DrawString(
+                            PRect.TranslatedText,
+                            LargeFont,
+                            Brushes.White,
+                            AdjustedPosition);
+                }
                 
                 // This would draw the time it took to translate, but it seems to take 0:00. Might be a bug, will check later.
                 /*Font BoldFont = new Font(DefaultFont, FontStyle.Bold);
@@ -339,27 +374,59 @@ namespace Babel
             }
         }
 
-        // Begin dragging a bounding box
+        public bool Dragging;
+
+        // Begin dragging
         private void pbxDisplay_MouseDown(object sender, MouseEventArgs e)
         {
-            MouseStart = e.Location;
-            MouseEnd = e.Location;
+            PhraseRect PRect = GetPhraseAtPoint(e.Location);
+            if (PRect != null)
+            {
+                // There was a phrase under the mouse, so start a drag/select rather than a bounding box
+                foreach (PhraseRect TPRect in PhraseRects) { TPRect.Clicked = false; TPRect.Selected = false; } // Clear phrase states
+                PRect.Clicked = true;
+                PRect.Selected = false;
+            }
+            else
+            {
+                // There was no phrase under the mouse, start a bounding box
+                MouseStart = e.Location;
+                MouseEnd = e.Location;
+                Marking = true;
+            }
             pbxDisplay.Invalidate();
-            Marking = true;
         }
 
-        // Finish dragging a bounding box
-        // Find out if any words were selected and, if so, create a phrase box around them
+        // Finish dragging
+
         private void pbxDisplay_MouseUp(object sender, MouseEventArgs e)
         {
-            PhraseRect testrect = new PhraseRect(MouseStart, MouseEnd);
-            if (GetRectsInPhrase(testrect).Count > 0)
+            if (Marking == true) // We were drawing a bounding box
             {
-                btnRevert.Enabled = true;
-                PhraseRects.Add(new PhraseRect(MouseStart, MouseEnd));
+                // Find out if any words were selected and, if so, create a phrase box around them
+                PhraseRect testrect = new PhraseRect(MouseStart, MouseEnd);
+                if (GetRectsInPhrase(testrect).Count > 0)
+                {
+                    tsbRevert.Enabled = true; // Enable the Revert button to clear phrases
+                    PhraseRects.Add(new PhraseRect(MouseStart, MouseEnd));
+                }
+                MarkItems();
+                Marking = false;
+            } else { // We were selecting/dragging
+                PhraseRect PRect = GetPhraseAtPoint(e.Location);
+                if (PRect != null )
+                {
+                    if (PRect.Clicked == true)
+                    {
+                        foreach (PhraseRect TPRect in PhraseRects) { TPRect.Clicked = false; TPRect.Selected = false; } // Clear other phrase states
+                        PRect.Clicked = false;
+                        PRect.Selected = true;
+                    }
+                } else
+                {
+                    foreach (PhraseRect TPRect in PhraseRects) { TPRect.Clicked = false; TPRect.Selected = false; } // Clear other phrase states
+                }
             }
-            MarkItems();
-            Marking = false;
             pbxDisplay.Invalidate();
         }
 
@@ -368,6 +435,14 @@ namespace Babel
             if (Marking)
             {
                 MouseEnd = e.Location;
+                pbxDisplay.Invalidate();
+            } else {
+                foreach(PhraseRect TPRect in PhraseRects) { TPRect.Hovered = false; } // Clear all phrase hover states
+                PhraseRect PRect = GetPhraseAtPoint(e.Location); // Check if we're over a phrase
+                if (PRect != null)
+                {
+                    PRect.Hovered = true; // Mark it as hovered
+                }
                 pbxDisplay.Invalidate();
             }
         }
@@ -387,6 +462,16 @@ namespace Babel
                 }
             }
             return (Results);
+        }
+
+        // Find a phrase at a given point, for mouse collision etc.
+        PhraseRect GetPhraseAtPoint(Point Location)
+        {
+            foreach(PhraseRect PRect in PhraseRects)
+            {
+                if (PRect.Location.Contains(Location)) return PRect;
+            }
+            return null;
         }
 
         // Find the words that are under each selected phrase, concatenate them, and stuff them in the phrase.
