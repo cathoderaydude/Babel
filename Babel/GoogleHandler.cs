@@ -31,12 +31,25 @@ namespace Babel
         public string locale;
         public string translatedText;
         public Point[] poly;
+        public bool selected;
+        public string translationTime;
+        public OCRResult() { }
+        public OCRResult(string text, string locale, Point[] poly)
+        {
+            this.text = text; this.locale = locale; this.poly = poly;
+        }
     }
 
     public class TranslationResult
     {
         public string text;
         public string locale;
+        public TranslationResult() { }
+        public TranslationResult(string text, string locale)
+        {
+            this.text = text;
+            this.locale = locale; 
+        }
     }
 
     public class GoogleHandler
@@ -50,6 +63,23 @@ namespace Babel
                 translatedText = t.text,
                 locale = t.locale,
             };
+        }
+
+        public static IEnumerable<OCRResult> RecognizeImage(SImage target)
+        {
+            Stopwatch stopwatch = new Stopwatch();
+
+            stopwatch.Start();
+            var ocrs = OCRImage(target).ToArray();
+            stopwatch.Stop();
+            string ocrTime = string.Format("{0:00}:{1:00}:{2:00}.{3:000}",
+                stopwatch.Elapsed.Hours,
+                stopwatch.Elapsed.Minutes,
+                stopwatch.Elapsed.Seconds,
+                stopwatch.Elapsed.Milliseconds);
+            stopwatch.Reset();
+
+            return ocrs.Skip(1);
         }
 
         public static IEnumerable<OCRResult> TranslateImage(SImage target)

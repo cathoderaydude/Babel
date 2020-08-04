@@ -43,7 +43,7 @@
             // 
             this.txtKeyFile.Location = new System.Drawing.Point(94, 38);
             this.txtKeyFile.Name = "txtKeyFile";
-            this.txtKeyFile.Size = new System.Drawing.Size(378, 20);
+            this.txtKeyFile.Size = new System.Drawing.Size(297, 20);
             this.txtKeyFile.TabIndex = 1;
             this.txtKeyFile.TextChanged += new System.EventHandler(this.txtKeyFile_TextChanged);
             // 
@@ -84,7 +84,7 @@
             // 
             // btnOk
             // 
-            this.btnOk.Location = new System.Drawing.Point(632, 415);
+            this.btnOk.Location = new System.Drawing.Point(316, 90);
             this.btnOk.Name = "btnOk";
             this.btnOk.Size = new System.Drawing.Size(75, 23);
             this.btnOk.TabIndex = 7;
@@ -94,7 +94,7 @@
             // 
             // btnCancel
             // 
-            this.btnCancel.Location = new System.Drawing.Point(713, 415);
+            this.btnCancel.Location = new System.Drawing.Point(397, 90);
             this.btnCancel.Name = "btnCancel";
             this.btnCancel.Size = new System.Drawing.Size(75, 23);
             this.btnCancel.TabIndex = 8;
@@ -104,7 +104,7 @@
             // 
             // btnBrowseKeyFile
             // 
-            this.btnBrowseKeyFile.Location = new System.Drawing.Point(713, 36);
+            this.btnBrowseKeyFile.Location = new System.Drawing.Point(397, 35);
             this.btnBrowseKeyFile.Name = "btnBrowseKeyFile";
             this.btnBrowseKeyFile.Size = new System.Drawing.Size(75, 23);
             this.btnBrowseKeyFile.TabIndex = 9;
@@ -120,7 +120,7 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(800, 450);
+            this.ClientSize = new System.Drawing.Size(480, 125);
             this.Controls.Add(this.btnBrowseKeyFile);
             this.Controls.Add(this.btnCancel);
             this.Controls.Add(this.btnOk);

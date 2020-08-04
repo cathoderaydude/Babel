@@ -28,36 +28,24 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.pnlDisplay = new System.Windows.Forms.Panel();
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(frmViewFinder));
             this.pbxDisplay = new System.Windows.Forms.PictureBox();
-            this.btnSnap = new System.Windows.Forms.Button();
-            this.btnClear = new System.Windows.Forms.Button();
-            this.btnTranslate = new System.Windows.Forms.Button();
-            this.btnRevert = new System.Windows.Forms.Button();
-            this.btnSave = new System.Windows.Forms.Button();
             this.tscMain = new System.Windows.Forms.ToolStripContainer();
+            this.toolStrip1 = new System.Windows.Forms.ToolStrip();
+            this.tsbSnap = new System.Windows.Forms.ToolStripButton();
+            this.tsbRevert = new System.Windows.Forms.ToolStripButton();
+            this.tsbClear = new System.Windows.Forms.ToolStripButton();
+            this.tsbSave = new System.Windows.Forms.ToolStripButton();
+            this.tsbSettings = new System.Windows.Forms.ToolStripButton();
             this.sfdDisplay = new System.Windows.Forms.SaveFileDialog();
-            this.menuStrip1 = new System.Windows.Forms.MenuStrip();
-            this.settingsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.bgwGoogle = new System.ComponentModel.BackgroundWorker();
-            this.pnlDisplay.SuspendLayout();
+            this.bgwOCR = new System.ComponentModel.BackgroundWorker();
+            this.bgwTranslate = new System.ComponentModel.BackgroundWorker();
             ((System.ComponentModel.ISupportInitialize)(this.pbxDisplay)).BeginInit();
             this.tscMain.ContentPanel.SuspendLayout();
             this.tscMain.TopToolStripPanel.SuspendLayout();
             this.tscMain.SuspendLayout();
-            this.menuStrip1.SuspendLayout();
+            this.toolStrip1.SuspendLayout();
             this.SuspendLayout();
-            // 
-            // pnlDisplay
-            // 
-            this.pnlDisplay.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.pnlDisplay.Controls.Add(this.pbxDisplay);
-            this.pnlDisplay.Location = new System.Drawing.Point(1, 1);
-            this.pnlDisplay.Name = "pnlDisplay";
-            this.pnlDisplay.Size = new System.Drawing.Size(698, 575);
-            this.pnlDisplay.TabIndex = 1;
             // 
             // pbxDisplay
             // 
@@ -65,68 +53,13 @@
             this.pbxDisplay.Dock = System.Windows.Forms.DockStyle.Fill;
             this.pbxDisplay.Location = new System.Drawing.Point(0, 0);
             this.pbxDisplay.Name = "pbxDisplay";
-            this.pbxDisplay.Size = new System.Drawing.Size(698, 575);
+            this.pbxDisplay.Size = new System.Drawing.Size(921, 565);
             this.pbxDisplay.TabIndex = 1;
             this.pbxDisplay.TabStop = false;
-            // 
-            // btnSnap
-            // 
-            this.btnSnap.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnSnap.Location = new System.Drawing.Point(713, 12);
-            this.btnSnap.Name = "btnSnap";
-            this.btnSnap.Size = new System.Drawing.Size(75, 23);
-            this.btnSnap.TabIndex = 2;
-            this.btnSnap.Text = "Snap";
-            this.btnSnap.UseVisualStyleBackColor = true;
-            this.btnSnap.Click += new System.EventHandler(this.btnSnap_Click);
-            // 
-            // btnClear
-            // 
-            this.btnClear.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnClear.Enabled = false;
-            this.btnClear.Location = new System.Drawing.Point(713, 128);
-            this.btnClear.Name = "btnClear";
-            this.btnClear.Size = new System.Drawing.Size(75, 23);
-            this.btnClear.TabIndex = 3;
-            this.btnClear.Text = "Clear";
-            this.btnClear.UseVisualStyleBackColor = true;
-            this.btnClear.Click += new System.EventHandler(this.btnClear_Click);
-            // 
-            // btnTranslate
-            // 
-            this.btnTranslate.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnTranslate.Enabled = false;
-            this.btnTranslate.Location = new System.Drawing.Point(713, 41);
-            this.btnTranslate.Name = "btnTranslate";
-            this.btnTranslate.Size = new System.Drawing.Size(75, 23);
-            this.btnTranslate.TabIndex = 4;
-            this.btnTranslate.Text = "Translate";
-            this.btnTranslate.UseVisualStyleBackColor = true;
-            this.btnTranslate.Click += new System.EventHandler(this.btnTranslate_Click);
-            // 
-            // btnRevert
-            // 
-            this.btnRevert.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnRevert.Enabled = false;
-            this.btnRevert.Location = new System.Drawing.Point(713, 70);
-            this.btnRevert.Name = "btnRevert";
-            this.btnRevert.Size = new System.Drawing.Size(75, 23);
-            this.btnRevert.TabIndex = 5;
-            this.btnRevert.Text = "Revert";
-            this.btnRevert.UseVisualStyleBackColor = true;
-            this.btnRevert.Click += new System.EventHandler(this.btnRevert_Click);
-            // 
-            // btnSave
-            // 
-            this.btnSave.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnSave.Enabled = false;
-            this.btnSave.Location = new System.Drawing.Point(713, 99);
-            this.btnSave.Name = "btnSave";
-            this.btnSave.Size = new System.Drawing.Size(75, 23);
-            this.btnSave.TabIndex = 6;
-            this.btnSave.Text = "Save...";
-            this.btnSave.UseVisualStyleBackColor = true;
-            this.btnSave.Click += new System.EventHandler(this.btnSave_Click);
+            this.pbxDisplay.Paint += new System.Windows.Forms.PaintEventHandler(this.pbxDisplay_Paint);
+            this.pbxDisplay.MouseDown += new System.Windows.Forms.MouseEventHandler(this.pbxDisplay_MouseDown);
+            this.pbxDisplay.MouseMove += new System.Windows.Forms.MouseEventHandler(this.pbxDisplay_MouseMove);
+            this.pbxDisplay.MouseUp += new System.Windows.Forms.MouseEventHandler(this.pbxDisplay_MouseUp);
             // 
             // tscMain
             // 
@@ -134,90 +67,142 @@
             // tscMain.ContentPanel
             // 
             this.tscMain.ContentPanel.AutoScroll = true;
-            this.tscMain.ContentPanel.Controls.Add(this.btnSave);
-            this.tscMain.ContentPanel.Controls.Add(this.btnRevert);
-            this.tscMain.ContentPanel.Controls.Add(this.btnTranslate);
-            this.tscMain.ContentPanel.Controls.Add(this.btnClear);
-            this.tscMain.ContentPanel.Controls.Add(this.btnSnap);
-            this.tscMain.ContentPanel.Controls.Add(this.pnlDisplay);
-            this.tscMain.ContentPanel.Size = new System.Drawing.Size(800, 576);
+            this.tscMain.ContentPanel.Controls.Add(this.pbxDisplay);
+            this.tscMain.ContentPanel.Size = new System.Drawing.Size(921, 565);
             this.tscMain.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.tscMain.Location = new System.Drawing.Point(0, 0);
+            this.tscMain.Location = new System.Drawing.Point(5, 5);
             this.tscMain.Name = "tscMain";
-            this.tscMain.Size = new System.Drawing.Size(800, 600);
+            this.tscMain.Size = new System.Drawing.Size(921, 590);
             this.tscMain.TabIndex = 7;
             this.tscMain.Text = "toolStripContainer1";
             // 
             // tscMain.TopToolStripPanel
             // 
-            this.tscMain.TopToolStripPanel.Controls.Add(this.menuStrip1);
+            this.tscMain.TopToolStripPanel.Controls.Add(this.toolStrip1);
+            // 
+            // toolStrip1
+            // 
+            this.toolStrip1.Dock = System.Windows.Forms.DockStyle.None;
+            this.toolStrip1.GripStyle = System.Windows.Forms.ToolStripGripStyle.Hidden;
+            this.toolStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.tsbSnap,
+            this.tsbRevert,
+            this.tsbClear,
+            this.tsbSave,
+            this.tsbSettings});
+            this.toolStrip1.Location = new System.Drawing.Point(3, 0);
+            this.toolStrip1.Name = "toolStrip1";
+            this.toolStrip1.Size = new System.Drawing.Size(118, 25);
+            this.toolStrip1.TabIndex = 1;
+            this.toolStrip1.Text = "toolStrip1";
+            // 
+            // tsbSnap
+            // 
+            this.tsbSnap.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.tsbSnap.Image = ((System.Drawing.Image)(resources.GetObject("tsbSnap.Image")));
+            this.tsbSnap.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.tsbSnap.Name = "tsbSnap";
+            this.tsbSnap.Size = new System.Drawing.Size(23, 22);
+            this.tsbSnap.Text = "Snap";
+            this.tsbSnap.Click += new System.EventHandler(this.btnSnap_Click);
+            // 
+            // tsbRevert
+            // 
+            this.tsbRevert.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.tsbRevert.Image = ((System.Drawing.Image)(resources.GetObject("tsbRevert.Image")));
+            this.tsbRevert.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.tsbRevert.Name = "tsbRevert";
+            this.tsbRevert.Size = new System.Drawing.Size(23, 22);
+            this.tsbRevert.Text = "Revert";
+            this.tsbRevert.ToolTipText = "Clear selection";
+            this.tsbRevert.Click += new System.EventHandler(this.btnRevert_Click);
+            // 
+            // tsbClear
+            // 
+            this.tsbClear.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.tsbClear.Image = ((System.Drawing.Image)(resources.GetObject("tsbClear.Image")));
+            this.tsbClear.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.tsbClear.Name = "tsbClear";
+            this.tsbClear.Size = new System.Drawing.Size(23, 22);
+            this.tsbClear.Text = "Clear";
+            this.tsbClear.ToolTipText = "Clear image";
+            this.tsbClear.Click += new System.EventHandler(this.btnClear_Click);
+            // 
+            // tsbSave
+            // 
+            this.tsbSave.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.tsbSave.Image = ((System.Drawing.Image)(resources.GetObject("tsbSave.Image")));
+            this.tsbSave.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.tsbSave.Name = "tsbSave";
+            this.tsbSave.Size = new System.Drawing.Size(23, 22);
+            this.tsbSave.Text = "Save Image";
+            this.tsbSave.ToolTipText = "Save image";
+            this.tsbSave.Click += new System.EventHandler(this.btnSave_Click);
+            // 
+            // tsbSettings
+            // 
+            this.tsbSettings.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.tsbSettings.Image = ((System.Drawing.Image)(resources.GetObject("tsbSettings.Image")));
+            this.tsbSettings.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.tsbSettings.Name = "tsbSettings";
+            this.tsbSettings.Size = new System.Drawing.Size(23, 22);
+            this.tsbSettings.Text = "Settings";
+            this.tsbSettings.Click += new System.EventHandler(this.settingsToolStripMenuItem_Click);
             // 
             // sfdDisplay
             // 
             this.sfdDisplay.DefaultExt = "png";
             // 
-            // menuStrip1
+            // bgwOCR
             // 
-            this.menuStrip1.Dock = System.Windows.Forms.DockStyle.None;
-            this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.settingsToolStripMenuItem});
-            this.menuStrip1.Location = new System.Drawing.Point(0, 0);
-            this.menuStrip1.Name = "menuStrip1";
-            this.menuStrip1.Size = new System.Drawing.Size(800, 24);
-            this.menuStrip1.TabIndex = 0;
-            this.menuStrip1.Text = "menuStrip1";
+            this.bgwOCR.DoWork += new System.ComponentModel.DoWorkEventHandler(this.bgwOCR_DoWork);
+            this.bgwOCR.RunWorkerCompleted += new System.ComponentModel.RunWorkerCompletedEventHandler(this.bgwOCR_RunWorkerCompleted);
             // 
-            // settingsToolStripMenuItem
+            // bgwTranslate
             // 
-            this.settingsToolStripMenuItem.Name = "settingsToolStripMenuItem";
-            this.settingsToolStripMenuItem.Size = new System.Drawing.Size(61, 20);
-            this.settingsToolStripMenuItem.Text = "Settings";
-            this.settingsToolStripMenuItem.Click += new System.EventHandler(this.settingsToolStripMenuItem_Click);
-            // 
-            // bgwGoogle
-            // 
-            this.bgwGoogle.DoWork += new System.ComponentModel.DoWorkEventHandler(this.bgwGoogle_DoWork);
-            this.bgwGoogle.RunWorkerCompleted += new System.ComponentModel.RunWorkerCompletedEventHandler(this.bgwGoogle_RunWorkerCompleted);
+            this.bgwTranslate.WorkerSupportsCancellation = true;
+            this.bgwTranslate.DoWork += new System.ComponentModel.DoWorkEventHandler(this.bgwTranslate_DoWork);
+            this.bgwTranslate.RunWorkerCompleted += new System.ComponentModel.RunWorkerCompletedEventHandler(this.bgwTranslate_RunWorkerCompleted);
             // 
             // frmViewFinder
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(800, 600);
+            this.ClientSize = new System.Drawing.Size(931, 600);
             this.Controls.Add(this.tscMain);
-            this.MainMenuStrip = this.menuStrip1;
+            this.KeyPreview = true;
             this.Name = "frmViewFinder";
+            this.Padding = new System.Windows.Forms.Padding(5);
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Viewfinder - Init";
             this.TransparencyKey = System.Drawing.Color.Fuchsia;
             this.Load += new System.EventHandler(this.Viewfinder_Load);
-            this.pnlDisplay.ResumeLayout(false);
+            this.KeyDown += new System.Windows.Forms.KeyEventHandler(this.frmViewFinder_KeyDown);
+            this.KeyUp += new System.Windows.Forms.KeyEventHandler(this.frmViewFinder_KeyUp);
             ((System.ComponentModel.ISupportInitialize)(this.pbxDisplay)).EndInit();
             this.tscMain.ContentPanel.ResumeLayout(false);
             this.tscMain.TopToolStripPanel.ResumeLayout(false);
             this.tscMain.TopToolStripPanel.PerformLayout();
             this.tscMain.ResumeLayout(false);
             this.tscMain.PerformLayout();
-            this.menuStrip1.ResumeLayout(false);
-            this.menuStrip1.PerformLayout();
+            this.toolStrip1.ResumeLayout(false);
+            this.toolStrip1.PerformLayout();
             this.ResumeLayout(false);
 
         }
 
         #endregion
-
-        private System.Windows.Forms.Panel pnlDisplay;
         private System.Windows.Forms.PictureBox pbxDisplay;
-        private System.Windows.Forms.Button btnSnap;
-        private System.Windows.Forms.Button btnClear;
-        private System.Windows.Forms.Button btnTranslate;
-        private System.Windows.Forms.Button btnRevert;
-        private System.Windows.Forms.Button btnSave;
         private System.Windows.Forms.ToolStripContainer tscMain;
         private System.Windows.Forms.SaveFileDialog sfdDisplay;
-        private System.Windows.Forms.MenuStrip menuStrip1;
-        private System.Windows.Forms.ToolStripMenuItem settingsToolStripMenuItem;
-        private System.ComponentModel.BackgroundWorker bgwGoogle;
+        private System.ComponentModel.BackgroundWorker bgwOCR;
+        private System.ComponentModel.BackgroundWorker bgwTranslate;
+        private System.Windows.Forms.ToolStrip toolStrip1;
+        private System.Windows.Forms.ToolStripButton tsbSnap;
+        private System.Windows.Forms.ToolStripButton tsbRevert;
+        private System.Windows.Forms.ToolStripButton tsbClear;
+        private System.Windows.Forms.ToolStripButton tsbSave;
+        private System.Windows.Forms.ToolStripButton tsbSettings;
     }
 }
 
