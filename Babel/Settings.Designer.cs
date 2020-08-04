@@ -37,10 +37,13 @@
             this.btnCancel = new System.Windows.Forms.Button();
             this.btnBrowseKeyFile = new System.Windows.Forms.Button();
             this.ofdKeyFile = new System.Windows.Forms.OpenFileDialog();
+            this.cmbLocale = new System.Windows.Forms.ComboBox();
             this.SuspendLayout();
             // 
             // txtKeyFile
             // 
+            this.txtKeyFile.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.txtKeyFile.Location = new System.Drawing.Point(94, 38);
             this.txtKeyFile.Name = "txtKeyFile";
             this.txtKeyFile.Size = new System.Drawing.Size(297, 20);
@@ -49,6 +52,8 @@
             // 
             // txtProjectName
             // 
+            this.txtProjectName.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.txtProjectName.Location = new System.Drawing.Point(94, 64);
             this.txtProjectName.Name = "txtProjectName";
             this.txtProjectName.Size = new System.Drawing.Size(378, 20);
@@ -116,11 +121,25 @@
             // 
             this.ofdKeyFile.DefaultExt = "json";
             // 
+            // cmbLocale
+            // 
+            this.cmbLocale.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cmbLocale.FormattingEnabled = true;
+            this.cmbLocale.Items.AddRange(new object[] {
+            "en",
+            "es"});
+            this.cmbLocale.Location = new System.Drawing.Point(94, 12);
+            this.cmbLocale.Name = "cmbLocale";
+            this.cmbLocale.Size = new System.Drawing.Size(121, 21);
+            this.cmbLocale.TabIndex = 10;
+            this.cmbLocale.SelectedIndexChanged += new System.EventHandler(this.comboBox1_SelectedIndexChanged);
+            // 
             // Settings
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(480, 125);
+            this.Controls.Add(this.cmbLocale);
             this.Controls.Add(this.btnBrowseKeyFile);
             this.Controls.Add(this.btnCancel);
             this.Controls.Add(this.btnOk);
@@ -129,6 +148,7 @@
             this.Controls.Add(this.lblTargetLocale);
             this.Controls.Add(this.txtProjectName);
             this.Controls.Add(this.txtKeyFile);
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.Name = "Settings";
             this.Text = "Settings";
             this.Load += new System.EventHandler(this.Settings_Load);
@@ -148,5 +168,6 @@
         private System.Windows.Forms.Button btnCancel;
         private System.Windows.Forms.Button btnBrowseKeyFile;
         private System.Windows.Forms.OpenFileDialog ofdKeyFile;
+        private System.Windows.Forms.ComboBox cmbLocale;
     }
 }
