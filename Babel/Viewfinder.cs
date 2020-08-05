@@ -20,18 +20,36 @@ namespace Babel
 
         int bWidth = 5;
 
+        Brush BrightColor = Brushes.Red;
+        Brush DarkColor = Brushes.DarkRed;
+        Brush HighlightColor = Brushes.LightPink;
+
         private void Viewfinder_Paint(object sender, PaintEventArgs e)
         {
             Graphics g = e.Graphics;
 
             int bWidthH = (bWidth / 2) - 1;
+            Pen Outline = new Pen(BrightColor, 2);
+            Pen DarkLine = new Pen(Brushes.Black, 2);
 
-            g.DrawLine(new Pen(Brushes.Magenta, 2), bWidthH, 20, bWidthH, this.Height-1);
-            g.DrawLine(new Pen(Brushes.Magenta, 2), this.Width- bWidthH, 20, this.Width - bWidthH, this.Height-1);
-            g.DrawLine(new Pen(Brushes.Magenta, 2), 0, this.Height- bWidthH, this.Width, this.Height-1);
+            // Draw resize handle
+            int resSize = RESIZE_HANDLE_SIZE + 2;
+            Point[] ResizeHandle = new Point[]
+            {
+                new Point(this.Width - resSize, this.Height),
+                new Point(this.Width, this.Height),
+                new Point(this.Width, this.Height - resSize)
+            };
+            g.FillPolygon(DarkColor, ResizeHandle);
 
-            g.DrawLine(new Pen(Brushes.Magenta, 2), 0, 20, this.Width, 20);
+            // Draw outline
+            g.DrawLine(Outline, bWidthH, 20, bWidthH, this.Height-1);
+            g.DrawLine(Outline, this.Width- bWidthH, 20, this.Width - bWidthH, this.Height-1);
+            g.DrawLine(Outline, 0, this.Height- bWidthH, this.Width, this.Height-1);
 
+            g.DrawLine(Outline, 0, 20, this.Width, 20);
+
+            // Draw window title tab
             Point[] WTab = new Point[]
             {
                 new Point(20,20),
@@ -41,10 +59,18 @@ namespace Babel
                 new Point(this.Width,20)
             };
 
-            g.FillPolygon(Brushes.Purple, WTab);
-            g.DrawPolygon(Pens.Magenta, WTab);
-            int resSize = RESIZE_HANDLE_SIZE + 2;
-            g.FillRectangle(Brushes.Purple, this.Width - resSize, this.Height - resSize, resSize, resSize);
+            g.FillPolygon(DarkColor, WTab);
+            g.DrawPolygon(new Pen(BrightColor), WTab);
+
+            // Draw close box
+            Rectangle CloseBox = new Rectangle(85, 5, 10, 10);
+            g.DrawRectangle(DarkLine, CloseBox);
+            CloseBox.Inflate(-2, -2);
+            g.FillEllipse(Brushes.Black, CloseBox);
+
+            // Draw title
+            g.DrawString("Babel", new Font(FontFamily.GenericSansSerif, 10), Brushes.Black, new Rectangle(33, 2, 80, 20));
+            g.DrawString("Babel", new Font(FontFamily.GenericSansSerif, 10), HighlightColor, new Rectangle(32, 1, 80, 20));
         }
 
         private const int WM_NCHITTEST = 0x84;
@@ -78,6 +104,12 @@ namespace Babel
         private void Viewfinder_Resize(object sender, EventArgs e)
         {
             this.Invalidate();
+        }
+        
+        private void Viewfinder_MouseClick(object sender, MouseEventArgs e)
+        {
+            Rectangle closeBox = new Rectangle(85, 5, 10, 10);
+            if (closeBox.Contains(e.Location)) this.Visible = false;
         }
     }
 }

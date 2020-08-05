@@ -90,6 +90,7 @@ namespace Babel
             ChangeState(State.ready);
 
             vfw = new Viewfinder();
+            vfw.Show(); // For debugging
         }
 
         // Takes a screenshot of what's behind the window and returns it
@@ -168,7 +169,7 @@ namespace Babel
         {
             ClearAll();
 
-            pbxDisplay.Image = edit = image.Copy();
+            pbxDisplay.Image = edit = snap = image.Copy();
             ChangeState(State.snapped);
             DoOCR(true);
         }
@@ -502,18 +503,20 @@ namespace Babel
                     // Draw translated text
 
                     // Fit font to bounding box
-                    Font LargeFont = GetAdjustedFont(g, PRect.TranslatedText, DefaultFont, PRect.Location, 256, 6, true);
+                    Font LargeFont = GetAdjustedFont(g, PRect.TranslatedText, DefaultFont, PRect.Location, 32, 6, true);
 
                     // Center-justify text
                     int JustifySpace = (int)(PRect.Location.Width - g.MeasureString(PRect.TranslatedText, LargeFont).Width) / 2;
-                    Point AdjustedPosition = new Point(PRect.Location.Left + JustifySpace, PRect.Location.Top);
+                    Rectangle AdjustedPosition = new Rectangle(
+                        PRect.Location.Left + JustifySpace, PRect.Location.Top, 
+                        PRect.Location.Width, PRect.Location.Height);
 
                     // Draw translated text
                     g.DrawString(
                             PRect.TranslatedText,
                             LargeFont,
                             Brushes.White,
-                            AdjustedPosition);
+                            PRect.Location);
                 }
 
 
@@ -562,6 +565,18 @@ namespace Babel
             pbxDisplay.Invalidate();
         }
 
+        Rectangle GetOCRSetExtents(List<OCRResult> Rects)
+        {
+            Rectangle Result = new Rectangle();
+
+            Result.X = Rects.Min(x => x.poly.Min(y => y.X));
+            Result.Y = Rects.Min(x => x.poly.Min(y => y.Y));
+            Result.Width = Result.X - Rects.Max(x => x.poly.Max(y => y.X));
+            Result.Height = Result.Y - Rects.Max(x => x.poly.Max(y => y.Y));
+
+            return Result;
+        }
+
         // Finish drawing/dragging
         private void pbxDisplay_MouseUp(object sender, MouseEventArgs e)
         {
@@ -569,8 +584,11 @@ namespace Babel
             {
                 // Find out if any words were selected and, if so, create a phrase box around them
                 PhraseRect testrect = new PhraseRect(MouseStart, MouseEnd);
-                if (GetRectsInPhrase(testrect).Count > 0 && testrect.Location.Width > 25 && testrect.Location.Height > 15)
+                List<OCRResult> FoundRects = GetRectsInPhrase(testrect);
+                if (FoundRects.Count > 0 && testrect.Location.Width > 25 && testrect.Location.Height > 15)
                 {
+                    //Rectangle BoundingBox = GetOCRSetExtents(FoundRects);
+
                     ChangeState(State.translated);
                     PhraseRects.Add(new PhraseRect(MouseStart, MouseEnd));
                 }
@@ -675,7 +693,39 @@ namespace Babel
                 testFont = new Font(originalFont.Name, adjustedSize, originalFont.Style);
 
                 // Test the string with the new size
-                SizeF adjustedSizeNew = g.MeasureString(graphicString, testFont);
+                SizeF adjustedSizeNew = g.MeasureString(graphicString, testFont, Container.Width);
+
+                if (Container.Width > Convert.ToInt32(adjustedSizeNew.Width) &&
+                    Container.Height > Convert.ToInt32(adjustedSizeNew.Height)
+                    )
+                {
+                    // Good font, return it
+                    return testFont;
+                }
+            }
+
+            // If you get here there was no fontsize that worked
+            // return minimumSize or original?
+            if (smallestOnFail)
+            {
+                return testFont;
+            }
+            else
+            {
+                return originalFont;
+            }
+        }
+
+        public Font WrapText(Graphics g, string graphicString, Font originalFont, Rectangle Container, int maxFontSize, int minFontSize, bool smallestOnFail)
+        {
+            Font testFont = null;
+            // We utilize MeasureString which we get via a control instance           
+            for (int adjustedSize = maxFontSize; adjustedSize >= minFontSize; adjustedSize--)
+            {
+                testFont = new Font(originalFont.Name, adjustedSize, originalFont.Style);
+
+                // Test the string with the new size
+                SizeF adjustedSizeNew = g.MeasureString(graphicString, testFont, Container.Width);
 
                 if (Container.Width > Convert.ToInt32(adjustedSizeNew.Width) &&
                     Container.Height > Convert.ToInt32(adjustedSizeNew.Height)

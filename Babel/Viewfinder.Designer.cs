@@ -35,13 +35,20 @@
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.SystemColors.ControlDark;
-            this.ClientSize = new System.Drawing.Size(800, 450);
+            this.ClientSize = new System.Drawing.Size(568, 303);
+            this.ControlBox = false;
             this.DoubleBuffered = true;
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;
+            this.MaximizeBox = false;
+            this.MinimizeBox = false;
+            this.MinimumSize = new System.Drawing.Size(130, 80);
             this.Name = "Viewfinder";
+            this.ShowInTaskbar = false;
             this.Text = "Viewfinder";
+            this.TopMost = true;
             this.TransparencyKey = System.Drawing.SystemColors.ControlDark;
             this.Paint += new System.Windows.Forms.PaintEventHandler(this.Viewfinder_Paint);
+            this.MouseClick += new System.Windows.Forms.MouseEventHandler(this.Viewfinder_MouseClick);
             this.Resize += new System.EventHandler(this.Viewfinder_Resize);
             this.ResumeLayout(false);
 
