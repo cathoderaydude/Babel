@@ -109,8 +109,8 @@ namespace Babel.Google
         // post-OCR
         private OCRBox _bigBox = null;
         public OCRBox bigBox => isDone ? _bigBox : null;
-        private OCRBox[] _smallBoxes = null;
-        public OCRBox[] smallBoxes => isDone ? _smallBoxes : null;
+        private OCRBox[] _smallBoxes = new OCRBox[] { };
+        public OCRBox[] smallBoxes => isDone ? _smallBoxes : new OCRBox[] { };
         private string _timeStamp = "";
         public string timeStamp => isDone ? _timeStamp : "";
 

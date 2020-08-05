@@ -53,9 +53,16 @@ namespace Babel
             public bool Clicked;
             public bool Selected;
 
-            public PhraseRect(Rectangle Location, string text, Action<AsyncTranslation> callback = null)
+            public PhraseRect(Rectangle Location, AsyncOCR OCRResult, Action<AsyncTranslation> callback = null)
             {
                 this.Location = Location;
+
+                this.UpdateText(OCRResult, callback);
+            }
+
+            public void UpdateText(AsyncOCR OCRResult, Action<AsyncTranslation> callback = null)
+            {
+                string text = GetTextInRect(Location, OCRResult);
                 atrans = new AsyncTranslation(text, callback);
             }
 
@@ -72,14 +79,14 @@ namespace Babel
 
         private void Viewfinder_Load(object sender, EventArgs e)
         {
-            OCRResult = null;
+            OCRResult = new AsyncOCR(new Bitmap(1, 1));
             PhraseRects = new List<PhraseRect>();
 
             Text = "Viewfinder - Ready";
             ChangeState(State.ready);
 
             vfw = new Viewfinder();
-            vfw.Show(); // For debugging
+            SetVFW(true);
         }
 
         // Takes a screenshot of what's behind the window and returns it
@@ -147,6 +154,8 @@ namespace Babel
             ClearAll();
 
             pbxDisplay.Image = edit = snap = image.Copy();
+            pbxDisplay.Visible = true;
+            txtPlaceholder.Visible = false;
             ChangeState(State.snapped);
             DoOCR(true);
         }
@@ -173,7 +182,7 @@ namespace Babel
         {
             if (!vfw.Visible) // If the viewfinder isn't visible, show it and stop
             {
-                vfw.Show();
+                SetVFW(true);
             }
             else
             {
@@ -195,6 +204,24 @@ namespace Babel
             DoOCR();
         }
 
+        private void tsbVFW_Click(object sender, EventArgs e)
+        {
+            SetVFW(tsbVFW.Checked);
+        }
+
+        private void SetVFW(bool Visible)
+        {
+            if (Visible)
+            {
+                vfw.Show();
+            }
+            else
+            {
+                vfw.Hide();
+            }
+            tsbVFW.Checked = Visible;
+        }
+
         private void tsbAutoOCR_CheckedChanged(object sender, EventArgs e)
         {
             if(tsbAutoOCR.Checked)
@@ -210,34 +237,11 @@ namespace Babel
             Properties.Settings.Default.Save();
         }
 
-        // Called whenever settings should be reevaluated
-        void LoadSettings()
-        {
-            Properties.Settings.Default.Reload();
-            tsbOCR.Enabled = !Properties.Settings.Default.autoOCR;
-            tsbAutoOCR.Checked = Properties.Settings.Default.autoOCR;
-
-        }
-
         // Clear all identified phrases
         private void btnRevert_Click(object sender, EventArgs e)
         {
             ClearPhrases();
             ChangeState(State.OCRed);
-        }
-
-        void ClearPhrases()
-        {
-            PhraseRects.Clear();
-            pbxDisplay.Invalidate();
-        }
-
-        // Clear everything to prep for another snap
-        void ClearAll()
-        {
-            OCRResult = null;
-            PhraseRects.Clear();
-            pbxDisplay.Invalidate();
         }
 
         // Save image to disk
@@ -269,9 +273,10 @@ namespace Babel
             LoadSettings();
         }
 
-        private void tsmExit_Click(object sender, EventArgs e)
+        private void toolStripButton1_Click(object sender, EventArgs e)
         {
-            Application.Exit();
+            Text2Text text2Text = new Text2Text();
+            text2Text.Show();
         }
 
         private void AsyncTranslation_callback(AsyncTranslation result)
@@ -338,18 +343,22 @@ namespace Babel
             // Draw user bounding box
             if (Marking)
             {
+                Rectangle Rect = MouseStart.RectTo(MouseEnd);
                 switch (BoundingBoxState)
                 {
                     case BoundingState.Normal:
-                        g.DrawRectangle(Pens.White, BitmapExt.FitRect(MouseStart, MouseEnd));
+                        g.DrawRectangle(Pens.White, Rect);
                         break;
                     case BoundingState.RectsFound:
-                        g.DrawRectangle(Pens.Green, BitmapExt.FitRect(MouseStart, MouseEnd));
+                        g.DrawRectangle(Pens.Green, Rect);
                         break;
                     case BoundingState.TooSmall:
-                        g.DrawRectangle(Pens.Red, BitmapExt.FitRect(MouseStart, MouseEnd));
+                        g.DrawRectangle(Pens.Red, Rect);
                         break;
                 }
+                // Draw a black rectangle around the others to help with contrast
+                Rect.Inflate(1, 1);
+                g.DrawRectangle(Pens.Black, Rect);
             }
 
 
@@ -386,7 +395,7 @@ namespace Babel
 
                     // Center-justify text
                     // TODO: Currently disabled to enable wordwrap, fix this
-                    int JustifySpace = (int)(PRect.Location.Width - g.MeasureString(PRect.TranslatedText, LargeFont).Width) / 2;
+                    int JustifySpace = (int)(PRect.Location.Width - g.MeasureString(PRect.atrans.translatedText, LargeFont).Width) / 2;
                     Rectangle AdjustedPosition = new Rectangle(
                         PRect.Location.Left + JustifySpace, PRect.Location.Top, 
                         PRect.Location.Width, PRect.Location.Height);
@@ -454,13 +463,11 @@ namespace Babel
                 if (Marking == true) // We were drawing a bounding box
                 {
                     // Find out if any words were selected and, if so, create a phrase box around them
-                    Rectangle rect = MouseStart.RectTo(MouseEnd);
-                    bool containsAny = OCRResult.smallBoxes
-                        .Any(box => box.rect.IntersectsWith(rect));
-                    if (containsAny && rect.Width > 25 && rect.Height > 15)
+                    Rectangle TestRect = MouseStart.RectTo(MouseEnd);
+                    if (TestRect.Width > 25 && TestRect.Height > 15)
                     {
                         ChangeState(State.translated);
-                        PhraseRects.Add(new PhraseRect(rect, GetTextInRect(rect), AsyncTranslation_callback));
+                        PhraseRects.Add(new PhraseRect(TestRect, OCRResult, AsyncTranslation_callback));
                     }
                     Marking = false;
                 }
@@ -474,6 +481,7 @@ namespace Babel
                             foreach (PhraseRect TPRect in PhraseRects) { TPRect.Clicked = false; TPRect.Selected = false; } // Clear other phrase states
                             PRect.Clicked = false;
                             PRect.Selected = true;
+                            PRect.UpdateText(OCRResult);
                         }
                     }
                     else
@@ -485,38 +493,11 @@ namespace Babel
                 Dragging = false;
                 pbxDisplay.Invalidate();
             }
-        }
-            /*if (Marking == true) // We were drawing a bounding box
-            {
-                PhraseRect testrect = new PhraseRect(MouseStart, MouseEnd);
-                if (testrect.Location.Width > 25 && testrect.Location.Height > 15)
-                {
-                    ChangeState(State.translated);
-                    PhraseRects.Add(new PhraseRect(MouseStart, MouseEnd));
-                }
-               
-                MarkItems();
-                Marking = false;
-            } else { // We were selecting/dragging
-                PhraseRect PRect = GetPhraseAtPoint(e.Location);
-                if (PRect != null )
-                {
-                    if (PRect.Clicked == true)
-                    {
-                        foreach (PhraseRect TPRect in PhraseRects) { TPRect.Clicked = false; TPRect.Selected = false; } // Clear other phrase states
-                        PRect.Clicked = false;
-                        PRect.Selected = true;
-                    }
-                } else
-                {
-                    foreach (PhraseRect TPRect in PhraseRects) { TPRect.Clicked = false; TPRect.Selected = false; } // Clear other phrase states
-                }
-                MarkItems();
-            }
+
             StartingDrag = false;
             Dragging = false;
             pbxDisplay.Invalidate();
-        }*/
+        }
 
         BoundingState BoundingBoxState;
         enum BoundingState { 
@@ -531,18 +512,17 @@ namespace Babel
             {
                 MouseEnd = e.Location;
 
-                // Find out if any words were selected and, if so, create a phrase box around them
-                PhraseRect testrect = new PhraseRect(MouseStart, MouseEnd);
-                List<OCRResult> FoundRects = GetWordsInRect(testrect);
-                if (testrect.Location.Width < 25 || testrect.Location.Height < 15)
+                // Draw the phrase box
+                Rectangle TestRec = MouseStart.RectTo(MouseEnd);
+                if (TestRec.Width < 25 || TestRec.Height < 15) // If it's too small, draw it red
                 {
                     BoundingBoxState = BoundingState.TooSmall;
-                } else if (FoundRects.Count > 0)
+                } else if (CheckForText(TestRec))
                 {
-                    BoundingBoxState = BoundingState.RectsFound;
+                    BoundingBoxState = BoundingState.RectsFound; // If it's over any text, draw it green
                 } else
                 {
-                    BoundingBoxState = BoundingState.Normal;
+                    BoundingBoxState = BoundingState.Normal; // Otherwise draw it white
                 }
 
                 pbxDisplay.Invalidate();
@@ -577,12 +557,26 @@ namespace Babel
             return null;
         }
 
-        private string GetTextInRect(Rectangle rect)
+        // Check whether there are any text boxes underneath this rect
+        private bool CheckForText(Rectangle rect)
         {
+            return OCRResult.smallBoxes
+                .Where(ocr => ocr.rect.IntersectsWith(rect)).Count() > 0;
+        }
+        // Get the combined text content of all boxes under this rect
+        private static string GetTextInRect(Rectangle rect, AsyncOCR OCRResult)
+        {
+            if (OCRResult.smallBoxes
+                .Where(ocr => ocr.rect.IntersectsWith(rect)).Count() < 1) return null;
+
             return OCRResult.smallBoxes
                 .Where(ocr => ocr.rect.IntersectsWith(rect))
                 .Select(ocr => ocr.text)
                 .Aggregate((l, r) => l + " " + r);
+        }
+        private string GetTextInRect(Rectangle rect)
+        {
+            return GetTextInRect(rect, OCRResult);
         }
 
         // Find the biggest font to fit a given rect
@@ -677,10 +671,27 @@ namespace Babel
                                 roundToMultiple(Rect.Height, quantY));
         }
 
-        private void toolStripButton1_Click(object sender, EventArgs e)
+        // Called whenever settings should be reevaluated
+        void LoadSettings()
         {
-            Text2Text text2Text = new Text2Text();
-            text2Text.Show();
+            Properties.Settings.Default.Reload();
+            tsbOCR.Enabled = !Properties.Settings.Default.autoOCR;
+            tsbAutoOCR.Checked = Properties.Settings.Default.autoOCR;
+
+        }
+
+        void ClearPhrases()
+        {
+            PhraseRects.Clear();
+            pbxDisplay.Invalidate();
+        }
+
+        // Clear everything to prep for another snap
+        void ClearAll()
+        {
+            OCRResult = new AsyncOCR(new Bitmap(1, 1));
+            PhraseRects.Clear();
+            pbxDisplay.Invalidate();
         }
     }
 
