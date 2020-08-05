@@ -324,7 +324,7 @@ namespace Babel
                             List<TranslationResult> DummyData = new List<TranslationResult>();
                             for(int x=0;x<10;x++)
                             {
-                                DummyData.Add(new TranslationResult("Test text", "Nambia"));
+                                DummyData.Add(new TranslationResult(String.Join(" ", st), "Nambia"));
                             }
                             result = DummyData;
                         }
@@ -470,7 +470,18 @@ namespace Babel
             // Draw user bounding box
             if (Marking)
             {
-                g.DrawRectangle(Pens.White, BitmapExt.FitRect(MouseStart, MouseEnd));
+                switch (BoundingBoxState)
+                {
+                    case BoundingState.Normal:
+                        g.DrawRectangle(Pens.White, BitmapExt.FitRect(MouseStart, MouseEnd));
+                        break;
+                    case BoundingState.RectsFound:
+                        g.DrawRectangle(Pens.Green, BitmapExt.FitRect(MouseStart, MouseEnd));
+                        break;
+                    case BoundingState.TooSmall:
+                        g.DrawRectangle(Pens.Red, BitmapExt.FitRect(MouseStart, MouseEnd));
+                        break;
+                }
             }
 
 
@@ -506,6 +517,7 @@ namespace Babel
                     Font LargeFont = GetAdjustedFont(g, PRect.TranslatedText, DefaultFont, PRect.Location, 32, 6, true);
 
                     // Center-justify text
+                    // TODO: Currently disabled to enable wordwrap, fix this
                     int JustifySpace = (int)(PRect.Location.Width - g.MeasureString(PRect.TranslatedText, LargeFont).Width) / 2;
                     Rectangle AdjustedPosition = new Rectangle(
                         PRect.Location.Left + JustifySpace, PRect.Location.Top, 
@@ -561,6 +573,7 @@ namespace Babel
                 MouseStart = e.Location;
                 MouseEnd = e.Location;
                 Marking = true;
+                BoundingBoxState = BoundingState.TooSmall;
             }
             pbxDisplay.Invalidate();
         }
@@ -582,16 +595,13 @@ namespace Babel
         {
             if (Marking == true) // We were drawing a bounding box
             {
-                // Find out if any words were selected and, if so, create a phrase box around them
                 PhraseRect testrect = new PhraseRect(MouseStart, MouseEnd);
-                List<OCRResult> FoundRects = GetRectsInPhrase(testrect);
-                if (FoundRects.Count > 0 && testrect.Location.Width > 25 && testrect.Location.Height > 15)
+                if (testrect.Location.Width > 25 && testrect.Location.Height > 15)
                 {
-                    //Rectangle BoundingBox = GetOCRSetExtents(FoundRects);
-
                     ChangeState(State.translated);
                     PhraseRects.Add(new PhraseRect(MouseStart, MouseEnd));
                 }
+               
                 MarkItems();
                 Marking = false;
             } else { // We were selecting/dragging
@@ -608,10 +618,18 @@ namespace Babel
                 {
                     foreach (PhraseRect TPRect in PhraseRects) { TPRect.Clicked = false; TPRect.Selected = false; } // Clear other phrase states
                 }
+                MarkItems();
             }
             StartingDrag = false;
             Dragging = false;
             pbxDisplay.Invalidate();
+        }
+
+        BoundingState BoundingBoxState;
+        enum BoundingState { 
+            Normal,
+            RectsFound,
+            TooSmall
         }
 
         private void pbxDisplay_MouseMove(object sender, MouseEventArgs e)
@@ -619,6 +637,21 @@ namespace Babel
             if (Marking) // We're drawing a bounding box, set the second endpoint
             {
                 MouseEnd = e.Location;
+
+                // Find out if any words were selected and, if so, create a phrase box around them
+                PhraseRect testrect = new PhraseRect(MouseStart, MouseEnd);
+                List<OCRResult> FoundRects = GetWordsInRect(testrect);
+                if (testrect.Location.Width < 25 || testrect.Location.Height < 15)
+                {
+                    BoundingBoxState = BoundingState.TooSmall;
+                } else if (FoundRects.Count > 0)
+                {
+                    BoundingBoxState = BoundingState.RectsFound;
+                } else
+                {
+                    BoundingBoxState = BoundingState.Normal;
+                }
+
                 pbxDisplay.Invalidate();
             } else if (StartingDrag) { // Delay a few pixels to make sure a drag is really happening
                 if (GetPointDiff(MouseStart, e.Location) > 5) { StartingDrag = false; Dragging = true; }
@@ -641,20 +674,24 @@ namespace Babel
         }
 
         //========== Helper functions
-        // Find all words that are underneath a given phrase selection
-        List<OCRResult> GetRectsInPhrase(PhraseRect PRect)
+        // Find all words in a given rectangle
+        List<OCRResult> GetWordsInRect(Rectangle PRect)
         {
             List<OCRResult> Results = new List<OCRResult>();
 
             foreach (OCRResult ocr in OCRResults)
             {
                 Rectangle rect = ocr.poly.FitRect();
-                if (PRect.Location.IntersectsWith(rect))
+                if (PRect.IntersectsWith(rect))
                 {
                     Results.Add(ocr);
                 }
             }
             return (Results);
+        }
+        List<OCRResult> GetWordsInRect(PhraseRect PRect)
+        {
+            return GetWordsInRect(PRect.Location);
         }
 
         // Find a phrase at a given point, for mouse collision etc.
@@ -673,13 +710,15 @@ namespace Babel
 
             foreach (PhraseRect PRect in PhraseRects)
             {
-                List<OCRResult> Results = GetRectsInPhrase(PRect);
+                List<OCRResult> Results = GetWordsInRect(PRect);
                 string CombinedPhrase = "";
                 foreach (OCRResult Result in Results)
                 {
                     CombinedPhrase += Result.text + " ";
                 }
                 PRect.RawText = CombinedPhrase;
+                PRect.TranslatedText = "";
+                PRect.Translated = false;
             }
         }
 
