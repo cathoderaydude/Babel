@@ -1,43 +1,31 @@
-﻿using Google.Api.Gax.ResourceNames;
-using Google.Cloud.Translate.V3;
-using System;
-using System.Collections.Generic;
+﻿using System;
 using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
 using System.Net;
-using System.Text;
 using System.Threading.Tasks;
+
+using Google.Cloud.Vision.V1;
+using Google.Api.Gax.ResourceNames;
+using Google.Cloud.Translate.V3;
 
 using SImage = System.Drawing.Image;
 using GImage = Google.Cloud.Vision.V1.Image;
-using Google.Cloud.Vision.V1;
 
 namespace Babel.Google
 {
     public class OCRBox
     {
-        public Rectangle rect;
+        public Point[] points;
+        public Rectangle rect => Utility.FitRect(points);
         public string text;
-
-        private Rectangle FitRect(IEnumerable<Vertex> ps)
-        {
-            int x = ps.Min(p => p.X);
-            int maxX = ps.Max(p => p.X);
-            int y = ps.Min(p => p.Y);
-            int maxY = ps.Max(p => p.Y);
-            int w = maxX - x;
-            int h = maxY - y;
-
-            return new Rectangle(x, y, w, h);
-        }
 
         public OCRBox(EntityAnnotation ann)
         {
             text = ann.Description;
-            rect = FitRect(ann.BoundingPoly.Vertices);
+            points = ann.BoundingPoly.Vertices.Select(Utility.ToPoint).ToArray();
         }
 
         #region Dummy Data
@@ -52,7 +40,7 @@ namespace Babel.Google
         internal static OCRBox DummyBigBox() =>
             new OCRBox
             {
-                rect = new Rectangle(gutterSize, gutterSize, dummyBigBoxSize, dummyBigBoxSize),
+                points = new Rectangle(gutterSize, gutterSize, dummyBigBoxSize, dummyBigBoxSize).Corners().ToArray(),
                 text = "BIG BOX",
             };
 
@@ -68,7 +56,7 @@ namespace Babel.Google
 
             return new OCRBox
             {
-                rect = new Rectangle(bx, by, dummyBoxSize, dummyBoxSize),
+                points = new Rectangle(bx, by, dummyBoxSize, dummyBoxSize).Corners().ToArray(),
                 text = "SMALL BOX " + (idx + 1),
             };
         }
@@ -85,21 +73,22 @@ namespace Babel.Google
     {
         // pre-OCR
         public SImage image { get; private set; }
-        private Action<AsyncOCR> callback;
+        private event Action<AsyncOCR> callback;
 
         public AsyncOCR(SImage image, Action<AsyncOCR> callback = null)
         {
-            this.image = image;
+            this.image = image.Copy();
 
             if (Properties.Settings.Default.dummyData)
             {
-                bigBox = OCRBox.DummyBigBox();
-                smallBoxes = OCRBox.DummySmallBoxes();
-                timeStamp = "[dummy]";
+                _bigBox = OCRBox.DummyBigBox();
+                _smallBoxes = OCRBox.DummySmallBoxes();
+                _timeStamp = "[dummy]";
                 callback?.Invoke(this);
             }
             else
             {
+                this.callback += callback;
                 task = Task.Run(DoOCR);
             }
         }
@@ -111,16 +100,19 @@ namespace Babel.Google
             get
             {
                 if (task == null)
-                    return false;
+                    return true;
                 else
                     return task.IsCompleted;
             }
         }
 
         // post-OCR
-        public OCRBox bigBox { get; private set; }
-        public OCRBox[] smallBoxes { get; private set; }
-        public string timeStamp { get; private set; }
+        private OCRBox _bigBox = null;
+        public OCRBox bigBox => isDone ? _bigBox : null;
+        private OCRBox[] _smallBoxes = null;
+        public OCRBox[] smallBoxes => isDone ? _smallBoxes : null;
+        private string _timeStamp = "";
+        public string timeStamp => isDone ? _timeStamp : "";
 
         private async Task DoOCR()
         {
@@ -146,14 +138,14 @@ namespace Babel.Google
             sw.Stop();
 
             // First result is the big box
-            bigBox = new OCRBox(response.First());
+            _bigBox = new OCRBox(response.First());
 
             // Following results are the small boxes
-            smallBoxes = response.Skip(1)
+            _smallBoxes = response.Skip(1)
                 .Select(ann => new OCRBox(ann))
                 .ToArray();
 
-            timeStamp = string.Format("{0:00}:{1:00}:{2:00}.{3:000}",
+            _timeStamp = string.Format("{0:00}:{1:00}:{2:00}.{3:000}",
                 sw.Elapsed.Hours,
                 sw.Elapsed.Minutes,
                 sw.Elapsed.Seconds,
@@ -175,9 +167,9 @@ namespace Babel.Google
 
             if (Properties.Settings.Default.dummyData)
             {
-                translatedText = rawText;
-                detectedLocale = Properties.Settings.Default.targetLocale;
-                timeStamp = "[dummy]";
+                _translatedText = rawText;
+                _detectedLocale = Properties.Settings.Default.targetLocale;
+                _timeStamp = "[dummy]";
                 callback?.Invoke(this);
             }
             else
@@ -194,16 +186,19 @@ namespace Babel.Google
             get
             {
                 if (task == null)
-                    return false;
+                    return true;
                 else
                     return task.IsCompleted;
             }
         }
 
         // post-translation
-        public string translatedText { get; private set; }
-        public string detectedLocale { get; private set; }
-        public string timeStamp { get; private set; }
+        private string _translatedText = "";
+        public string translatedText => isDone ? _translatedText : "";
+        private string _detectedLocale = "";
+        public string detectedLocale => isDone ? _detectedLocale : "";
+        private string _timeStamp = "";
+        public string timeStamp => isDone ? _timeStamp : "";
 
         private async Task DoTranslation()
         {
@@ -230,10 +225,10 @@ namespace Babel.Google
 
             // Really only anticipating a single result here
             Translation tr = response.Translations.First();
-            translatedText = WebUtility.HtmlDecode(tr.TranslatedText);
-            detectedLocale = tr.DetectedLanguageCode;
+            _translatedText = WebUtility.HtmlDecode(tr.TranslatedText);
+            _detectedLocale = tr.DetectedLanguageCode;
 
-            timeStamp = string.Format("{0:00}:{1:00}:{2:00}.{3:000}",
+            _timeStamp = string.Format("{0:00}:{1:00}:{2:00}.{3:000}",
                 sw.Elapsed.Hours,
                 sw.Elapsed.Minutes,
                 sw.Elapsed.Seconds,

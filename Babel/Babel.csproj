@@ -121,6 +121,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Utility\Utility.cs" />
     <Compile Include="Viewfinder.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -128,8 +129,7 @@
       <DependentUpon>Viewfinder.cs</DependentUpon>
     </Compile>
     <Compile Include="Google\GoogleAsync.cs" />
-    <Compile Include="Grabbing\GDI32.cs" />
-    <Compile Include="Grabbing\Grabbing.cs" />
+    <Compile Include="Windows\GDI32.cs" />
     <Compile Include="Properties\Settings.Designer.cs">
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
@@ -153,9 +153,9 @@
     <Compile Include="Babel.Designer.cs">
       <DependentUpon>Babel.cs</DependentUpon>
     </Compile>
-    <Compile Include="Google\GoogleHandler.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Windows\user32.cs" />
     <EmbeddedResource Include="Viewfinder.resx">
       <DependentUpon>Viewfinder.cs</DependentUpon>
     </EmbeddedResource>
