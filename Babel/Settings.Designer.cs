@@ -41,7 +41,11 @@
             this.cmbLocale = new System.Windows.Forms.ComboBox();
             this.cbxDummy = new System.Windows.Forms.CheckBox();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.cbxAutoOCR = new System.Windows.Forms.CheckBox();
+            this.groupBox2 = new System.Windows.Forms.GroupBox();
+            this.cbxDisplayTimes = new System.Windows.Forms.CheckBox();
             this.groupBox1.SuspendLayout();
+            this.groupBox2.SuspendLayout();
             this.SuspendLayout();
             // 
             // txtKeyFile
@@ -93,7 +97,7 @@
             // 
             // btnOk
             // 
-            this.btnOk.Location = new System.Drawing.Point(310, 91);
+            this.btnOk.Location = new System.Drawing.Point(326, 216);
             this.btnOk.Name = "btnOk";
             this.btnOk.Size = new System.Drawing.Size(75, 23);
             this.btnOk.TabIndex = 7;
@@ -103,7 +107,7 @@
             // 
             // btnCancel
             // 
-            this.btnCancel.Location = new System.Drawing.Point(391, 91);
+            this.btnCancel.Location = new System.Drawing.Point(407, 216);
             this.btnCancel.Name = "btnCancel";
             this.btnCancel.Size = new System.Drawing.Size(75, 23);
             this.btnCancel.TabIndex = 8;
@@ -141,38 +145,69 @@
             // cbxDummy
             // 
             this.cbxDummy.AutoSize = true;
-            this.cbxDummy.Location = new System.Drawing.Point(377, 12);
+            this.cbxDummy.Location = new System.Drawing.Point(11, 19);
             this.cbxDummy.Name = "cbxDummy";
-            this.cbxDummy.Size = new System.Drawing.Size(85, 17);
+            this.cbxDummy.Size = new System.Drawing.Size(260, 17);
             this.cbxDummy.TabIndex = 11;
-            this.cbxDummy.Text = "Dummy data";
+            this.cbxDummy.Text = "Use dummy data (disables calls to Google API - $)";
             this.cbxDummy.UseVisualStyleBackColor = true;
             // 
             // groupBox1
             // 
+            this.groupBox1.Controls.Add(this.cbxAutoOCR);
             this.groupBox1.Controls.Add(this.lblTargetLocale);
-            this.groupBox1.Controls.Add(this.cbxDummy);
             this.groupBox1.Controls.Add(this.txtKeyFile);
             this.groupBox1.Controls.Add(this.cmbLocale);
             this.groupBox1.Controls.Add(this.txtProjectName);
             this.groupBox1.Controls.Add(this.btnBrowseKeyFile);
             this.groupBox1.Controls.Add(this.lblKeyFile);
-            this.groupBox1.Controls.Add(this.btnCancel);
             this.groupBox1.Controls.Add(this.lblProjectName);
-            this.groupBox1.Controls.Add(this.btnOk);
-            this.groupBox1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.groupBox1.Location = new System.Drawing.Point(5, 5);
             this.groupBox1.Name = "groupBox1";
             this.groupBox1.Size = new System.Drawing.Size(477, 126);
             this.groupBox1.TabIndex = 12;
             this.groupBox1.TabStop = false;
             // 
+            // cbxAutoOCR
+            // 
+            this.cbxAutoOCR.AutoSize = true;
+            this.cbxAutoOCR.Location = new System.Drawing.Point(11, 94);
+            this.cbxAutoOCR.Name = "cbxAutoOCR";
+            this.cbxAutoOCR.Size = new System.Drawing.Size(220, 17);
+            this.cbxAutoOCR.TabIndex = 11;
+            this.cbxAutoOCR.Text = "Automatically identify text on snapshot ($)";
+            this.cbxAutoOCR.UseVisualStyleBackColor = true;
+            // 
+            // groupBox2
+            // 
+            this.groupBox2.Controls.Add(this.cbxDisplayTimes);
+            this.groupBox2.Controls.Add(this.cbxDummy);
+            this.groupBox2.Location = new System.Drawing.Point(5, 137);
+            this.groupBox2.Name = "groupBox2";
+            this.groupBox2.Size = new System.Drawing.Size(477, 73);
+            this.groupBox2.TabIndex = 13;
+            this.groupBox2.TabStop = false;
+            this.groupBox2.Text = "Debug";
+            // 
+            // cbxDisplayTimes
+            // 
+            this.cbxDisplayTimes.AutoSize = true;
+            this.cbxDisplayTimes.Location = new System.Drawing.Point(11, 42);
+            this.cbxDisplayTimes.Name = "cbxDisplayTimes";
+            this.cbxDisplayTimes.Size = new System.Drawing.Size(185, 17);
+            this.cbxDisplayTimes.TabIndex = 11;
+            this.cbxDisplayTimes.Text = "Display translation round-trip times";
+            this.cbxDisplayTimes.UseVisualStyleBackColor = true;
+            // 
             // Settings
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(487, 136);
+            this.ClientSize = new System.Drawing.Size(487, 243);
+            this.Controls.Add(this.groupBox2);
             this.Controls.Add(this.groupBox1);
+            this.Controls.Add(this.btnCancel);
+            this.Controls.Add(this.btnOk);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "Settings";
@@ -180,8 +215,11 @@
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             this.Text = "Settings";
             this.Load += new System.EventHandler(this.Settings_Load);
+            this.VisibleChanged += new System.EventHandler(this.Settings_VisibleChanged);
             this.groupBox1.ResumeLayout(false);
             this.groupBox1.PerformLayout();
+            this.groupBox2.ResumeLayout(false);
+            this.groupBox2.PerformLayout();
             this.ResumeLayout(false);
 
         }
@@ -200,5 +238,8 @@
         private System.Windows.Forms.ComboBox cmbLocale;
         private System.Windows.Forms.CheckBox cbxDummy;
         private System.Windows.Forms.GroupBox groupBox1;
+        private System.Windows.Forms.GroupBox groupBox2;
+        private System.Windows.Forms.CheckBox cbxDisplayTimes;
+        private System.Windows.Forms.CheckBox cbxAutoOCR;
     }
 }

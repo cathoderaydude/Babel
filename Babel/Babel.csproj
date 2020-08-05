@@ -121,11 +121,11 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Controls.cs">
+    <Compile Include="Viewfinder.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Controls.Designer.cs">
-      <DependentUpon>Controls.cs</DependentUpon>
+    <Compile Include="Viewfinder.Designer.cs">
+      <DependentUpon>Viewfinder.cs</DependentUpon>
     </Compile>
     <Compile Include="Google\GoogleAsync.cs" />
     <Compile Include="Grabbing\GDI32.cs" />
@@ -147,17 +147,17 @@
     <Compile Include="Text2Text.Designer.cs">
       <DependentUpon>Text2Text.cs</DependentUpon>
     </Compile>
-    <Compile Include="Viewfinder.cs">
+    <Compile Include="Babel.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Viewfinder.Designer.cs">
-      <DependentUpon>Viewfinder.cs</DependentUpon>
+    <Compile Include="Babel.Designer.cs">
+      <DependentUpon>Babel.cs</DependentUpon>
     </Compile>
     <Compile Include="Google\GoogleHandler.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <EmbeddedResource Include="Controls.resx">
-      <DependentUpon>Controls.cs</DependentUpon>
+    <EmbeddedResource Include="Viewfinder.resx">
+      <DependentUpon>Viewfinder.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Settings.resx">
       <DependentUpon>Settings.cs</DependentUpon>
@@ -165,8 +165,8 @@
     <EmbeddedResource Include="Text2Text.resx">
       <DependentUpon>Text2Text.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Viewfinder.resx">
-      <DependentUpon>Viewfinder.cs</DependentUpon>
+    <EmbeddedResource Include="Babel.resx">
+      <DependentUpon>Babel.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>

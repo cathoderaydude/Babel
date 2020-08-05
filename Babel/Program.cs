@@ -16,7 +16,7 @@ namespace Babel
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new frmViewFinder());
+            Application.Run(new frmBabel());
         }
     }
 }
