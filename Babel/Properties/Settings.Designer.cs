@@ -70,5 +70,29 @@ namespace Babel.Properties {
                 this["dummyData"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool displayTimes {
+            get {
+                return ((bool)(this["displayTimes"]));
+            }
+            set {
+                this["displayTimes"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool autoOCR {
+            get {
+                return ((bool)(this["autoOCR"]));
+            }
+            set {
+                this["autoOCR"] = value;
+            }
+        }
     }
 }

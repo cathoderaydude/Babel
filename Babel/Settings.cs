@@ -17,14 +17,6 @@ namespace Babel
             InitializeComponent();
         }
 
-        private void Settings_Load(object sender, EventArgs e)
-        {
-            cmbLocale.Text = Properties.Settings.Default.targetLocale;
-            txtKeyFile.Text = Properties.Settings.Default.apiKeyPath;
-            txtProjectName.Text = Properties.Settings.Default.projectName;
-            cbxDummy.Checked = Properties.Settings.Default.dummyData;
-        }
-
         private void comboBox1_SelectedIndexChanged(object sender, EventArgs e)
         {
             
@@ -52,6 +44,9 @@ namespace Babel
             Properties.Settings.Default.apiKeyPath = txtKeyFile.Text;
             Properties.Settings.Default.projectName = txtProjectName.Text;
             Properties.Settings.Default.dummyData = cbxDummy.Checked;
+            Properties.Settings.Default.displayTimes = cbxDisplayTimes.Checked;
+            Properties.Settings.Default.autoOCR = cbxAutoOCR.Checked;
+
             Properties.Settings.Default.Save();
             Close();
         }
@@ -59,6 +54,21 @@ namespace Babel
         private void btnCancel_Click(object sender, EventArgs e)
         {
             Close();
+        }
+
+        private void Settings_VisibleChanged(object sender, EventArgs e)
+        {
+            
+        }
+
+        private void Settings_Load(object sender, EventArgs e)
+        {
+            cmbLocale.Text = Properties.Settings.Default.targetLocale;
+            txtKeyFile.Text = Properties.Settings.Default.apiKeyPath;
+            txtProjectName.Text = Properties.Settings.Default.projectName;
+            cbxDummy.Checked = Properties.Settings.Default.dummyData;
+            cbxDisplayTimes.Checked = Properties.Settings.Default.displayTimes;
+            cbxAutoOCR.Checked = Properties.Settings.Default.autoOCR;
         }
     }
 }
