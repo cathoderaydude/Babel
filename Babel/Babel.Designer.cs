@@ -47,8 +47,6 @@
             this.tsbTextText = new System.Windows.Forms.ToolStripButton();
             this.tsbSettings = new System.Windows.Forms.ToolStripButton();
             this.sfdDisplay = new System.Windows.Forms.SaveFileDialog();
-            this.bgwOCR = new System.ComponentModel.BackgroundWorker();
-            this.bgwTranslate = new System.ComponentModel.BackgroundWorker();
             ((System.ComponentModel.ISupportInitialize)(this.pbxDisplay)).BeginInit();
             this.tscMain.ContentPanel.SuspendLayout();
             this.tscMain.TopToolStripPanel.SuspendLayout();
@@ -242,17 +240,6 @@
             this.sfdDisplay.DefaultExt = "png";
             this.sfdDisplay.Filter = "PNG|*.png";
             // 
-            // bgwOCR
-            // 
-            this.bgwOCR.DoWork += new System.ComponentModel.DoWorkEventHandler(this.bgwOCR_DoWork);
-            this.bgwOCR.RunWorkerCompleted += new System.ComponentModel.RunWorkerCompletedEventHandler(this.bgwOCR_RunWorkerCompleted);
-            // 
-            // bgwTranslate
-            // 
-            this.bgwTranslate.WorkerSupportsCancellation = true;
-            this.bgwTranslate.DoWork += new System.ComponentModel.DoWorkEventHandler(this.bgwTranslate_DoWork);
-            this.bgwTranslate.RunWorkerCompleted += new System.ComponentModel.RunWorkerCompletedEventHandler(this.bgwTranslate_RunWorkerCompleted);
-            // 
             // frmBabel
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -288,8 +275,6 @@
         private System.Windows.Forms.PictureBox pbxDisplay;
         private System.Windows.Forms.ToolStripContainer tscMain;
         private System.Windows.Forms.SaveFileDialog sfdDisplay;
-        private System.ComponentModel.BackgroundWorker bgwOCR;
-        private System.ComponentModel.BackgroundWorker bgwTranslate;
         private System.Windows.Forms.ToolStrip toolStrip1;
         private System.Windows.Forms.ToolStripButton tsbRevert;
         private System.Windows.Forms.ToolStripButton tsbSettings;

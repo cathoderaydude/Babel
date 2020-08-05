@@ -1,12 +1,6 @@
 ﻿using Babel.Google;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace Babel
@@ -25,32 +19,35 @@ namespace Babel
             dirty = true;
         }
 
-        Queue<string> ts = new Queue<string>();
+        Queue<AsyncTranslation> ts = new Queue<AsyncTranslation>();
 
-        private void Translation_callback(string s)
+        private void Translation_callback(AsyncTranslation tr)
         {
-            ts.Enqueue(s);
+            Invalidate();
         }
 
         private void tRefresh_Tick(object sender, EventArgs e)
         {
-            // Manage inputs
             if (dirty)
             {
-                var translation = new AsyncTranslation(txtInput.Text);
-                translation.callback += Translation_callback;
+                ts.Enqueue(new AsyncTranslation(txtInput.Text, Translation_callback));
                 dirty = false;
             }
-
-            // Manage outputs
-            if (ts.Count > 0)
-                txtOutput.Text = ts.Dequeue();
         }
 
         private void toolStripButton1_Click(object sender, EventArgs e)
         {
             tRefresh.Enabled = !tsbPause.Checked;
             dirty = true;
+        }
+
+        private void Text2Text_Paint(object sender, PaintEventArgs e)
+        {
+            while ((ts.Count > 0) && ts.Peek().isDone)
+                txtOutput.Text = ts.Dequeue().translatedText;
+
+            if (ts.Count > 0)
+                Invalidate();
         }
     }
 }
