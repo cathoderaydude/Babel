@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections;
 using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
 using Babel.Windows;
 using Babel.Google;
+using System.Windows.Input;
 
 namespace Babel
 {
@@ -108,7 +110,6 @@ namespace Babel
 
             #if DEBUG
             ToggleVFW(); // Show viewfinder immediately
-            //Picker.Show();
             #endif
         }
 
@@ -121,7 +122,7 @@ namespace Babel
             Image result = GDI32.Grab(SnapRegion);
             
             if (VfwWasVisible) vfw.Visible = true; // Reshow viewfinder if appropriate
-            this.Focus();
+            this.Focus(); // Return focus to the main form
 
             return result;
         }
@@ -229,6 +230,7 @@ namespace Babel
             ToggleVFW();
         }
 
+        // Display or hide the viewfinder
         private void ToggleVFW()
         {
             if (!vfw.Visible)
@@ -449,27 +451,53 @@ namespace Babel
             DrawImage(g);
         }
 
+        PhraseRect SelectedRect;
+
         // Begin drawing or dragging bounding box
         private void pbxDisplay_MouseDown(object sender, MouseEventArgs e)
         {
             PhraseRect PRect = GetPhraseAtPoint(e.Location);
+
+            if (e.Button == MouseButtons.Right)
+            {
+                if (PRect != null) PRect.Selected = true;
+
+                return;
+            }
+
             if (PRect != null && !CtrlDown)
             {
-                // There was a phrase under the mouse, so start a drag/select rather than a bounding box
-                foreach (PhraseRect TPRect in PhraseRects) { TPRect.Clicked = false; TPRect.Selected = false; } // Clear phrase states
+                // There was a phrase under the mouse
+                // Select it, then set up for a drag if desired
+
+                // If the user wasn't holding shift, clear all other selections
+                if (!WindowFunctions.IsPressed((int)WindowFunctions.VirtualKeyStates.VK_LSHIFT))
+                {
+                    foreach (PhraseRect TPRect in PhraseRects) { TPRect.Clicked = false; TPRect.Selected = false; }
+                }
+
                 PRect.Clicked = true;
-                PRect.Selected = false;
-                MouseStart = e.Location;
-                StartingDrag = true;
-                DrugPhrase = PRect;
+                PRect.Selected = true;
+                if (e.Button == MouseButtons.Left)
+                {
+                    MouseStart = e.Location;
+                    Dragging = true;
+                    DrugPhrase = PRect;
+                }
+
+                PhraseRects.Remove(PRect);
+                PhraseRects.Add(PRect);
             }
             else
             {
-                // There was no phrase under the mouse, start a bounding box
-                MouseStart = e.Location;
-                MouseEnd = e.Location;
-                Marking = true;
-                BoundingBoxState = BoundingState.TooSmall;
+                if (e.Button == MouseButtons.Left)
+                {
+                    // There was no phrase under the mouse, start a bounding box
+                    MouseStart = e.Location;
+                    MouseEnd = e.Location;
+                    Marking = true;
+                    BoundingBoxState = BoundingState.TooSmall;
+                }
             }
             pbxDisplay.Invalidate();
         }
@@ -477,6 +505,15 @@ namespace Babel
         // Finish drawing/dragging
         private void pbxDisplay_MouseUp(object sender, MouseEventArgs e)
         {
+            if (e.Button == MouseButtons.Right)
+            {
+                // Summon a context menu
+                SelectedRect = GetPhraseAtPoint(e.Location); // Find all selected phrases
+                if (PhraseRects.FindAll(x => x.Selected == true).Count() < 1) return; // Don't display menu if nothing's selected
+                ctxPhrase.Show(MousePosition); // Display menu
+                return; // Do nothing else
+            }
+
             if (OCRResult != null)
             {
                 if (Marking == true) // We were drawing a bounding box
@@ -489,6 +526,12 @@ namespace Babel
                         PhraseRects.Add(new PhraseRect(TestRect, OCRResult, AsyncTranslation_callback));
                     }
                     Marking = false;
+
+                    // If the user wasn't holding shift, clear all other selections
+                    if (!WindowFunctions.IsPressed((int)WindowFunctions.VirtualKeyStates.VK_LSHIFT))
+                    {
+                        foreach (PhraseRect TPRect in PhraseRects) { TPRect.Clicked = false; TPRect.Selected = false; }
+                    }
                 }
                 else
                 { // We were selecting/dragging
@@ -497,18 +540,21 @@ namespace Babel
                     {
                         if (PRect.Clicked == true)
                         {
-                            foreach (PhraseRect TPRect in PhraseRects) { TPRect.Clicked = false; TPRect.Selected = false; } // Clear other phrase states
-                            PRect.Clicked = false;
-                            PRect.Selected = true;
+                            PRect.Clicked = false; // Clear item active state
                             PRect.UpdateText(OCRResult);
                         }
-                    }
-                    else
-                    {
-                        foreach (PhraseRect TPRect in PhraseRects) { TPRect.Clicked = false; TPRect.Selected = false; } // Clear other phrase states
+                        if (!Dragging)
+                        {
+                            // If the user wasn't holding shift, clear all other selections
+
+                            if (!WindowFunctions.IsPressed((int)WindowFunctions.VirtualKeyStates.VK_LSHIFT))
+                            {
+                                foreach (PhraseRect TPRect in PhraseRects) { TPRect.Clicked = false; TPRect.Selected = false; }
+                                PRect.Selected = true;
+                            }
+                        }
                     }
                 }
-                StartingDrag = false;
                 Dragging = false;
                 pbxDisplay.Invalidate();
             }
@@ -539,13 +585,10 @@ namespace Babel
                 }
 
                 pbxDisplay.Invalidate();
-            } else if (StartingDrag) { // Delay a few pixels to make sure a drag is really happening
-                if (GetPointDiff(MouseStart, e.Location) > 5) { StartingDrag = false; Dragging = true; }
             } else if (Dragging) { // We're dragging, move the selected bounding box
                 int diffX = MouseStart.X - e.X;
                 int diffY = MouseStart.Y - e.Y;
-                DrugPhrase.Location.X -= diffX;
-                DrugPhrase.Location.Y -= diffY;
+                PhraseRects.FindAll(x => x.Selected).ForEach(x => { x.Location.X -= diffX; x.Location.Y -= diffY; });
                 MouseStart = e.Location;
                 pbxDisplay.Invalidate();
             } else { // Just highlight whatever box the mouse is over
@@ -563,6 +606,10 @@ namespace Babel
         // Find a phrase at a given point, for mouse collision etc.
         PhraseRect GetPhraseAtPoint(Point Location)
         {
+            if (PhraseRects.Count() < 1) return null;
+            List<PhraseRect> FoundRects = PhraseRects.FindAll(x => x.Location.Contains(Location));
+            if (FoundRects.Count() < 1) return null;
+            return FoundRects.Last();
             foreach(PhraseRect PRect in PhraseRects)
             {
                 if (PRect.Location.Contains(Location)) return PRect;
@@ -756,6 +803,126 @@ namespace Babel
                 }
             };
             FlashTimer.Enabled = true;
+        }
+
+        private void copyTranslatedToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            List<string> cText = new List<string>();
+            foreach (PhraseRect PRect in PhraseRects.FindAll(x => x.Selected == true))
+            {
+                cText.Add(PRect.atrans.translatedText);
+            }
+            Clipboard.SetText(String.Join("\n\n", cText));
+        }
+
+        private void copyOriginalToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            List<string> cText = new List<string>();
+            foreach(PhraseRect PRect in PhraseRects.FindAll(x => x.Selected == true))
+            {
+                cText.Add(PRect.atrans.rawText);
+            }
+            Clipboard.SetText(String.Join("\n\n", cText));
+        }
+
+        private void copyBothToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            List<string> cText = new List<string>();
+            foreach (PhraseRect PRect in PhraseRects.FindAll(x => x.Selected == true))
+            {
+                cText.Add("[" + PRect.atrans.rawText + "] " + PRect.atrans.translatedText);
+            }
+            Clipboard.SetText(String.Join("\n\n", cText));
+        }
+
+        private void deleteToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            PhraseRects.RemoveAll(x => x.Selected == true);
+            pbxDisplay.Invalidate();
+        }
+
+        private void ctxPhrase_Opening(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            // If the mouse cursor wasn't over a phrase, disable some phrase-specific options
+            if(SelectedRect == null)
+            {
+                alignToolStripMenuItem.Enabled = false;
+                fitToolStripMenuItem.Enabled = false;
+            } else
+            {
+                alignToolStripMenuItem.Enabled = true;
+                fitToolStripMenuItem.Enabled = true;
+            }
+        }
+
+        private void alignLeftEdgesToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            PhraseRects.FindAll(x => x.Selected == true).ForEach(x => x.Location.X = SelectedRect.Location.X);
+            pbxDisplay.Invalidate();
+        }
+
+        private void topEdgesToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            PhraseRects.FindAll(x => x.Selected == true).ForEach(x => x.Location.Y = SelectedRect.Location.Y);
+            pbxDisplay.Invalidate();
+        }
+
+        private void rightEdgesToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            PhraseRects.FindAll(x => x.Selected == true).ForEach(x => x.Location.X = (SelectedRect.Location.X + SelectedRect.Location.Width) - x.Location.Width);
+            pbxDisplay.Invalidate();
+        }
+
+        private void bottomEdgesToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            PhraseRects.FindAll(x => x.Selected == true).ForEach(x => x.Location.Y = (SelectedRect.Location.Y + SelectedRect.Location.Height) - x.Location.Height);
+            pbxDisplay.Invalidate();
+        }
+
+        private void horizontalToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            PhraseRects.FindAll(x => x.Selected == true).ForEach(x => x.Location.Width = SelectedRect.Location.Width);
+            pbxDisplay.Invalidate();
+        }
+
+        private void verticalToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            PhraseRects.FindAll(x => x.Selected == true).ForEach(x => x.Location.Height = SelectedRect.Location.Height);
+            pbxDisplay.Invalidate();
+        }
+
+        private void verticallyToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            int TopEdge = PhraseRects.FindAll(x => x.Selected == true).Min(x => x.Location.Y);
+            int BottomEdge = PhraseRects.FindAll(x => x.Selected == true).Max(x => x.Location.Y + x.Location.Height);
+            int Height = BottomEdge - TopEdge;
+            IOrderedEnumerable<PhraseRect> PRects = PhraseRects.FindAll(x => x.Selected == true)
+                .OrderBy(x => x.Location.Y);
+
+            int Spacing = Height / PRects.Count();
+
+            for (int x = 1; x < PRects.Count() - 1; x++)
+            {
+                PhraseRect TRect = PRects.ElementAt(x);
+                TRect.Location.Y = TopEdge + (Spacing * (x)) + (TRect.Location.Height / 2);
+            }
+        }
+
+        private void horizontallyToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            int LeftEdge = PhraseRects.FindAll(x => x.Selected == true).Min(x => x.Location.X);
+            int RightEdge = PhraseRects.FindAll(x => x.Selected == true).Max(x => x.Location.X + x.Location.Width);
+            int Width = RightEdge - LeftEdge;
+            IOrderedEnumerable<PhraseRect> PRects = PhraseRects.FindAll(x => x.Selected == true)
+                .OrderBy(x => x.Location.X);
+
+            int Spacing = Width / PRects.Count();
+
+            for (int x = 1; x < PRects.Count() - 1; x++)
+            {
+                PhraseRect TRect = PRects.ElementAt(x);
+                TRect.Location.X = LeftEdge + (Spacing * (x));
+            }
         }
     }
 
