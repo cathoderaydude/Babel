@@ -110,7 +110,7 @@ namespace Babel.Google
         private OCRBox _bigBox;
         public OCRBox bigBox => isDone ? _bigBox : null;
         private OCRBox[] _smallBoxes;
-        public OCRBox[] smallBoxes => isDone ? _smallBoxes : null;
+        public OCRBox[] smallBoxes => isDone ? _smallBoxes : new OCRBox[] { };
         private string _timeStamp;
         public string timeStamp => isDone ? _timeStamp : "";
 
