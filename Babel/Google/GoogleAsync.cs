@@ -107,11 +107,11 @@ namespace Babel.Google
         }
 
         // post-OCR
-        private OCRBox _bigBox = null;
+        private OCRBox _bigBox;
         public OCRBox bigBox => isDone ? _bigBox : null;
-        private OCRBox[] _smallBoxes = null;
+        private OCRBox[] _smallBoxes;
         public OCRBox[] smallBoxes => isDone ? _smallBoxes : null;
-        private string _timeStamp = "";
+        private string _timeStamp;
         public string timeStamp => isDone ? _timeStamp : "";
 
         private async Task DoOCR()
@@ -193,11 +193,11 @@ namespace Babel.Google
         }
 
         // post-translation
-        private string _translatedText = "";
+        private string _translatedText;
         public string translatedText => isDone ? _translatedText : "";
-        private string _detectedLocale = "";
+        private string _detectedLocale;
         public string detectedLocale => isDone ? _detectedLocale : "";
-        private string _timeStamp = "";
+        private string _timeStamp;
         public string timeStamp => isDone ? _timeStamp : "";
 
         private async Task DoTranslation()
