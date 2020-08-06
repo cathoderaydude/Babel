@@ -484,10 +484,6 @@ namespace Babel
                     Rectangle TestRect = MouseStart.RectTo(MouseEnd);
                     if (TestRect.Width > 25 && TestRect.Height > 15)
                     {
-                        rect = OCRResult.smallBoxes
-                            .Where(box => box.rect.IntersectsWith(rect))
-                            .SelectMany(box => box.points)
-                            .FitRect();
                         ChangeState(State.translated);
                         PhraseRects.Add(new PhraseRect(TestRect, OCRResult, AsyncTranslation_callback));
                     }

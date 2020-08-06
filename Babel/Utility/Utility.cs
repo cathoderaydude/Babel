@@ -38,10 +38,6 @@ namespace Babel
             tempRect.Inflate(width, height);
             return tempRect;
         }
-
-        public static Point ToPoint(Vertex v) => new Point(v.X, v.Y);
-
-        public static Vertex ToVertex(Point p) => new Vertex { X = p.X, Y = p.Y };
         
         public static Rectangle FitRect(this IEnumerable<Vertex> vs)
         {
