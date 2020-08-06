@@ -17,6 +17,10 @@ namespace Babel
               Math.Abs(p1.Y - p2.Y));
         }
 
+        public static Point ToPoint(Vertex v) => new Point(v.X, v.Y);
+
+        public static Vertex ToVertex(Point p) => new Vertex { X = p.X, Y = p.Y };
+
         public static Rectangle FitRect(this IEnumerable<Point> ps)
         {
             int x = ps.Min(p => p.X);
@@ -28,10 +32,6 @@ namespace Babel
 
             return new Rectangle(x, y, w, h);
         }
-
-        public static Point ToPoint(Vertex v) => new Point(v.X, v.Y);
-
-        public static Vertex ToVertex(Point p) => new Vertex { X = p.X, Y = p.Y };
 
         public static Rectangle FitRect(this IEnumerable<Vertex> vs)
         {

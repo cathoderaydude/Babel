@@ -436,7 +436,7 @@ namespace Babel
         // Finish drawing/dragging
         private void pbxDisplay_MouseUp(object sender, MouseEventArgs e)
         {
-            if (OCRResult != null)
+            if (OCRResult != null && OCRResult.isDone)
             {
                 if (Marking == true) // We were drawing a bounding box
                 {
@@ -446,6 +446,10 @@ namespace Babel
                         .Any(box => box.rect.IntersectsWith(rect));
                     if (containsAny && rect.Width > 25 && rect.Height > 15)
                     {
+                        rect = OCRResult.smallBoxes
+                            .Where(box => box.rect.IntersectsWith(rect))
+                            .SelectMany(box => box.points)
+                            .FitRect();
                         ChangeState(State.translated);
                         PhraseRects.Add(new PhraseRect(rect, GetTextInRect(rect), AsyncTranslation_callback));
                     }
