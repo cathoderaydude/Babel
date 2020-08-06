@@ -38,6 +38,18 @@ namespace Babel
         private Image edit = null; // Modified image
 
         Viewfinder vfw; // Persistent viewfinder window
+        public Rectangle SnapRegion; // Position of capture
+        public bool AutoScaleVFW; // Whether viewfinder size should always follow main form
+
+        BoundingState BoundingBoxState;
+        enum BoundingState
+        {
+            Normal,
+            RectsFound,
+            TooSmall
+        }
+
+        private frmWindowPicker Picker;
 
         public frmBabel()
         {
@@ -82,19 +94,33 @@ namespace Babel
             OCRResult = new AsyncOCR(new Bitmap(1, 1));
             PhraseRects = new List<PhraseRect>();
 
+            SnapRegion = new Rectangle(0, 0, 640, 480);
+
             Text = "Viewfinder - Ready";
             ChangeState(State.ready);
 
             vfw = new Viewfinder();
-            SetVFW(true);
+            vfw.MainForm = this;
+            vfw.StartPosition = FormStartPosition.Manual;
+            vfw.Location = new Point(this.Left + 50, this.Top + 50);
+
+            Picker = new frmWindowPicker();
+
+            #if DEBUG
+            ToggleVFW(); // Show viewfinder immediately
+            Picker.Show();
+            #endif
         }
 
         // Takes a screenshot of what's behind the window and returns it
         private Image Snap()
         {
-            vfw.Visible = false;
-            Image result = GDI32.Grab(vfw.RectangleToScreen(vfw.ClientRectangle));
-            vfw.Visible = true;
+            bool VfwWasVisible = vfw.Visible;
+            if (VfwWasVisible) vfw.Visible = false; // Hide viewfinder if appropriate
+
+            Image result = GDI32.Grab(SnapRegion);
+            
+            if (VfwWasVisible) vfw.Visible = true; // Reshow viewfinder if appropriate
 
             return result;
         }
@@ -180,14 +206,7 @@ namespace Babel
         // Ingest image from viewfinder
         private void btnSnap_Click(object sender, EventArgs e)
         {
-            if (!vfw.Visible) // If the viewfinder isn't visible, show it and stop
-            {
-                SetVFW(true);
-            }
-            else
-            {
-                GetSnap(Snap());
-            }
+            GetSnap(Snap());
         }
 
         // Ingest image from clipboard
@@ -206,12 +225,12 @@ namespace Babel
 
         private void tsbVFW_Click(object sender, EventArgs e)
         {
-            SetVFW(tsbVFW.Checked);
+            ToggleVFW();
         }
 
-        private void SetVFW(bool Visible)
+        private void ToggleVFW()
         {
-            if (Visible)
+            if (!vfw.Visible)
             {
                 vfw.Show();
             }
@@ -219,7 +238,6 @@ namespace Babel
             {
                 vfw.Hide();
             }
-            tsbVFW.Checked = Visible;
         }
 
         private void tsbAutoOCR_CheckedChanged(object sender, EventArgs e)
@@ -499,13 +517,7 @@ namespace Babel
             pbxDisplay.Invalidate();
         }
 
-        BoundingState BoundingBoxState;
-        enum BoundingState { 
-            Normal,
-            RectsFound,
-            TooSmall
-        }
-
+        
         private void pbxDisplay_MouseMove(object sender, MouseEventArgs e)
         {
             if (Marking) // We're drawing a bounding box, set the second endpoint
@@ -692,6 +704,57 @@ namespace Babel
             OCRResult = new AsyncOCR(new Bitmap(1, 1));
             PhraseRects.Clear();
             pbxDisplay.Invalidate();
+        }
+
+        private void tsbMaxVFW_Click(object sender, EventArgs e)
+        {
+            Screen screen = Screen.FromControl(vfw);
+            vfw.Size = new Size(screen.WorkingArea.Width, screen.WorkingArea.Height);
+            vfw.Location = new Point(screen.Bounds.X, screen.Bounds.Y);
+
+            vfw.Flicker();
+        }
+
+        private void scaleViewfinderToWindowToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            AutoScaleVFW = !AutoScaleVFW;
+            vfw.SizeGripStyle = AutoScaleVFW ? SizeGripStyle.Hide : SizeGripStyle.Show;
+            vfw.Size = panel1.Size;
+            vfw.Invalidate();
+        }
+
+        private void frmBabel_Resize(object sender, EventArgs e)
+        {
+            vfw.Size = panel1.Size;
+        }
+
+        private void tsbCrosshair_MouseDown(object sender, MouseEventArgs e)
+        {
+            Picker.Show();
+            // Make a temporary timer that flashes the viewfinder for attention
+            Timer FlashTimer = new Timer();
+            FlashTimer.Interval = 60;
+            FlashTimer.Tag = 6;
+            MouseStart = MousePosition;
+            FlashTimer.Tick += delegate (object ssender, EventArgs ee)
+            {
+                Timer t = ((Timer)ssender);
+
+                if (MouseStart != MousePosition)
+                {
+                    Picker.GoPoint(MousePosition);
+                    MouseStart = MousePosition;
+                }
+                if (MouseButtons != MouseButtons.Left)
+                {
+                    // TODO: Resize the viewfinder
+                    vfw.Size = Picker.Size;
+                    vfw.Location = Picker.Location;
+                    Picker.Hide();
+                    t.Dispose();
+                }
+            };
+            FlashTimer.Enabled = true;
         }
     }
 
