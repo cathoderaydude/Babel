@@ -29,6 +29,13 @@ namespace Babel
             return new Rectangle(x, y, w, h);
         }
 
+        public static Rectangle InflateO(this Rectangle rect, int width, int height)
+        {
+            Rectangle tempRect = rect;
+            tempRect.Inflate(width, height);
+            return tempRect;
+        }
+
         public static Point ToPoint(Vertex v) => new Point(v.X, v.Y);
 
         public static Vertex ToVertex(Point p) => new Vertex { X = p.X, Y = p.Y };

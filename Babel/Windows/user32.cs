@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using System.Text;
+using System.Drawing;
+using System.Windows.Forms;
 
 namespace Babel.Windows
 {
@@ -23,6 +25,20 @@ namespace Babel.Windows
         [DllImport("user32.dll")]
         public static extern bool ShowWindow(IntPtr hWnd, int nCmdShow);
         public const int SW_HIDE = 0;
+        [DllImport("user32.dll")]
+        static extern IntPtr WindowFromPoint(Point point);
+        [DllImport("user32.dll")]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        static extern bool GetWindowRect(IntPtr hWnd, out RECT lpRect);
+
+        [StructLayout(LayoutKind.Sequential)]
+        public struct RECT
+        {
+            public int Left;        // x position of upper-left corner
+            public int Top;         // y position of upper-left corner
+            public int Right;       // x position of lower-right corner
+            public int Bottom;      // y position of lower-right corner
+        }
 
         // Delegate to filter which windows to include 
         public delegate bool EnumWindowsProc(IntPtr hWnd, IntPtr lParam);
@@ -96,6 +112,21 @@ namespace Babel.Windows
                     }
                 }
             }
+        }
+
+        public static IntPtr GetWindowAtPoint(Point Position, out Control outc)
+        {
+            var hwnd = WindowFromPoint(Position);
+            var c = Control.FromHandle(hwnd);
+            outc = c;
+            return hwnd;
+        }
+
+        public static Rectangle GetRectFromHwnd(IntPtr hwnd)
+        {
+            RECT temprect;
+            GetWindowRect(hwnd, out temprect);
+            return new Point(temprect.Left, temprect.Top).RectTo(new Point(temprect.Right, temprect.Bottom));
         }
     }
 }
