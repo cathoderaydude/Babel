@@ -50,6 +50,7 @@
             this.TransparencyKey = System.Drawing.SystemColors.ControlDark;
             this.Paint += new System.Windows.Forms.PaintEventHandler(this.Viewfinder_Paint);
             this.MouseClick += new System.Windows.Forms.MouseEventHandler(this.Viewfinder_MouseClick);
+            this.Move += new System.EventHandler(this.Viewfinder_Move);
             this.Resize += new System.EventHandler(this.Viewfinder_Resize);
             this.ResumeLayout(false);
 

@@ -108,7 +108,7 @@ namespace Babel
 
             #if DEBUG
             ToggleVFW(); // Show viewfinder immediately
-            Picker.Show();
+            //Picker.Show();
             #endif
         }
 
@@ -121,6 +121,7 @@ namespace Babel
             Image result = GDI32.Grab(SnapRegion);
             
             if (VfwWasVisible) vfw.Visible = true; // Reshow viewfinder if appropriate
+            this.Focus();
 
             return result;
         }

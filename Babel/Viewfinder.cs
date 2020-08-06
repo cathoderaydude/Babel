@@ -136,5 +136,10 @@ namespace Babel
             Rectangle closeBox = new Rectangle(85, 5, 10, 10);
             if (closeBox.Contains(e.Location)) this.Visible = false;
         }
+
+        private void Viewfinder_Move(object sender, EventArgs e)
+        {
+            MainForm.SnapRegion = this.RectangleToScreen(this.ClientRectangle);
+        }
     }
 }

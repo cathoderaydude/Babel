@@ -13,6 +13,8 @@ namespace Babel
 {
     public partial class frmWindowPicker : Form
     {
+        private const int WM_NCHITTEST = 0x84;
+
         public frmWindowPicker()
         {
             InitializeComponent();
@@ -47,9 +49,13 @@ namespace Babel
 
         protected override void WndProc(ref Message m)
         {
-            // Return transparent to absolutely ensure this window is never seen
-            int HTTRANSPARENT = -1;
-            m.Result = (IntPtr) HTTRANSPARENT;
+            base.WndProc(ref m);
+            if (m.Msg == WM_NCHITTEST)
+            {
+                // Return transparent to absolutely ensure this window is never seen
+                int HTTRANSPARENT = -1;
+                m.Result = (IntPtr)HTTRANSPARENT;
+            }
         }
     }
 }
