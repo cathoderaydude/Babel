@@ -171,6 +171,7 @@
     <Compile Include="Windows\user32.cs" />
     <EmbeddedResource Include="StateTest.resx">
       <DependentUpon>StateTest.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="frmWindowPicker.resx">
       <DependentUpon>frmWindowPicker.cs</DependentUpon>
     </EmbeddedResource>

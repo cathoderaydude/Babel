@@ -16,8 +16,8 @@ namespace Babel.StateMachines
 
         public State(Action enter, Action leave)
         {
-            enter += enter;
-            leave += leave;
+            this.enter += enter;
+            this.leave += leave;
         }
     }
 

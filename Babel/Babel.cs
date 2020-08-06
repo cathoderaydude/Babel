@@ -484,10 +484,6 @@ namespace Babel
                     Rectangle TestRect = MouseStart.RectTo(MouseEnd);
                     if (TestRect.Width > 25 && TestRect.Height > 15)
                     {
-                        rect = OCRResult.smallBoxes
-                            .Where(box => box.rect.IntersectsWith(rect))
-                            .SelectMany(box => box.points)
-                            .FitRect();
                         ChangeState(State.translated);
                         PhraseRects.Add(new PhraseRect(TestRect, OCRResult, AsyncTranslation_callback));
                     }
@@ -503,7 +499,7 @@ namespace Babel
                             foreach (PhraseRect TPRect in PhraseRects) { TPRect.Clicked = false; TPRect.Selected = false; } // Clear other phrase states
                             PRect.Clicked = false;
                             PRect.Selected = true;
-                            PRect.UpdateText(OCRResult);
+                            PRect.UpdateText(OCRResult, AsyncTranslation_callback);
                         }
                     }
                     else
@@ -759,6 +755,12 @@ namespace Babel
                 }
             };
             FlashTimer.Enabled = true;
+        }
+
+        private void toolStripButton1_Click_1(object sender, EventArgs e)
+        {
+            StateTest test = new StateTest();
+            test.Show();
         }
     }
 

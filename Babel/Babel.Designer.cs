@@ -36,6 +36,10 @@
             this.toolStrip1 = new System.Windows.Forms.ToolStrip();
             this.tsbSnap = new System.Windows.Forms.ToolStripSplitButton();
             this.tsbClipboard = new System.Windows.Forms.ToolStripMenuItem();
+            this.tsbVFW = new System.Windows.Forms.ToolStripSplitButton();
+            this.scaleViewfinderToWindowToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.tsbMaxVFW = new System.Windows.Forms.ToolStripMenuItem();
+            this.tsbCrosshair = new System.Windows.Forms.ToolStripButton();
             this.toolStripSeparator3 = new System.Windows.Forms.ToolStripSeparator();
             this.tsbOCR = new System.Windows.Forms.ToolStripButton();
             this.tsbAutoOCR = new System.Windows.Forms.ToolStripButton();
@@ -48,10 +52,7 @@
             this.tsbTextText = new System.Windows.Forms.ToolStripButton();
             this.tsbSettings = new System.Windows.Forms.ToolStripButton();
             this.sfdDisplay = new System.Windows.Forms.SaveFileDialog();
-            this.tsbCrosshair = new System.Windows.Forms.ToolStripButton();
-            this.tsbVFW = new System.Windows.Forms.ToolStripSplitButton();
-            this.scaleViewfinderToWindowToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.tsbMaxVFW = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripButton1 = new System.Windows.Forms.ToolStripButton();
             ((System.ComponentModel.ISupportInitialize)(this.pbxDisplay)).BeginInit();
             this.tscMain.ContentPanel.SuspendLayout();
             this.tscMain.TopToolStripPanel.SuspendLayout();
@@ -114,7 +115,7 @@
             this.txtPlaceholder.BackColor = System.Drawing.SystemColors.Control;
             this.txtPlaceholder.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.txtPlaceholder.Enabled = false;
-            this.txtPlaceholder.Location = new System.Drawing.Point(192, 135);
+            this.txtPlaceholder.Location = new System.Drawing.Point(280, 213);
             this.txtPlaceholder.Multiline = true;
             this.txtPlaceholder.Name = "txtPlaceholder";
             this.txtPlaceholder.ReadOnly = true;
@@ -140,10 +141,11 @@
             this.tsbSave,
             this.toolStripSeparator2,
             this.tsbTextText,
-            this.tsbSettings});
+            this.tsbSettings,
+            this.toolStripButton1});
             this.toolStrip1.Location = new System.Drawing.Point(3, 0);
             this.toolStrip1.Name = "toolStrip1";
-            this.toolStrip1.Size = new System.Drawing.Size(340, 31);
+            this.toolStrip1.Size = new System.Drawing.Size(363, 31);
             this.toolStrip1.TabIndex = 1;
             this.toolStrip1.Text = "toolStrip1";
             // 
@@ -167,6 +169,50 @@
             this.tsbClipboard.Size = new System.Drawing.Size(157, 22);
             this.tsbClipboard.Text = "From Clipboard";
             this.tsbClipboard.Click += new System.EventHandler(this.tsbClipboard_Click);
+            // 
+            // tsbVFW
+            // 
+            this.tsbVFW.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.tsbVFW.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.scaleViewfinderToWindowToolStripMenuItem,
+            this.tsbMaxVFW});
+            this.tsbVFW.Image = ((System.Drawing.Image)(resources.GetObject("tsbVFW.Image")));
+            this.tsbVFW.ImageScaling = System.Windows.Forms.ToolStripItemImageScaling.None;
+            this.tsbVFW.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.tsbVFW.Name = "tsbVFW";
+            this.tsbVFW.Size = new System.Drawing.Size(40, 28);
+            this.tsbVFW.Text = "toolStripSplitButton1";
+            this.tsbVFW.ButtonClick += new System.EventHandler(this.tsbVFW_Click);
+            // 
+            // scaleViewfinderToWindowToolStripMenuItem
+            // 
+            this.scaleViewfinderToWindowToolStripMenuItem.CheckOnClick = true;
+            this.scaleViewfinderToWindowToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("scaleViewfinderToWindowToolStripMenuItem.Image")));
+            this.scaleViewfinderToWindowToolStripMenuItem.ImageScaling = System.Windows.Forms.ToolStripItemImageScaling.None;
+            this.scaleViewfinderToWindowToolStripMenuItem.Name = "scaleViewfinderToWindowToolStripMenuItem";
+            this.scaleViewfinderToWindowToolStripMenuItem.Size = new System.Drawing.Size(226, 30);
+            this.scaleViewfinderToWindowToolStripMenuItem.Text = "Scale viewfinder to window";
+            this.scaleViewfinderToWindowToolStripMenuItem.Click += new System.EventHandler(this.scaleViewfinderToWindowToolStripMenuItem_Click);
+            // 
+            // tsbMaxVFW
+            // 
+            this.tsbMaxVFW.Image = ((System.Drawing.Image)(resources.GetObject("tsbMaxVFW.Image")));
+            this.tsbMaxVFW.ImageScaling = System.Windows.Forms.ToolStripItemImageScaling.None;
+            this.tsbMaxVFW.Name = "tsbMaxVFW";
+            this.tsbMaxVFW.Size = new System.Drawing.Size(226, 30);
+            this.tsbMaxVFW.Text = "Maximize viewfinder";
+            this.tsbMaxVFW.Click += new System.EventHandler(this.tsbMaxVFW_Click);
+            // 
+            // tsbCrosshair
+            // 
+            this.tsbCrosshair.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.tsbCrosshair.Image = ((System.Drawing.Image)(resources.GetObject("tsbCrosshair.Image")));
+            this.tsbCrosshair.ImageScaling = System.Windows.Forms.ToolStripItemImageScaling.None;
+            this.tsbCrosshair.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.tsbCrosshair.Name = "tsbCrosshair";
+            this.tsbCrosshair.Size = new System.Drawing.Size(28, 28);
+            this.tsbCrosshair.Text = "toolStripButton1";
+            this.tsbCrosshair.MouseDown += new System.Windows.Forms.MouseEventHandler(this.tsbCrosshair_MouseDown);
             // 
             // toolStripSeparator3
             // 
@@ -273,49 +319,15 @@
             this.sfdDisplay.DefaultExt = "png";
             this.sfdDisplay.Filter = "PNG|*.png";
             // 
-            // tsbCrosshair
+            // toolStripButton1
             // 
-            this.tsbCrosshair.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.tsbCrosshair.Image = ((System.Drawing.Image)(resources.GetObject("tsbCrosshair.Image")));
-            this.tsbCrosshair.ImageScaling = System.Windows.Forms.ToolStripItemImageScaling.None;
-            this.tsbCrosshair.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.tsbCrosshair.Name = "tsbCrosshair";
-            this.tsbCrosshair.Size = new System.Drawing.Size(28, 28);
-            this.tsbCrosshair.Text = "toolStripButton1";
-            this.tsbCrosshair.MouseDown += new System.Windows.Forms.MouseEventHandler(this.tsbCrosshair_MouseDown);
-            // 
-            // tsbVFW
-            // 
-            this.tsbVFW.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.tsbVFW.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.scaleViewfinderToWindowToolStripMenuItem,
-            this.tsbMaxVFW});
-            this.tsbVFW.Image = ((System.Drawing.Image)(resources.GetObject("tsbVFW.Image")));
-            this.tsbVFW.ImageScaling = System.Windows.Forms.ToolStripItemImageScaling.None;
-            this.tsbVFW.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.tsbVFW.Name = "tsbVFW";
-            this.tsbVFW.Size = new System.Drawing.Size(40, 28);
-            this.tsbVFW.Text = "toolStripSplitButton1";
-            this.tsbVFW.ButtonClick += new System.EventHandler(this.tsbVFW_Click);
-            // 
-            // scaleViewfinderToWindowToolStripMenuItem
-            // 
-            this.scaleViewfinderToWindowToolStripMenuItem.CheckOnClick = true;
-            this.scaleViewfinderToWindowToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("scaleViewfinderToWindowToolStripMenuItem.Image")));
-            this.scaleViewfinderToWindowToolStripMenuItem.ImageScaling = System.Windows.Forms.ToolStripItemImageScaling.None;
-            this.scaleViewfinderToWindowToolStripMenuItem.Name = "scaleViewfinderToWindowToolStripMenuItem";
-            this.scaleViewfinderToWindowToolStripMenuItem.Size = new System.Drawing.Size(226, 30);
-            this.scaleViewfinderToWindowToolStripMenuItem.Text = "Scale viewfinder to window";
-            this.scaleViewfinderToWindowToolStripMenuItem.Click += new System.EventHandler(this.scaleViewfinderToWindowToolStripMenuItem_Click);
-            // 
-            // tsbMaxVFW
-            // 
-            this.tsbMaxVFW.Image = ((System.Drawing.Image)(resources.GetObject("tsbMaxVFW.Image")));
-            this.tsbMaxVFW.ImageScaling = System.Windows.Forms.ToolStripItemImageScaling.None;
-            this.tsbMaxVFW.Name = "tsbMaxVFW";
-            this.tsbMaxVFW.Size = new System.Drawing.Size(226, 30);
-            this.tsbMaxVFW.Text = "Maximize viewfinder";
-            this.tsbMaxVFW.Click += new System.EventHandler(this.tsbMaxVFW_Click);
+            this.toolStripButton1.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.toolStripButton1.Image = ((System.Drawing.Image)(resources.GetObject("toolStripButton1.Image")));
+            this.toolStripButton1.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.toolStripButton1.Name = "toolStripButton1";
+            this.toolStripButton1.Size = new System.Drawing.Size(23, 28);
+            this.toolStripButton1.Text = "toolStripButton1";
+            this.toolStripButton1.Click += new System.EventHandler(this.toolStripButton1_Click_1);
             // 
             // frmBabel
             // 
@@ -375,6 +387,7 @@
         private System.Windows.Forms.ToolStripMenuItem scaleViewfinderToWindowToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem tsbMaxVFW;
         private System.Windows.Forms.ToolStripButton tsbCrosshair;
+        private System.Windows.Forms.ToolStripButton toolStripButton1;
     }
 }
 

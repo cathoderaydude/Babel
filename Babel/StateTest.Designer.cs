@@ -83,6 +83,7 @@
             this.Controls.Add(this.button1);
             this.Name = "StateTest";
             this.Text = "StateTest";
+            this.Load += new System.EventHandler(this.StateTest_Load);
             this.ResumeLayout(false);
             this.PerformLayout();
 
