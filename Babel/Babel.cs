@@ -725,7 +725,7 @@ namespace Babel
 
         private void frmBabel_Resize(object sender, EventArgs e)
         {
-            vfw.Size = panel1.Size;
+            if(tsbVFWAutoSize.Checked) vfw.Size = panel1.Size;
         }
 
         private void tsbCrosshair_MouseDown(object sender, MouseEventArgs e)

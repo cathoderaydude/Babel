@@ -44,5 +44,12 @@ namespace Babel
         {
             
         }
+
+        protected override void WndProc(ref Message m)
+        {
+            // Return transparent to absolutely ensure this window is never seen
+            int HTTRANSPARENT = -1;
+            m.Result = (IntPtr) HTTRANSPARENT;
+        }
     }
 }

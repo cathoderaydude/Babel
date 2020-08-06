@@ -50,7 +50,7 @@
             this.sfdDisplay = new System.Windows.Forms.SaveFileDialog();
             this.tsbCrosshair = new System.Windows.Forms.ToolStripButton();
             this.tsbVFW = new System.Windows.Forms.ToolStripSplitButton();
-            this.scaleViewfinderToWindowToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.tsbVFWAutoSize = new System.Windows.Forms.ToolStripMenuItem();
             this.tsbMaxVFW = new System.Windows.Forms.ToolStripMenuItem();
             ((System.ComponentModel.ISupportInitialize)(this.pbxDisplay)).BeginInit();
             this.tscMain.ContentPanel.SuspendLayout();
@@ -288,7 +288,7 @@
             // 
             this.tsbVFW.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
             this.tsbVFW.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.scaleViewfinderToWindowToolStripMenuItem,
+            this.tsbVFWAutoSize,
             this.tsbMaxVFW});
             this.tsbVFW.Image = ((System.Drawing.Image)(resources.GetObject("tsbVFW.Image")));
             this.tsbVFW.ImageScaling = System.Windows.Forms.ToolStripItemImageScaling.None;
@@ -298,15 +298,15 @@
             this.tsbVFW.Text = "toolStripSplitButton1";
             this.tsbVFW.ButtonClick += new System.EventHandler(this.tsbVFW_Click);
             // 
-            // scaleViewfinderToWindowToolStripMenuItem
+            // tsbVFWAutoSize
             // 
-            this.scaleViewfinderToWindowToolStripMenuItem.CheckOnClick = true;
-            this.scaleViewfinderToWindowToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("scaleViewfinderToWindowToolStripMenuItem.Image")));
-            this.scaleViewfinderToWindowToolStripMenuItem.ImageScaling = System.Windows.Forms.ToolStripItemImageScaling.None;
-            this.scaleViewfinderToWindowToolStripMenuItem.Name = "scaleViewfinderToWindowToolStripMenuItem";
-            this.scaleViewfinderToWindowToolStripMenuItem.Size = new System.Drawing.Size(226, 30);
-            this.scaleViewfinderToWindowToolStripMenuItem.Text = "Scale viewfinder to window";
-            this.scaleViewfinderToWindowToolStripMenuItem.Click += new System.EventHandler(this.scaleViewfinderToWindowToolStripMenuItem_Click);
+            this.tsbVFWAutoSize.CheckOnClick = true;
+            this.tsbVFWAutoSize.Image = ((System.Drawing.Image)(resources.GetObject("tsbVFWAutoSize.Image")));
+            this.tsbVFWAutoSize.ImageScaling = System.Windows.Forms.ToolStripItemImageScaling.None;
+            this.tsbVFWAutoSize.Name = "tsbVFWAutoSize";
+            this.tsbVFWAutoSize.Size = new System.Drawing.Size(226, 30);
+            this.tsbVFWAutoSize.Text = "Scale viewfinder to window";
+            this.tsbVFWAutoSize.Click += new System.EventHandler(this.scaleViewfinderToWindowToolStripMenuItem_Click);
             // 
             // tsbMaxVFW
             // 
@@ -372,7 +372,7 @@
         private System.Windows.Forms.ToolStripButton tsbAutoOCR;
         private System.Windows.Forms.TextBox txtPlaceholder;
         private System.Windows.Forms.ToolStripSplitButton tsbVFW;
-        private System.Windows.Forms.ToolStripMenuItem scaleViewfinderToWindowToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem tsbVFWAutoSize;
         private System.Windows.Forms.ToolStripMenuItem tsbMaxVFW;
         private System.Windows.Forms.ToolStripButton tsbCrosshair;
     }
