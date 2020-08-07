@@ -56,7 +56,7 @@ namespace Babel
         State AppState;
 
         private frmWindowPicker Picker;
-#endregion
+        #endregion
 
         // Contains a rectangle the user has drawn around one or more words to be translated as a single phrase
         public class PhraseRect
@@ -223,7 +223,12 @@ namespace Babel
             }
         }
 
-        private void AsyncTranslation_callback(AsyncTranslation result)
+        public void AddPhrase(Rectangle location)
+        {
+            PhraseRects.Add(new PhraseRect(location, OCRResult, AsyncTranslation_callback));
+        }
+
+        public void AsyncTranslation_callback(AsyncTranslation result)
         {
             //pbxDisplay.Image = edit;
             //ChangeState(State.translated);
@@ -234,6 +239,12 @@ namespace Babel
         private delegate void SafeAsyncOCR_Callback(AsyncOCR result);
         private void AsyncOCR_callback(AsyncOCR result)
         {
+            //ChangeState(State.OCRed);
+            AutoPhrases();
+            pbxDisplay.Invalidate();
+       
+
+        
             if (InvokeRequired)
             {
                 var d = new SafeAsyncOCR_Callback(AsyncOCR_callback);
@@ -244,6 +255,45 @@ namespace Babel
                 ChangeState(State.OCRed);
                 statusBarLeft.Text = "Recognition complete [" + result.timeSpent + " elapsed]";
                 pbxDisplay.Invalidate();
+            }
+        }
+
+        public void AutoPhrases()
+        {
+            // Put all smallboxes into a queue, left to right
+            Queue<OCRBox> boxes = new Queue<OCRBox>(OCRResult.smallBoxes.OrderBy(box => box.rect.Left));
+
+            // We're planning to cut items out of this queue as we go,
+            // so I don't think we can safely enumerate over it
+            while (boxes.Count > 0)
+            {
+                // Pick the current leftmost box, and start with its rect exactly.
+                OCRBox box = boxes.Dequeue();
+                Rectangle rect = box.rect;
+
+                List<OCRBox> phraseCandidates = new List<OCRBox>();
+                phraseCandidates.Add(box);
+                int spacing = box.AllowedSpace();
+
+                // While there are any boxes in the queue that are aligned with my current rect:
+                while (boxes.Any(other => rect.IsAlignedWith(other.rect) && rect.IsHorizontallyNear(other.rect)))
+                {
+                    // Pick out the leftmost aligned box.
+                    OCRBox next = boxes.First(other => rect.IsAlignedWith(other.rect) && rect.IsHorizontallyNear(other.rect));
+
+                    // Add it to our phrase
+                    phraseCandidates.Add(next);
+
+                    // Remake the queue without any elements from the growing phrase
+                    // 1) this is the only way to delete from the middle of a queue
+                    // 2) luckily this also means that we don't remove the initial box until we have at least one match
+                    boxes = new Queue<OCRBox>(boxes.Except(phraseCandidates));
+
+                    // Expand the rect to include all the rects of the growing phrase
+                    rect = phraseCandidates.SelectMany(p => p.rect.Corners()).FitRect();
+                }
+
+                PhraseRects.Add(new PhraseRect(rect, OCRResult, AsyncTranslation_callback));
             }
         }
         #endregion

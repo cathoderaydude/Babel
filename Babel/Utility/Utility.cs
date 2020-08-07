@@ -1,8 +1,10 @@
-﻿using Google.Cloud.Vision.V1;
+﻿using Babel.Google;
+using Google.Cloud.Vision.V1;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
+using static Babel.frmBabel;
 
 namespace Babel
 {
@@ -16,6 +18,10 @@ namespace Babel
               Math.Abs(p1.X - p2.X),
               Math.Abs(p1.Y - p2.Y));
         }
+
+        public static Point ToPoint(Vertex v) => new Point(v.X, v.Y);
+
+        public static Vertex ToVertex(Point p) => new Vertex { X = p.X, Y = p.Y };
 
         public static Rectangle FitRect(this IEnumerable<Point> ps)
         {
@@ -35,11 +41,7 @@ namespace Babel
             tempRect.Inflate(width, height);
             return tempRect;
         }
-
-        public static Point ToPoint(Vertex v) => new Point(v.X, v.Y);
-
-        public static Vertex ToVertex(Point p) => new Vertex { X = p.X, Y = p.Y };
-
+        
         public static Rectangle FitRect(this IEnumerable<Vertex> vs)
         {
             int x = vs.Min(v => v.X);
@@ -72,5 +74,35 @@ namespace Babel
         {
             return FitRect(children.SelectMany(rect => rect.Corners()));
         }
+
+        #region Autophrasing
+
+        // Guess the width of the characters in the box
+        public static int CharWidth(this OCRBox box) => box.rect.Width / box.text.Length;
+
+        // Establish how far away the next box is allowed to be
+        private const int spacesAllowed = 2;
+        public static int AllowedSpace(this OCRBox box) => box.CharWidth() * spacesAllowed;
+
+        public static Point Center(this Rectangle rect) => new Point(rect.Left + rect.Height / 2, rect.Top + rect.Height / 2);
+        private static float Slope(this Rectangle rect) => (float)rect.Height / (float)rect.Width;
+
+        public static bool IsAlignedWith(this Rectangle l, Rectangle r)
+        {
+            if (r.Bottom < l.Top || r.Top > l.Bottom) return false;
+            //else return true;// (float)Math.Abs(l.Height - r.Height) < ((float)l.Height * 0.1);
+            
+            //int h = r.Center().X - l.Center().X;
+            int v = Math.Abs(l.Center().Y - r.Center().Y);
+            return v * 2 < l.Height;
+
+            //if (h < 0) return false;
+            //else return h * l.Slope() > v;
+        }
+
+        public static bool IsHorizontallyNear(this Rectangle l, Rectangle r, int spacing) => (l.Right < r.Left) && (l.Right + spacing >= r.Left);
+        public static bool IsHorizontallyNear(this Rectangle l, Rectangle r) => l.IsHorizontallyNear(r, l.Height);
+
+        #endregion
     }
 }

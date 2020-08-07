@@ -52,8 +52,8 @@ namespace Babel.Google
             int gx = idx % gridSize;
             int gy = idx / gridSize;
 
-            int bx = (gutterSize + dummyBoxSize) * gx;
-            int by = (gutterSize + dummyBoxSize) * gy;
+            int bx = gutterSize + (dummyBoxSize + gutterSize) * gx;
+            int by = gutterSize + (dummyBoxSize + gutterSize) * gy;
 
             return new OCRBox
             {
@@ -66,6 +66,13 @@ namespace Babel.Google
             Enumerable.Range(0, gridSize * gridSize)
                 .Select(DummySmallBox)
                 .ToArray();
+
+        internal static OCRBox ErrorBigBox() =>
+            new OCRBox
+            {
+                points = new Rectangle(gutterSize, gutterSize, dummyBoxSize, dummyBoxSize).Corners().ToArray(),
+                text = "ERROR",
+            };
 
         #endregion
     }
@@ -85,7 +92,8 @@ namespace Babel.Google
             {
                 _bigBox = OCRBox.DummyBigBox();
                 _smallBoxes = OCRBox.DummySmallBoxes();
-                _timeSpent = "[dummy]";
+                _timeStamp = "[dummy]";
+                isDone = true;
                 callback?.Invoke(this);
             }
             else
@@ -97,24 +105,15 @@ namespace Babel.Google
 
         // do the OCR
         Task task;
-        public bool isDone
-        {
-            get
-            {
-                if (task == null)
-                    return true;
-                else
-                    return task.IsCompleted;
-            }
-        }
+        public bool isDone { get; private set; }
 
         // post-OCR
-        private OCRBox _bigBox = null;
+        private OCRBox _bigBox;
         public OCRBox bigBox => isDone ? _bigBox : null;
-        private OCRBox[] _smallBoxes = new OCRBox[] { };
+        private OCRBox[] _smallBoxes;
         public OCRBox[] smallBoxes => isDone ? _smallBoxes : new OCRBox[] { };
-        private string _timeSpent = "";
-        public string timeSpent => _timeSpent; //isDone ? _timeSpent : "";
+        private string _timeStamp;
+        public string timeStamp => isDone ? _timeStamp : "";
 
         private async Task DoOCR()
         {
@@ -139,13 +138,22 @@ namespace Babel.Google
             var response = await client.DetectTextAsync(gimage);
             sw.Stop();
 
-            // First result is the big box
-            _bigBox = new OCRBox(response.First());
+            // If we didn't get anything back
+            if (response.Count == 0)
+            {
+                _bigBox = OCRBox.ErrorBigBox();
+                _smallBoxes = new OCRBox[] { };
+            }
+            else
+            {
+                // First result is the big box
+                _bigBox = new OCRBox(response.First());
 
-            // Following results are the small boxes
-            _smallBoxes = response.Skip(1)
-                .Select(ann => new OCRBox(ann))
-                .ToArray();
+                // Following results are the small boxes
+                _smallBoxes = response.Skip(1)
+                    .Select(ann => new OCRBox(ann))
+                    .ToArray();
+            }
 
             _timeSpent = string.Format("{0:00}:{1:00}:{2:00}.{3:000}",
                 sw.Elapsed.Hours,
@@ -153,6 +161,7 @@ namespace Babel.Google
                 sw.Elapsed.Seconds,
                 sw.Elapsed.Milliseconds);
 
+            isDone = true;
             callback?.Invoke(this);
         }
     }
@@ -172,6 +181,7 @@ namespace Babel.Google
                 _translatedText = rawText;
                 _detectedLocale = Properties.Settings.Default.targetLocale;
                 _timeStamp = "[dummy]";
+                isDone = true;
                 callback?.Invoke(this);
             }
             else
@@ -183,23 +193,14 @@ namespace Babel.Google
 
         // do the translation
         Task task;
-        public bool isDone
-        {
-            get
-            {
-                if (task == null)
-                    return true;
-                else
-                    return task.IsCompleted;
-            }
-        }
+        public bool isDone { get; private set; }
 
         // post-translation
-        private string _translatedText = "";
+        private string _translatedText;
         public string translatedText => isDone ? _translatedText : "";
-        private string _detectedLocale = "";
+        private string _detectedLocale;
         public string detectedLocale => isDone ? _detectedLocale : "";
-        private string _timeStamp = "";
+        private string _timeStamp;
         public string timeStamp => isDone ? _timeStamp : "";
 
         private async Task DoTranslation()
@@ -236,6 +237,7 @@ namespace Babel.Google
                 sw.Elapsed.Seconds,
                 sw.Elapsed.Milliseconds);
 
+            isDone = true;
             callback?.Invoke(this);
         }
     }
