@@ -111,7 +111,6 @@ namespace Babel
                 Size formSize = this.Size;
                 Point screenPoint = new Point(m.LParam.ToInt32());
                 Point clientPoint = this.PointToClient(screenPoint);
-                Console.WriteLine(screenPoint.ToString());
                 Rectangle hitBox = new Rectangle(formSize.Width - RESIZE_HANDLE_SIZE, formSize.Height - RESIZE_HANDLE_SIZE, RESIZE_HANDLE_SIZE, RESIZE_HANDLE_SIZE);
                 if (hitBox.Contains(clientPoint) && SizeGripStyle == SizeGripStyle.Show)
                 {
@@ -135,6 +134,11 @@ namespace Babel
         {
             Rectangle closeBox = new Rectangle(85, 5, 10, 10);
             if (closeBox.Contains(e.Location)) this.Visible = false;
+        }
+
+        private void Viewfinder_Move(object sender, EventArgs e)
+        {
+            MainForm.SnapRegion = this.RectangleToScreen(this.ClientRectangle);
         }
     }
 }

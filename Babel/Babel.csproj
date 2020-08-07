@@ -121,7 +121,9 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Utility\StateMachine.cs" />
+    <Compile Include="BabelMethods.cs">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="frmWindowPicker.cs">
       <SubType>Form</SubType>
     </Compile>
