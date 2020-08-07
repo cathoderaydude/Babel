@@ -19,7 +19,7 @@ namespace Babel
 
         private void Viewfinder_Load(object sender, EventArgs e)
         {
-            OCRResult = new AsyncOCR(new Bitmap(1, 1));
+            OCRResult = null;
             PhraseRects = new List<PhraseRect>();
 
             SnapRegion = new Rectangle(0, 0, 640, 480);
@@ -309,7 +309,7 @@ namespace Babel
                         if (PRect.Clicked == true)
                         {
                             PRect.Clicked = false; // Clear item active state
-                            PRect.UpdateText(OCRResult);
+                            PRect.UpdateText(OCRResult, AsyncTranslation_callback);
                         }
                         if (!Dragging)
                         {
