@@ -253,7 +253,7 @@ namespace Babel
             else
             {
                 ChangeState(State.OCRed);
-                statusBarLeft.Text = "Recognition complete [" + result.timeSpent + " elapsed]";
+                statusBarLeft.Text = "Recognition complete [" + result.timeStamp + " elapsed]";
                 pbxDisplay.Invalidate();
             }
         }

@@ -43,6 +43,7 @@
             this.MinimizeBox = false;
             this.MinimumSize = new System.Drawing.Size(130, 80);
             this.Name = "Viewfinder";
+            this.Opacity = 0.7D;
             this.ShowInTaskbar = false;
             this.SizeGripStyle = System.Windows.Forms.SizeGripStyle.Show;
             this.Text = "Viewfinder";

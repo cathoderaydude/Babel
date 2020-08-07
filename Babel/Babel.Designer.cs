@@ -32,6 +32,10 @@
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(frmBabel));
             this.pbxDisplay = new System.Windows.Forms.PictureBox();
             this.tscMain = new System.Windows.Forms.ToolStripContainer();
+            this.statusStrip1 = new System.Windows.Forms.StatusStrip();
+            this.statusBarLeft = new System.Windows.Forms.ToolStripStatusLabel();
+            this.toolStripStatusLabel2 = new System.Windows.Forms.ToolStripStatusLabel();
+            this.statusBarRight = new System.Windows.Forms.ToolStripStatusLabel();
             this.panel1 = new System.Windows.Forms.Panel();
             this.txtPlaceholder = new System.Windows.Forms.TextBox();
             this.toolStrip1 = new System.Windows.Forms.ToolStrip();
@@ -71,19 +75,15 @@
             this.distributeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.verticallyToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.horizontallyToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.statusStrip1 = new System.Windows.Forms.StatusStrip();
-            this.statusBarLeft = new System.Windows.Forms.ToolStripStatusLabel();
-            this.toolStripStatusLabel2 = new System.Windows.Forms.ToolStripStatusLabel();
-            this.statusBarRight = new System.Windows.Forms.ToolStripStatusLabel();
             ((System.ComponentModel.ISupportInitialize)(this.pbxDisplay)).BeginInit();
             this.tscMain.BottomToolStripPanel.SuspendLayout();
             this.tscMain.ContentPanel.SuspendLayout();
             this.tscMain.TopToolStripPanel.SuspendLayout();
             this.tscMain.SuspendLayout();
+            this.statusStrip1.SuspendLayout();
             this.panel1.SuspendLayout();
             this.toolStrip1.SuspendLayout();
             this.ctxPhrase.SuspendLayout();
-            this.statusStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
             // pbxDisplay
@@ -98,7 +98,6 @@
             this.pbxDisplay.TabStop = false;
             this.pbxDisplay.Visible = false;
             this.pbxDisplay.Paint += new System.Windows.Forms.PaintEventHandler(this.pbxDisplay_Paint);
-            this.pbxDisplay.DoubleClick += new System.EventHandler(this.pbxDisplay_DoubleClick);
             this.pbxDisplay.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.pbxDisplay_MouseDoubleClick);
             this.pbxDisplay.MouseDown += new System.Windows.Forms.MouseEventHandler(this.pbxDisplay_MouseDown);
             this.pbxDisplay.MouseMove += new System.Windows.Forms.MouseEventHandler(this.pbxDisplay_MouseMove);
@@ -128,6 +127,36 @@
             // 
             this.tscMain.TopToolStripPanel.Controls.Add(this.toolStrip1);
             // 
+            // statusStrip1
+            // 
+            this.statusStrip1.Dock = System.Windows.Forms.DockStyle.None;
+            this.statusStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.statusBarLeft,
+            this.toolStripStatusLabel2,
+            this.statusBarRight});
+            this.statusStrip1.Location = new System.Drawing.Point(0, 0);
+            this.statusStrip1.Name = "statusStrip1";
+            this.statusStrip1.Size = new System.Drawing.Size(591, 22);
+            this.statusStrip1.TabIndex = 0;
+            // 
+            // statusBarLeft
+            // 
+            this.statusBarLeft.Name = "statusBarLeft";
+            this.statusBarLeft.Size = new System.Drawing.Size(57, 17);
+            this.statusBarLeft.Text = "Initialized";
+            // 
+            // toolStripStatusLabel2
+            // 
+            this.toolStripStatusLabel2.Name = "toolStripStatusLabel2";
+            this.toolStripStatusLabel2.Size = new System.Drawing.Size(409, 17);
+            this.toolStripStatusLabel2.Spring = true;
+            // 
+            // statusBarRight
+            // 
+            this.statusBarRight.Name = "statusBarRight";
+            this.statusBarRight.Size = new System.Drawing.Size(110, 17);
+            this.statusBarRight.Text = "Usage: 1,000/52,523";
+            // 
             // panel1
             // 
             this.panel1.AutoScroll = true;
@@ -146,7 +175,7 @@
             this.txtPlaceholder.BackColor = System.Drawing.SystemColors.Control;
             this.txtPlaceholder.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.txtPlaceholder.Enabled = false;
-            this.txtPlaceholder.Location = new System.Drawing.Point(237, 164);
+            this.txtPlaceholder.Location = new System.Drawing.Point(236, 174);
             this.txtPlaceholder.Multiline = true;
             this.txtPlaceholder.Name = "txtPlaceholder";
             this.txtPlaceholder.ReadOnly = true;
@@ -488,37 +517,6 @@
             this.horizontallyToolStripMenuItem.Text = "Horizontally";
             this.horizontallyToolStripMenuItem.Click += new System.EventHandler(this.horizontallyToolStripMenuItem_Click);
             // 
-            // statusStrip1
-            // 
-            this.statusStrip1.Dock = System.Windows.Forms.DockStyle.None;
-            this.statusStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.statusBarLeft,
-            this.toolStripStatusLabel2,
-            this.statusBarRight});
-            this.statusStrip1.Location = new System.Drawing.Point(0, 0);
-            this.statusStrip1.Name = "statusStrip1";
-            this.statusStrip1.Size = new System.Drawing.Size(591, 22);
-            this.statusStrip1.TabIndex = 0;
-            this.statusStrip1.ItemClicked += new System.Windows.Forms.ToolStripItemClickedEventHandler(this.statusStrip1_ItemClicked);
-            // 
-            // statusBarLeft
-            // 
-            this.statusBarLeft.Name = "statusBarLeft";
-            this.statusBarLeft.Size = new System.Drawing.Size(57, 17);
-            this.statusBarLeft.Text = "Initialized";
-            // 
-            // toolStripStatusLabel2
-            // 
-            this.toolStripStatusLabel2.Name = "toolStripStatusLabel2";
-            this.toolStripStatusLabel2.Size = new System.Drawing.Size(378, 17);
-            this.toolStripStatusLabel2.Spring = true;
-            // 
-            // statusBarRight
-            // 
-            this.statusBarRight.Name = "statusBarRight";
-            this.statusBarRight.Size = new System.Drawing.Size(110, 17);
-            this.statusBarRight.Text = "Usage: 1,000/52,523";
-            // 
             // frmBabel
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -547,13 +545,13 @@
             this.tscMain.TopToolStripPanel.PerformLayout();
             this.tscMain.ResumeLayout(false);
             this.tscMain.PerformLayout();
+            this.statusStrip1.ResumeLayout(false);
+            this.statusStrip1.PerformLayout();
             this.panel1.ResumeLayout(false);
             this.panel1.PerformLayout();
             this.toolStrip1.ResumeLayout(false);
             this.toolStrip1.PerformLayout();
             this.ctxPhrase.ResumeLayout(false);
-            this.statusStrip1.ResumeLayout(false);
-            this.statusStrip1.PerformLayout();
             this.ResumeLayout(false);
 
         }

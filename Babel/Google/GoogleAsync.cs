@@ -155,7 +155,7 @@ namespace Babel.Google
                     .ToArray();
             }
 
-            _timeSpent = string.Format("{0:00}:{1:00}:{2:00}.{3:000}",
+            _timeStamp = string.Format("{0:00}:{1:00}:{2:00}.{3:000}",
                 sw.Elapsed.Hours,
                 sw.Elapsed.Minutes,
                 sw.Elapsed.Seconds,

@@ -34,7 +34,6 @@ namespace Babel
 
             Picker = new frmWindowPicker();
 
-            
             #if DEBUG
             //ToggleVFW(); // Show viewfinder immediately
             #endif
@@ -496,10 +495,6 @@ namespace Babel
         }
         #endregion
 
-        private void pbxDisplay_DoubleClick(object sender, EventArgs e)
-        {
-            
-        }
 
         private void pbxDisplay_MouseDoubleClick(object sender, MouseEventArgs e)
         {
@@ -521,11 +516,6 @@ namespace Babel
                 TBox.Show();
                 TBox.BringToFront();
             }*/
-        }
-
-        private void statusStrip1_ItemClicked(object sender, ToolStripItemClickedEventArgs e)
-        {
-
         }
     }
 }
