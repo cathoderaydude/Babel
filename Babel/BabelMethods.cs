@@ -34,6 +34,8 @@ namespace Babel
         public Rectangle SnapRegion; // Position of capture
         public bool AutoScaleVFW; // Whether viewfinder size should always follow main form
 
+        public bool AutoOCR;
+
         BoundingState BoundingBoxState;
         enum BoundingState
         {
@@ -144,6 +146,7 @@ namespace Babel
 
         }
 
+        // Clear all phrases
         void ClearPhrases()
         {
             PhraseRects.Clear();
@@ -153,21 +156,23 @@ namespace Babel
         // Clear everything to prep for another snap
         void ClearAll()
         {
-            OCRResult = new AsyncOCR(new Bitmap(1, 1));
+            OCRResult = null; //new AsyncOCR(new Bitmap(1, 1));
             PhraseRects.Clear();
             pbxDisplay.Invalidate();
         }
 
         #region Image capture routines
-        // Takes a screenshot of what's behind the window and returns it
+        // Takes a screenshot of the SnapRegion and returns it
         private Image Snap()
         {
             bool VfwWasVisible = vfw.Visible;
             if (VfwWasVisible) vfw.Visible = false; // Hide viewfinder if appropriate
+            this.Visible = false; // Hide self (nobody wants to translate Babel)
 
             Image result = GDI32.Grab(SnapRegion);
 
             if (VfwWasVisible) vfw.Visible = true; // Reshow viewfinder if appropriate
+            this.Visible = true; // Show self again
             this.Focus(); // Return focus to the main form
 
             return result;
@@ -182,7 +187,7 @@ namespace Babel
             pbxDisplay.Visible = true;
             txtPlaceholder.Visible = false;
             ChangeState(State.snapped);
-            DoOCR(true);
+            DoOCR(true); // Trigger AutoOCR, if enabled.
         }
 
         // Display or hide the viewfinder
@@ -206,7 +211,7 @@ namespace Babel
             if (AppState != State.snapped) return false; // Prevent double OCR
 
             // Proceed if it's a manual request, or if it's an auto request and autoOCR is on
-            if (!Auto || Properties.Settings.Default.autoOCR)
+            if (!Auto || AutoOCR) //Properties.Settings.Default.autoOCR)
             {
                 ChangeState(State.OCRing);
                 OCRResult = new AsyncOCR(snap, AsyncOCR_callback);
@@ -225,10 +230,21 @@ namespace Babel
             pbxDisplay.Invalidate();
         }
 
+
+        private delegate void SafeAsyncOCR_Callback(AsyncOCR result);
         private void AsyncOCR_callback(AsyncOCR result)
         {
-            ChangeState(State.OCRed);
-            pbxDisplay.Invalidate();
+            if (InvokeRequired)
+            {
+                var d = new SafeAsyncOCR_Callback(AsyncOCR_callback);
+                Invoke(d, new object[] { result });
+            }
+            else
+            {
+                ChangeState(State.OCRed);
+                statusBarLeft.Text = "Recognition complete [" + result.timeSpent + " elapsed]";
+                pbxDisplay.Invalidate();
+            }
         }
         #endregion
 
@@ -411,6 +427,7 @@ namespace Babel
         // Check whether there are any text boxes underneath this rect
         private bool CheckForText(Rectangle rect)
         {
+            if (OCRResult == null) return false;
             return OCRResult.smallBoxes
                 .Where(ocr => ocr.rect.IntersectsWith(rect)).Count() > 0;
         }
@@ -418,6 +435,7 @@ namespace Babel
         // Get the combined text content of all boxes under this rect
         private static string GetTextInRect(Rectangle rect, AsyncOCR OCRResult)
         {
+            if (OCRResult == null) return null;
             if (OCRResult.smallBoxes
                 .Where(ocr => ocr.rect.IntersectsWith(rect)).Count() < 1) return null;
 

@@ -19,7 +19,6 @@ namespace Babel
 
         private void Viewfinder_Load(object sender, EventArgs e)
         {
-            OCRResult = new AsyncOCR(new Bitmap(1, 1));
             PhraseRects = new List<PhraseRect>();
 
             SnapRegion = new Rectangle(0, 0, 640, 480);
@@ -34,8 +33,9 @@ namespace Babel
 
             Picker = new frmWindowPicker();
 
+            
             #if DEBUG
-            ToggleVFW(); // Show viewfinder immediately
+            //ToggleVFW(); // Show viewfinder immediately
             #endif
         }
 
@@ -77,14 +77,16 @@ namespace Babel
             if(tsbAutoOCR.Checked)
             {
                 tsbOCR.Enabled = false;
-                Properties.Settings.Default.autoOCR = false;
+                //Properties.Settings.Default.autoOCR = false;
+                AutoOCR = true;
                 if (AppState == State.snapped) DoOCR(true);
             } else
             {
-                Properties.Settings.Default.autoOCR = true;
+                //Properties.Settings.Default.autoOCR = true;
+                AutoOCR = false;
                 tsbOCR.Enabled = true;
             }
-            Properties.Settings.Default.Save();
+            //Properties.Settings.Default.Save();
         }
 
         // Clear all identified phrases
@@ -282,7 +284,7 @@ namespace Babel
                 return; // Do nothing else
             }
 
-            if (OCRResult != null)
+            if (true)//OCRResult != null)
             {
                 if (Marking == true) // We were drawing a bounding box
                 {
@@ -492,5 +494,37 @@ namespace Babel
             }
         }
         #endregion
+
+        private void pbxDisplay_DoubleClick(object sender, EventArgs e)
+        {
+            
+        }
+
+        private void pbxDisplay_MouseDoubleClick(object sender, MouseEventArgs e)
+        {
+            // Experimental approach for creating a text box when you double click a phrase, to make copying
+            // part of a translation easier. It has problems right now.
+            /*
+            PhraseRect PRect = GetPhraseAtPoint(e.Location);
+            if (PRect != null)
+            {
+                TextBox TBox = new TextBox();
+                TBox.Text = PRect.atrans.translatedText;
+                TBox.Multiline = true;
+                Point ScreenPoint = pbxDisplay.PointToScreen(PRect.Location.Location);
+                TBox.Location = this.PointToClient(ScreenPoint);
+                TBox.Size = PRect.Location.Size;
+                TBox.LostFocus += delegate (object ssender, EventArgs ee) { ((Control)sender).Dispose(); };
+                this.Controls.Add(TBox);
+                TBox.CreateControl();
+                TBox.Show();
+                TBox.BringToFront();
+            }*/
+        }
+
+        private void statusStrip1_ItemClicked(object sender, ToolStripItemClickedEventArgs e)
+        {
+
+        }
     }
 }

@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
+using System.Windows.Threading;
 
 using Google.Cloud.Vision.V1;
 using Google.Api.Gax.ResourceNames;
@@ -75,6 +76,7 @@ namespace Babel.Google
         public SImage image { get; private set; }
         private event Action<AsyncOCR> callback;
 
+
         public AsyncOCR(SImage image, Action<AsyncOCR> callback = null)
         {
             this.image = image.Copy();
@@ -83,7 +85,7 @@ namespace Babel.Google
             {
                 _bigBox = OCRBox.DummyBigBox();
                 _smallBoxes = OCRBox.DummySmallBoxes();
-                _timeStamp = "[dummy]";
+                _timeSpent = "[dummy]";
                 callback?.Invoke(this);
             }
             else
@@ -111,8 +113,8 @@ namespace Babel.Google
         public OCRBox bigBox => isDone ? _bigBox : null;
         private OCRBox[] _smallBoxes = new OCRBox[] { };
         public OCRBox[] smallBoxes => isDone ? _smallBoxes : new OCRBox[] { };
-        private string _timeStamp = "";
-        public string timeStamp => isDone ? _timeStamp : "";
+        private string _timeSpent = "";
+        public string timeSpent => _timeSpent; //isDone ? _timeSpent : "";
 
         private async Task DoOCR()
         {
@@ -145,7 +147,7 @@ namespace Babel.Google
                 .Select(ann => new OCRBox(ann))
                 .ToArray();
 
-            _timeStamp = string.Format("{0:00}:{1:00}:{2:00}.{3:000}",
+            _timeSpent = string.Format("{0:00}:{1:00}:{2:00}.{3:000}",
                 sw.Elapsed.Hours,
                 sw.Elapsed.Minutes,
                 sw.Elapsed.Seconds,
