@@ -25,14 +25,32 @@ namespace Babel
 
         public static Rectangle FitRect(this IEnumerable<Point> ps)
         {
-            int x = ps.Min(p => p.X);
-            int maxX = ps.Max(p => p.X);
-            int y = ps.Min(p => p.Y);
-            int maxY = ps.Max(p => p.Y);
-            int w = maxX - x;
-            int h = maxY - y;
+            int l = ps.Min(p => p.X);
+            int t = ps.Min(p => p.Y);
+            int r = ps.Max(p => p.X);
+            int b = ps.Max(p => p.Y);
 
-            return new Rectangle(x, y, w, h);
+            return Rectangle.FromLTRB(l, t, r, b);
+        }
+
+        public static Rectangle FitRect(this IEnumerable<Rectangle> rs)
+        {
+            int l = rs.Min(x => x.Left);
+            int t = rs.Min(x => x.Top);
+            int r = rs.Max(x => x.Right);
+            int b = rs.Max(x => x.Bottom);
+
+            return Rectangle.FromLTRB(l, t, r, b);
+        }
+
+        public static Rectangle Include(this Rectangle r1, Rectangle r2)
+        {
+            int l = Math.Min(r1.Left, r2.Left);
+            int t = Math.Min(r1.Top, r2.Top);
+            int r = Math.Max(r1.Right, r2.Right);
+            int b = Math.Max(r1.Bottom, r2.Bottom);
+
+            return Rectangle.FromLTRB(l, t, r, b);
         }
 
         public static Rectangle InflateO(this Rectangle rect, int width, int height)
@@ -70,38 +88,39 @@ namespace Babel
             yield return new Vertex { X = rect.Left, Y = rect.Bottom };
         }
 
-        public static Rectangle FitRect(this IEnumerable<Rectangle> children)
-        {
-            return FitRect(children.SelectMany(rect => rect.Corners()));
-        }
+        #region Autophrasing helpers
 
-        #region Autophrasing
-
-        // Guess the width of the characters in the box
+        // Guess the width of the characters in the box, based on total width and character count
         public static int CharWidth(this OCRBox box) => box.rect.Width / box.text.Length;
 
-        // Establish how far away the next box is allowed to be
-        private const int spacesAllowed = 2;
-        public static int AllowedSpace(this OCRBox box) => box.CharWidth() * spacesAllowed;
+        // Identify the vertical center of the rect
+        public static int VCenter(this Rectangle rect) => rect.Top + (rect.Height / 2);
 
-        public static Point Center(this Rectangle rect) => new Point(rect.Left + rect.Height / 2, rect.Top + rect.Height / 2);
-        private static float Slope(this Rectangle rect) => (float)rect.Height / (float)rect.Width;
-
-        public static bool IsAlignedWith(this Rectangle l, Rectangle r)
+        // After much experimentation, "your vertical center is between my upper and lower bounds" is Pretty Good
+        public static bool IsOnSameLine(this Rectangle l, Rectangle r)
         {
-            if (r.Bottom < l.Top || r.Top > l.Bottom) return false;
-            //else return true;// (float)Math.Abs(l.Height - r.Height) < ((float)l.Height * 0.1);
-            
-            //int h = r.Center().X - l.Center().X;
-            int v = Math.Abs(l.Center().Y - r.Center().Y);
-            return v * 2 < l.Height;
-
-            //if (h < 0) return false;
-            //else return h * l.Slope() > v;
+            int rCenter = r.VCenter();
+            return (rCenter >= l.Top) && (rCenter <= l.Bottom);
         }
 
-        public static bool IsHorizontallyNear(this Rectangle l, Rectangle r, int spacing) => (l.Right < r.Left) && (l.Right + spacing >= r.Left);
-        public static bool IsHorizontallyNear(this Rectangle l, Rectangle r) => l.IsHorizontallyNear(r, l.Height);
+        // This could be a user setting
+        public const int characterGapAllowed = 2;
+
+        // Determine if the space between the boxes is acceptable
+        public static bool IsRightNeighbor(this Rectangle l, Rectangle r, int charWidth)
+        {
+            int gapWidth = r.Left - l.Right;
+
+            // Negative gap means the right rectangle overlaps the left rectangle; overlaps of less than a character are fine
+            // Positive gap means that there's space between; allow this if it's less than our allowed character gap
+            return (gapWidth > -charWidth) && (gapWidth < charWidth * characterGapAllowed);
+        }
+
+        // Combine the vertical alignment check and the horizontal spacing check
+        public static bool CouldBeNextRect(this Rectangle l, Rectangle r, int charWidth)
+        {
+            return l.IsOnSameLine(r) && l.IsRightNeighbor(r, charWidth);
+        }
 
         #endregion
     }
