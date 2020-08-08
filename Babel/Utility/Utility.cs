@@ -4,10 +4,75 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
+using System.Threading;
 using static Babel.frmBabel;
 
 namespace Babel
 {
+    public class RateLimiter
+    {
+        #region Circular queue
+
+        // If you reset the size while threads are waiting, weird behavior may result, but the
+        // situation should stabilize on its own
+        public int size
+        {
+            get => timestamps.Length;
+            set
+            {
+                timestamps = new DateTime[value];
+                cursor = 0;
+            }
+        }
+
+        // Our buffer of timestamps.
+        // We manage this as a perfectly-full circular queue.
+        private DateTime[] timestamps = new DateTime[0];
+        private int cursor = 0;
+
+        // If we want to insert a time into the queue, we write it at the cursor and advance one.
+        private void WriteTime(DateTime time)
+        {
+            if (size > 0)
+            {
+                timestamps[cursor] = time;
+                cursor = (cursor + 1) % size;
+            }
+        }
+
+        // If we want to know the oldest time in the queue, we need read from the cursor.
+        private DateTime ReadTime()
+        {
+            return timestamps[cursor];
+        }
+
+        #endregion
+
+        public void Check()
+        {
+            // If the rate limit is zero, the rate limiter does not check anything
+            if (size != 0)
+            {
+                lock (this)
+                {
+                    // Oldest time in queue, corresponding to the Nth previous request, plus one second
+                    DateTime waitUntil = ReadTime().AddSeconds(1);
+
+                    // Current time in milliseconds
+                    DateTime now = DateTime.Now;
+
+                    // If wait time is positive, we need to wait that many ms before continuing
+                    int waitTime = (int)(waitUntil - now).TotalMilliseconds;
+                    if (waitTime > 0)
+                        Thread.Sleep(waitTime);
+
+                    // Before we go, record what time we were allowed to continue
+                    WriteTime(DateTime.Now);
+                }
+            }
+        }
+    }
+
     public static class Utility
     {
         public static Rectangle RectTo(this Point p1, Point p2)
@@ -123,5 +188,12 @@ namespace Babel
         }
 
         #endregion
+
+        // Lord have mercy on this terrible man, I just want to index into an array.
+        public static int WrapFor<T>(this int idx, T[] array)
+        {
+            if (idx < 0) return (idx % array.Length) + idx;
+            else return idx % array.Length;
+        }
     }
 }

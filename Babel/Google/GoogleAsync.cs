@@ -77,6 +77,11 @@ namespace Babel.Google
         #endregion
     }
 
+    internal static class GoogleAsyncStatic
+    {
+        public static RateLimiter rate = new RateLimiter { size = Properties.Settings.Default.reqsPerSecond };
+    }
+
     public class AsyncOCR
     {
         // pre-OCR
@@ -92,6 +97,14 @@ namespace Babel.Google
                 _bigBox = OCRBox.DummyBigBox();
                 _smallBoxes = OCRBox.DummySmallBoxes();
                 _timeStamp = "[dummy]";
+                isDone = true;
+                callback?.Invoke(this);
+            }
+            else if (image == null)
+            {
+                _bigBox = null;
+                _smallBoxes = new OCRBox[0];
+                _timeStamp = "[empty]";
                 isDone = true;
                 callback?.Invoke(this);
             }
@@ -116,52 +129,61 @@ namespace Babel.Google
 
         private async Task DoOCR()
         {
-            Stopwatch sw = new Stopwatch();
-
-            // Dump the provided image to a memory stream
-            var stream = new MemoryStream();
-            image.Save(stream, ImageFormat.Png);
-            stream.Position = 0;
-
-            // Load the stream as a gimage
-            GImage gimage = GImage.FromStream(stream);
-
-            // Make our connection client
-            ImageAnnotatorClient client = new ImageAnnotatorClientBuilder
+            try
             {
-                CredentialsPath = Properties.Settings.Default.apiKeyPath,
-            }.Build();
+                // Wait for rate limiter before starting the clock
+                GoogleAsyncStatic.rate.Check();
+                Stopwatch sw = new Stopwatch();
 
-            // Ask for OCR
-            sw.Start();
-            var response = await client.DetectTextAsync(gimage);
-            sw.Stop();
+                // Dump the provided image to a memory stream
+                var stream = new MemoryStream();
+                image.Save(stream, ImageFormat.Png);
+                stream.Position = 0;
 
-            // If we didn't get anything back
-            if (response.Count == 0)
-            {
-                _bigBox = OCRBox.ErrorBigBox();
-                _smallBoxes = new OCRBox[] { };
+                // Load the stream as a gimage
+                GImage gimage = GImage.FromStream(stream);
+
+                // Make our connection client
+                ImageAnnotatorClient client = new ImageAnnotatorClientBuilder
+                {
+                    CredentialsPath = Properties.Settings.Default.apiKeyPath,
+                }.Build();
+
+                // Ask for OCR
+                sw.Start();
+                var response = await client.DetectTextAsync(gimage);
+                sw.Stop();
+
+                // If we didn't get anything back
+                if (response.Count == 0)
+                {
+                    _bigBox = OCRBox.ErrorBigBox();
+                    _smallBoxes = new OCRBox[] { };
+                }
+                else
+                {
+                    // First result is the big box
+                    _bigBox = new OCRBox(response.First());
+
+                    // Following results are the small boxes
+                    _smallBoxes = response.Skip(1)
+                        .Select(ann => new OCRBox(ann))
+                        .ToArray();
+                }
+
+                _timeStamp = string.Format("{0:00}:{1:00}:{2:00}.{3:000}",
+                    sw.Elapsed.Hours,
+                    sw.Elapsed.Minutes,
+                    sw.Elapsed.Seconds,
+                    sw.Elapsed.Milliseconds);
+
+                isDone = true;
+                callback?.Invoke(this);
             }
-            else
+            catch (Grpc.Core.RpcException e)
             {
-                // First result is the big box
-                _bigBox = new OCRBox(response.First());
-
-                // Following results are the small boxes
-                _smallBoxes = response.Skip(1)
-                    .Select(ann => new OCRBox(ann))
-                    .ToArray();
+                Console.WriteLine(e);
             }
-
-            _timeStamp = string.Format("{0:00}:{1:00}:{2:00}.{3:000}",
-                sw.Elapsed.Hours,
-                sw.Elapsed.Minutes,
-                sw.Elapsed.Seconds,
-                sw.Elapsed.Milliseconds);
-
-            isDone = true;
-            callback?.Invoke(this);
         }
     }
 
@@ -180,6 +202,14 @@ namespace Babel.Google
                 _translatedText = rawText;
                 _detectedLocale = Properties.Settings.Default.targetLocale;
                 _timeStamp = "[dummy]";
+                isDone = true;
+                callback?.Invoke(this);
+            }
+            else if (text == null || text == "")
+            {
+                _translatedText = "";
+                _detectedLocale = Properties.Settings.Default.targetLocale;
+                _timeStamp = "[empty]";
                 isDone = true;
                 callback?.Invoke(this);
             }
@@ -204,40 +234,49 @@ namespace Babel.Google
 
         private async Task DoTranslation()
         {
-            Stopwatch sw = new Stopwatch();
-
-            // Make our connection client
-            TranslationServiceClient translationServiceClient = new TranslationServiceClientBuilder
+            try
             {
-                CredentialsPath = Properties.Settings.Default.apiKeyPath,
-            }.Build();
+                // Wait for rate limiter before starting the clock
+                GoogleAsyncStatic.rate.Check();
+                Stopwatch sw = new Stopwatch();
 
-            // Request translation
-            TranslateTextRequest request = new TranslateTextRequest
+                // Make our connection client
+                TranslationServiceClient translationServiceClient = new TranslationServiceClientBuilder
+                {
+                    CredentialsPath = Properties.Settings.Default.apiKeyPath,
+                }.Build();
+
+                // Request translation
+                TranslateTextRequest request = new TranslateTextRequest
+                {
+                    Contents = { rawText },
+                    TargetLanguageCode = Properties.Settings.Default.targetLocale,
+                    ParentAsLocationName = new LocationName(Properties.Settings.Default.projectName, "global"),
+                };
+
+                // Send request
+                sw.Start();
+                TranslateTextResponse response = await translationServiceClient.TranslateTextAsync(request);
+                sw.Stop();
+
+                // Really only anticipating a single result here
+                Translation tr = response.Translations.First();
+                _translatedText = WebUtility.HtmlDecode(tr.TranslatedText);
+                _detectedLocale = tr.DetectedLanguageCode;
+
+                _timeStamp = string.Format("{0:00}:{1:00}:{2:00}.{3:000}",
+                    sw.Elapsed.Hours,
+                    sw.Elapsed.Minutes,
+                    sw.Elapsed.Seconds,
+                    sw.Elapsed.Milliseconds);
+
+                isDone = true;
+                callback?.Invoke(this);
+            }
+            catch(Grpc.Core.RpcException e)
             {
-                Contents = {rawText },
-                TargetLanguageCode = Properties.Settings.Default.targetLocale,
-                ParentAsLocationName = new LocationName(Properties.Settings.Default.projectName, "global"),
-            };
-
-            // Send request
-            sw.Start();
-            TranslateTextResponse response = await translationServiceClient.TranslateTextAsync(request);
-            sw.Stop();
-
-            // Really only anticipating a single result here
-            Translation tr = response.Translations.First();
-            _translatedText = WebUtility.HtmlDecode(tr.TranslatedText);
-            _detectedLocale = tr.DetectedLanguageCode;
-
-            _timeStamp = string.Format("{0:00}:{1:00}:{2:00}.{3:000}",
-                sw.Elapsed.Hours,
-                sw.Elapsed.Minutes,
-                sw.Elapsed.Seconds,
-                sw.Elapsed.Milliseconds);
-
-            isDone = true;
-            callback?.Invoke(this);
+                Console.WriteLine(e);
+            }
         }
     }
 }

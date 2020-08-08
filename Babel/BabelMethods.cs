@@ -367,7 +367,6 @@ namespace Babel
                         break;
                     case (DialogResult.Cancel):
                         return;
-                        break;
                 }
             }
             // Put all smallboxes into a queue, left to right
