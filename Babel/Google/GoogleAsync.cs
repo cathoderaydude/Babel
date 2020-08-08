@@ -83,7 +83,6 @@ namespace Babel.Google
         public SImage image { get; private set; }
         private event Action<AsyncOCR> callback;
 
-
         public AsyncOCR(SImage image, Action<AsyncOCR> callback = null)
         {
             this.image = image.Copy();

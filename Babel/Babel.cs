@@ -40,9 +40,11 @@ namespace Babel
 
             NewPhraseMode = PhraseRectMode.intersects;
 
+            LoadSettings();
+
             #if DEBUG
             //ToggleVFW(); // Show viewfinder immediately
-            #endif
+#endif
         }
 
         private void frmBabel_Resize(object sender, EventArgs e)
@@ -75,6 +77,7 @@ namespace Babel
         private void tsbVFW_Click(object sender, EventArgs e)
         {
             ToggleVFW();
+            vfw.Flicker();
         }
 
         
@@ -153,36 +156,38 @@ namespace Babel
             AutoScaleVFW = !AutoScaleVFW;
             vfw.SizeGripStyle = AutoScaleVFW ? SizeGripStyle.Hide : SizeGripStyle.Show;
             vfw.Size = panel1.Size;
+            vfw.Flicker();
             vfw.Invalidate();
         }
 
+        // Summon window picker
         private void tsbCrosshair_MouseDown(object sender, MouseEventArgs e)
         {
             Picker.Show();
-            // Make a temporary timer that flashes the viewfinder for attention
-            Timer FlashTimer = new Timer();
-            FlashTimer.Interval = 60;
-            FlashTimer.Tag = 6;
+            // Make a temporary timer that updates the position of the window picker until the user lets off the mouse
+            // This could maybe be moved to the Picker class
+            Timer PickerTimer = new Timer();
+            PickerTimer.Interval = 60;
             MouseStart = MousePosition;
-            FlashTimer.Tick += delegate (object ssender, EventArgs ee)
+            PickerTimer.Tick += delegate (object ssender, EventArgs ee)
             {
                 Timer t = ((Timer)ssender);
 
-                if (MouseStart != MousePosition)
+                if (MouseStart != MousePosition) // Only update if the mouse has moved
                 {
-                    Picker.GoPoint(MousePosition);
+                    Picker.GoPoint(MousePosition); // Tell the picker to look for a window at the mouse location
                     MouseStart = MousePosition;
                 }
-                if (MouseButtons != MouseButtons.Left)
+                if (MouseButtons != MouseButtons.Left) // When the user lets off the mouse, set viewfinder size/loc
                 {
-                    // TODO: Resize the viewfinder
                     vfw.Size = Picker.Size;
                     vfw.Location = Picker.Location;
                     Picker.Hide();
+                    vfw.Flicker();
                     t.Dispose();
                 }
             };
-            FlashTimer.Enabled = true;
+            PickerTimer.Enabled = true;
         }
 
         private void tsbAutophrase_Click(object sender, EventArgs e)
@@ -208,6 +213,25 @@ namespace Babel
         private void tsbAutofit_Click(object sender, EventArgs e)
         {
             Autofit = tsbAutofit.Checked;
+        }
+
+        private void tsbIntersectsMode_Click(object sender, EventArgs e)
+        {
+            NewPhraseMode = PhraseRectMode.intersects;
+            tsbContainsMode.Checked = false;
+            tsbIntersectsMode.Checked = true;
+        }
+        private void tsbContainsMode_Click(object sender, EventArgs e)
+        {
+            NewPhraseMode = PhraseRectMode.contains;
+            tsbIntersectsMode.Checked = false;
+            tsbContainsMode.Checked = true;
+        }
+
+        private void tsbAbout_Click(object sender, EventArgs e)
+        {
+            About abt = new About();
+            abt.ShowDialog();
         }
         #endregion
 
@@ -352,7 +376,7 @@ namespace Babel
                     if (TestRect.Width > 25 && TestRect.Height > 15)
                     {
                         ChangeState(State.translated);
-                        PhraseRect NewPRect = new PhraseRect(TestRect, OCRResult, AsyncTranslation_callback);
+                        PhraseRect NewPRect = new PhraseRect(TestRect, OCRResult, IncrementOdometer, AsyncTranslation_callback);
                         PhraseRects.Add(NewPRect);
                     }
                     Marking = false;
@@ -570,17 +594,9 @@ namespace Babel
             }*/
         }
 
-        private void tsbIntersectsMode_Click(object sender, EventArgs e)
+        private void tsbHelp_Click(object sender, EventArgs e)
         {
-            NewPhraseMode = PhraseRectMode.intersects;
-            tsbContainsMode.Checked = false;
-            tsbIntersectsMode.Checked = true;
-        }
-        private void tsbContainsMode_Click(object sender, EventArgs e)
-        {
-            NewPhraseMode = PhraseRectMode.contains;
-            tsbIntersectsMode.Checked = false;
-            tsbContainsMode.Checked = true;
+
         }
     }
 }

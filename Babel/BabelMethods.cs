@@ -39,6 +39,10 @@ namespace Babel
         public static bool Autofit;
         public static PhraseRectMode NewPhraseMode;
 
+        // Odometer readings
+        public static long SnapsTaken;
+        public static long CharsTranslated;
+
         BoundingState BoundingBoxState;
         enum BoundingState
         {
@@ -78,22 +82,26 @@ namespace Babel
 
             public PhraseRectMode mode;
 
+            public Action<int, int> odometer;
+
             // Meta-constructor used for constructor overloading
-            public void _PhraseRect(Rectangle Location, AsyncOCR OCRResult, PhraseRectMode Mode, Action<AsyncTranslation> callback = null)
+            public void _PhraseRect(Rectangle Location, AsyncOCR OCRResult, PhraseRectMode Mode, Action<int, int> odometer = null, Action<AsyncTranslation> callback = null)
             {
                 this.Location = Location;
+
+                this.odometer = odometer;
 
                 this.mode = Mode;
                 if (Autofit) DoAutoFit(OCRResult);
                 UpdateText(OCRResult, callback);
             }
-            public PhraseRect(Rectangle Location, AsyncOCR OCRResult, Action<AsyncTranslation> callback = null)
+            public PhraseRect(Rectangle Location, AsyncOCR OCRResult, Action<int, int> odometer, Action<AsyncTranslation> callback = null)
             {
-                this._PhraseRect(Location, OCRResult, NewPhraseMode, callback);
+                this._PhraseRect(Location, OCRResult, NewPhraseMode, odometer, callback);
             }
-            public PhraseRect(Rectangle Location, AsyncOCR OCRResult, PhraseRectMode Mode, Action<AsyncTranslation> callback = null)
+            public PhraseRect(Rectangle Location, AsyncOCR OCRResult, PhraseRectMode Mode, Action<int, int> odometer, Action<AsyncTranslation> callback = null)
             {
-                this._PhraseRect(Location, OCRResult, Mode, callback);
+                this._PhraseRect(Location, OCRResult, Mode, odometer, callback);
             }
 
             public void DoAutoFit(AsyncOCR OCRResult)
@@ -110,7 +118,11 @@ namespace Babel
             {
                 // Only reevaluate if the underlying text actually changed
                 if (atrans == null || this.GetText(OCRResult) != this.atrans.rawText)
-                    atrans = new AsyncTranslation(GetText(OCRResult), callback);
+                {
+                    string NewText = GetText(OCRResult);
+                    odometer.Invoke(0, NewText.Length); // Update odometer
+                    atrans = new AsyncTranslation(NewText, callback);
+                }
             }
 
             // Get the combined text content of all boxes under this rect
@@ -159,15 +171,15 @@ namespace Babel
                     tsbRevert.Enabled = false;
                     tsbSave.Enabled = false;
                     tsbOCR.Enabled = false;
-                    tsbAutoAutophrase.Enabled = false;
                     tsbAutophrase.Enabled = false;
                     break;
 
                 case State.snapped:
                     Text = "Babel - Captured";
                     if (!tsbAutoOCR.Checked) tsbOCR.Enabled = true;
-                    tsbAutoAutophrase.Enabled = false;
                     tsbAutophrase.Enabled = false;
+                    tsbOCR.Enabled = true;
+                    tsbRevert.Enabled = false;
                     break;
 
                 case State.OCRing:
@@ -175,7 +187,6 @@ namespace Babel
                     tsbRevert.Enabled = false;
                     tsbSave.Enabled = false;
                     tsbOCR.Enabled = false;
-                    tsbAutoAutophrase.Enabled = false;
                     tsbAutophrase.Enabled = false;
                     break;
 
@@ -184,7 +195,6 @@ namespace Babel
                     tsbRevert.Enabled = false;
                     tsbSave.Enabled = true;
                     tsbOCR.Enabled = false;
-                    tsbAutoAutophrase.Enabled = true;
                     tsbAutophrase.Enabled = true;
                     break;
 
@@ -206,10 +216,36 @@ namespace Babel
         void LoadSettings()
         {
             Properties.Settings.Default.Reload();
-            tsbOCR.Enabled = !Properties.Settings.Default.autoOCR;
-            tsbAutoOCR.Checked = Properties.Settings.Default.autoOCR;
+            SnapsTaken = Properties.Settings.Default.snapsTaken;
+            CharsTranslated = Properties.Settings.Default.charsTranslated;
+            UpdateOdometer();
+            //tsbOCR.Enabled = !Properties.Settings.Default.autoOCR;
+            //tsbAutoOCR.Checked = Properties.Settings.Default.autoOCR;
 
+    }
+
+        // Update odometer reading in statusbar
+        public void UpdateOdometer()
+        {
+            string odoReading = SnapsTaken.ToString() + " / " + CharsTranslated.ToString();
+            statusBarRight.Text = odoReading;
+            statusBarRight.ToolTipText = "OCR requests: " + SnapsTaken.ToString() + "\nChars translated: " + CharsTranslated.ToString();
         }
+
+        // Increment odometer, then save and update
+        public void IncrementOdometer(int snaps, int chars)
+        {
+            if (Properties.Settings.Default.dummyData == false) // Don't increment odometer if we're not really sending requests
+            {
+                SnapsTaken += snaps;
+                CharsTranslated += chars;
+                Properties.Settings.Default.snapsTaken = SnapsTaken;
+                Properties.Settings.Default.charsTranslated = CharsTranslated;
+                Properties.Settings.Default.Save();
+            }
+            UpdateOdometer(); // Leave this outside the if, otherwise we might never get an odo reading even on program start
+        }
+      
 
         // Clear all phrases
         void ClearPhrases()
@@ -221,7 +257,7 @@ namespace Babel
         // Clear everything to prep for another snap
         void ClearAll()
         {
-            OCRResult = null; //new AsyncOCR(new Bitmap(1, 1));
+            OCRResult = null;
             PhraseRects.Clear();
             pbxDisplay.Invalidate();
         }
@@ -279,6 +315,7 @@ namespace Babel
             if (!Auto || AutoOCR) //Properties.Settings.Default.autoOCR)
             {
                 ChangeState(State.OCRing);
+                IncrementOdometer(1, 0); // Add one snap to the odometer
                 OCRResult = new AsyncOCR(snap, AsyncOCR_callback);
                 return true;
             }
@@ -299,10 +336,6 @@ namespace Babel
         private delegate void SafeAsyncOCR_Callback(AsyncOCR result);
         private void AsyncOCR_callback(AsyncOCR result)
         {
-            //ChangeState(State.OCRed);
-            if (Auto_Autophrase) AutoPhrases();
-            pbxDisplay.Invalidate();
-       
             if (InvokeRequired)
             {
                 var d = new SafeAsyncOCR_Callback(AsyncOCR_callback);
@@ -310,6 +343,8 @@ namespace Babel
             }
             else
             {
+                if (Auto_Autophrase) AutoPhrases();
+
                 ChangeState(State.OCRed);
                 statusBarLeft.Text = "Recognition complete [" + result.timeStamp + " elapsed]";
                 pbxDisplay.Invalidate();
@@ -361,7 +396,7 @@ namespace Babel
                     growingRect = growingRect.Include(next.rect);
                 }
 
-                PhraseRects.Add(new PhraseRect(growingRect, OCRResult, AsyncTranslation_callback));
+                PhraseRects.Add(new PhraseRect(growingRect, OCRResult, IncrementOdometer, AsyncTranslation_callback));
             }
         }
         #endregion
