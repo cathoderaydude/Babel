@@ -34,8 +34,9 @@ namespace Babel
         public Rectangle SnapRegion; // Position of capture
         public bool AutoScaleVFW; // Whether viewfinder size should always follow main form
 
-        public bool AutoOCR;
-        public bool Auto_Autophrase;
+        public static bool AutoOCR;
+        public static bool Auto_Autophrase;
+        public static bool Autofit;
 
         BoundingState BoundingBoxState;
         enum BoundingState
@@ -77,15 +78,12 @@ namespace Babel
             // This should be controlled via the context menu
             public PhraseRectMode mode = PhraseRectMode.contains;
 
-            // This should be global for the entire form, if not a persistent setting
-            public static bool autoFit = true;
-
             // Meta-constructor used for constructor overloading
             public void _PhraseRect(Rectangle Location, AsyncOCR OCRResult, PhraseRectMode Mode, Action<AsyncTranslation> callback = null)
             {
                 this.Location = Location;
 
-                if (autoFit) AutoFit(OCRResult);
+                if (Autofit) DoAutoFit(OCRResult);
                 UpdateText(OCRResult, callback);
             }
             public PhraseRect(Rectangle Location, AsyncOCR OCRResult, Action<AsyncTranslation> callback = null)
@@ -97,7 +95,7 @@ namespace Babel
                 this._PhraseRect(Location, OCRResult, Mode, callback);
             }
 
-            public void AutoFit(AsyncOCR OCRResult)
+            public void DoAutoFit(AsyncOCR OCRResult)
             {
                 if (OCRResult != null)
                 {
@@ -427,36 +425,34 @@ namespace Babel
                 }
                 g.DrawRectangle(BoxColor, PRect.Location); // Draw outline
 
-                if (!PRect.atrans.isDone)
+                string TextToRender = PRect.atrans.rawText;
+                Brush ColorToRender = Brushes.Gray;
+                if (PRect.atrans.isDone)
                 {
-                    // Draw untranslated text
-                    g.DrawString(
-                            PRect.atrans.rawText,
-                            DefaultFont,
-                            Brushes.Gray,
-                            PRect.Location);
+                    // Draw translated text if available
+                    TextToRender = PRect.atrans.translatedText;
+                    ColorToRender = Brushes.White;
                 }
-                else
-                {
-                    // Draw translated text
 
-                    // Fit font to bounding box
-                    Font LargeFont = GetAdjustedFont(g, PRect.atrans.translatedText, DefaultFont, PRect.Location, 32, 6, true);
+                // Draw text
 
-                    // Center-justify text
-                    // TODO: Currently disabled to enable wordwrap, fix this
-                    int JustifySpace = (int)(PRect.Location.Width - g.MeasureString(PRect.atrans.translatedText, LargeFont).Width) / 2;
-                    Rectangle AdjustedPosition = new Rectangle(
-                        PRect.Location.Left + JustifySpace, PRect.Location.Top,
-                        PRect.Location.Width, PRect.Location.Height);
+                // Fit font to bounding box
+                Font LargeFont = GetAdjustedFont(g, TextToRender, DefaultFont, PRect.Location, 32, 6, true);
 
-                    // Draw translated text
-                    g.DrawString(
-                            PRect.atrans.translatedText,
-                            LargeFont,
-                            Brushes.White,
-                            PRect.Location);
-                }
+                // Center-justify text
+                // TODO: Currently disabled to enable wordwrap, fix this
+                int JustifySpace = (int)(PRect.Location.Width - g.MeasureString(TextToRender, LargeFont).Width) / 2;
+                Rectangle AdjustedPosition = new Rectangle(
+                    PRect.Location.Left + JustifySpace, PRect.Location.Top,
+                    PRect.Location.Width, PRect.Location.Height);
+
+                // Draw translated text
+                g.DrawString(
+                        TextToRender,
+                        LargeFont,
+                        ColorToRender,
+                        PRect.Location);
+                
 
 
                 if (Properties.Settings.Default.displayTimes)

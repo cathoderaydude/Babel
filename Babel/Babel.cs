@@ -36,6 +36,7 @@ namespace Babel
 
             AutoOCR = false;
             Auto_Autophrase = false;
+            Autofit = true;
 
             #if DEBUG
             //ToggleVFW(); // Show viewfinder immediately
@@ -200,6 +201,12 @@ namespace Babel
                 tsbAutophrase.Enabled = true;
             }
         }
+
+        
+        private void tsbAutofit_Click(object sender, EventArgs e)
+        {
+            Autofit = tsbAutofit.Checked;
+        }
         #endregion
 
         #region Keyboard events
@@ -263,6 +270,10 @@ namespace Babel
 
                 return;
             }
+
+            // Don't permit any mouse actions unless OCR is complete
+            // This is a crowbar and we may need a better solution when we implement retained phrases between snaps
+            if (OCRResult == null || !OCRResult.isDone) return;
 
             if (PRect != null && !CtrlDown)
             {
@@ -557,6 +568,5 @@ namespace Babel
                 TBox.BringToFront();
             }*/
         }
-
     }
 }

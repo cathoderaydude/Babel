@@ -82,6 +82,7 @@
             this.verticallyToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.horizontallyToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparator8 = new System.Windows.Forms.ToolStripSeparator();
+            this.tsbAutofit = new System.Windows.Forms.ToolStripButton();
             ((System.ComponentModel.ISupportInitialize)(this.pbxDisplay)).BeginInit();
             this.tscMain.BottomToolStripPanel.SuspendLayout();
             this.tscMain.ContentPanel.SuspendLayout();
@@ -212,6 +213,7 @@
             this.tsbAutophrase,
             this.tsbAutoAutophrase,
             this.toolStripSeparator6,
+            this.tsbAutofit,
             this.tsbRevert,
             this.toolStripSeparator2,
             this.tsbTextText,
@@ -221,7 +223,7 @@
             this.toolStripButton2});
             this.toolStrip1.Location = new System.Drawing.Point(3, 0);
             this.toolStrip1.Name = "toolStrip1";
-            this.toolStrip1.Size = new System.Drawing.Size(472, 31);
+            this.toolStrip1.Size = new System.Drawing.Size(500, 31);
             this.toolStrip1.TabIndex = 1;
             this.toolStrip1.Text = "toolStrip1";
             // 
@@ -589,6 +591,19 @@
             this.toolStripSeparator8.Name = "toolStripSeparator8";
             this.toolStripSeparator8.Size = new System.Drawing.Size(6, 31);
             // 
+            // tsbAutofit
+            // 
+            this.tsbAutofit.Checked = true;
+            this.tsbAutofit.CheckOnClick = true;
+            this.tsbAutofit.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.tsbAutofit.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.tsbAutofit.Image = ((System.Drawing.Image)(resources.GetObject("tsbAutofit.Image")));
+            this.tsbAutofit.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.tsbAutofit.Name = "tsbAutofit";
+            this.tsbAutofit.Size = new System.Drawing.Size(28, 28);
+            this.tsbAutofit.Text = "Fit phrases to matching words";
+            this.tsbAutofit.Click += new System.EventHandler(this.tsbAutofit_Click);
+            // 
             // frmBabel
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -681,6 +696,7 @@
         private System.Windows.Forms.ToolStripButton toolStripButton1;
         private System.Windows.Forms.ToolStripButton toolStripButton2;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator8;
+        private System.Windows.Forms.ToolStripButton tsbAutofit;
     }
 }
 
