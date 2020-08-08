@@ -35,6 +35,7 @@ namespace Babel
         public bool AutoScaleVFW; // Whether viewfinder size should always follow main form
 
         public bool AutoOCR;
+        public bool Auto_Autophrase;
 
         BoundingState BoundingBoxState;
         enum BoundingState
@@ -142,11 +143,15 @@ namespace Babel
                     tsbRevert.Enabled = false;
                     tsbSave.Enabled = false;
                     tsbOCR.Enabled = false;
+                    tsbAutoAutophrase.Enabled = false;
+                    tsbAutophrase.Enabled = false;
                     break;
 
                 case State.snapped:
                     Text = "Babel - Captured";
                     if (!tsbAutoOCR.Checked) tsbOCR.Enabled = true;
+                    tsbAutoAutophrase.Enabled = false;
+                    tsbAutophrase.Enabled = false;
                     break;
 
                 case State.OCRing:
@@ -154,6 +159,8 @@ namespace Babel
                     tsbRevert.Enabled = false;
                     tsbSave.Enabled = false;
                     tsbOCR.Enabled = false;
+                    tsbAutoAutophrase.Enabled = false;
+                    tsbAutophrase.Enabled = false;
                     break;
 
                 case State.OCRed:
@@ -161,6 +168,8 @@ namespace Babel
                     tsbRevert.Enabled = false;
                     tsbSave.Enabled = true;
                     tsbOCR.Enabled = false;
+                    tsbAutoAutophrase.Enabled = true;
+                    tsbAutophrase.Enabled = true;
                     break;
 
                 case State.translating:
@@ -275,11 +284,9 @@ namespace Babel
         private void AsyncOCR_callback(AsyncOCR result)
         {
             //ChangeState(State.OCRed);
-            AutoPhrases();
+            if (Auto_Autophrase) AutoPhrases();
             pbxDisplay.Invalidate();
        
-
-        
             if (InvokeRequired)
             {
                 var d = new SafeAsyncOCR_Callback(AsyncOCR_callback);
@@ -295,6 +302,18 @@ namespace Babel
 
         public void AutoPhrases()
         {
+            if (PhraseRects.Count() > 0)
+            {
+                switch (MessageBox.Show("Do you want to clear phrases before running the autophraser?", "Existing phrases", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Warning))
+                {
+                    case (DialogResult.Yes):
+                        PhraseRects.Clear();
+                        break;
+                    case (DialogResult.Cancel):
+                        return;
+                        break;
+                }
+            }
             // Put all smallboxes into a queue, left to right
             Queue<OCRBox> boxes = new Queue<OCRBox>(OCRResult.smallBoxes.OrderBy(box => box.rect.Left));
 
