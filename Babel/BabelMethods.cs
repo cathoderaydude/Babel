@@ -37,6 +37,7 @@ namespace Babel
         public static bool AutoOCR;
         public static bool Auto_Autophrase;
         public static bool Autofit;
+        public static PhraseRectMode NewPhraseMode;
 
         BoundingState BoundingBoxState;
         enum BoundingState
@@ -75,20 +76,20 @@ namespace Babel
             public bool Clicked;
             public bool Selected;
 
-            // This should be controlled via the context menu
-            public PhraseRectMode mode = PhraseRectMode.contains;
+            public PhraseRectMode mode;
 
             // Meta-constructor used for constructor overloading
             public void _PhraseRect(Rectangle Location, AsyncOCR OCRResult, PhraseRectMode Mode, Action<AsyncTranslation> callback = null)
             {
                 this.Location = Location;
 
+                this.mode = Mode;
                 if (Autofit) DoAutoFit(OCRResult);
                 UpdateText(OCRResult, callback);
             }
             public PhraseRect(Rectangle Location, AsyncOCR OCRResult, Action<AsyncTranslation> callback = null)
             {
-                this._PhraseRect(Location, OCRResult, PhraseRectMode.contains, callback);
+                this._PhraseRect(Location, OCRResult, NewPhraseMode, callback);
             }
             public PhraseRect(Rectangle Location, AsyncOCR OCRResult, PhraseRectMode Mode, Action<AsyncTranslation> callback = null)
             {

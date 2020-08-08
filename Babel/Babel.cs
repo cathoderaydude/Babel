@@ -38,6 +38,8 @@ namespace Babel
             Auto_Autophrase = false;
             Autofit = true;
 
+            NewPhraseMode = PhraseRectMode.intersects;
+
             #if DEBUG
             //ToggleVFW(); // Show viewfinder immediately
             #endif
@@ -351,7 +353,6 @@ namespace Babel
                     {
                         ChangeState(State.translated);
                         PhraseRect NewPRect = new PhraseRect(TestRect, OCRResult, AsyncTranslation_callback);
-                        NewPRect.mode = PhraseRectMode.intersects;
                         PhraseRects.Add(NewPRect);
                     }
                     Marking = false;
@@ -567,6 +568,19 @@ namespace Babel
                 TBox.Show();
                 TBox.BringToFront();
             }*/
+        }
+
+        private void tsbIntersectsMode_Click(object sender, EventArgs e)
+        {
+            NewPhraseMode = PhraseRectMode.intersects;
+            tsbContainsMode.Checked = false;
+            tsbIntersectsMode.Checked = true;
+        }
+        private void tsbContainsMode_Click(object sender, EventArgs e)
+        {
+            NewPhraseMode = PhraseRectMode.contains;
+            tsbIntersectsMode.Checked = false;
+            tsbContainsMode.Checked = true;
         }
     }
 }

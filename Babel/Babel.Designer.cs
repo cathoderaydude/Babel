@@ -41,6 +41,10 @@
             this.toolStrip1 = new System.Windows.Forms.ToolStrip();
             this.tsbSnap = new System.Windows.Forms.ToolStripSplitButton();
             this.tsbClipboard = new System.Windows.Forms.ToolStripMenuItem();
+            this.tsbSave = new System.Windows.Forms.ToolStripSplitButton();
+            this.tsbSaveTranslated = new System.Windows.Forms.ToolStripMenuItem();
+            this.tsbSaveRaw = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripSeparator8 = new System.Windows.Forms.ToolStripSeparator();
             this.tsbVFW = new System.Windows.Forms.ToolStripSplitButton();
             this.tsbVFWAutoSize = new System.Windows.Forms.ToolStripMenuItem();
             this.tsbMaxVFW = new System.Windows.Forms.ToolStripMenuItem();
@@ -51,11 +55,11 @@
             this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
             this.tsbAutophrase = new System.Windows.Forms.ToolStripButton();
             this.tsbAutoAutophrase = new System.Windows.Forms.ToolStripButton();
+            this.tsbAutofit = new System.Windows.Forms.ToolStripButton();
             this.toolStripSeparator6 = new System.Windows.Forms.ToolStripSeparator();
+            this.tsbIntersectsMode = new System.Windows.Forms.ToolStripButton();
+            this.tsbContainsMode = new System.Windows.Forms.ToolStripButton();
             this.tsbRevert = new System.Windows.Forms.ToolStripButton();
-            this.tsbSave = new System.Windows.Forms.ToolStripSplitButton();
-            this.tsbSaveTranslated = new System.Windows.Forms.ToolStripMenuItem();
-            this.tsbSaveRaw = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparator2 = new System.Windows.Forms.ToolStripSeparator();
             this.tsbTextText = new System.Windows.Forms.ToolStripButton();
             this.toolStripSeparator7 = new System.Windows.Forms.ToolStripSeparator();
@@ -81,8 +85,7 @@
             this.distributeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.verticallyToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.horizontallyToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.toolStripSeparator8 = new System.Windows.Forms.ToolStripSeparator();
-            this.tsbAutofit = new System.Windows.Forms.ToolStripButton();
+            this.toolStripSeparator9 = new System.Windows.Forms.ToolStripSeparator();
             ((System.ComponentModel.ISupportInitialize)(this.pbxDisplay)).BeginInit();
             this.tscMain.BottomToolStripPanel.SuspendLayout();
             this.tscMain.ContentPanel.SuspendLayout();
@@ -185,7 +188,7 @@
             this.txtPlaceholder.BackColor = System.Drawing.SystemColors.Control;
             this.txtPlaceholder.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.txtPlaceholder.Enabled = false;
-            this.txtPlaceholder.Location = new System.Drawing.Point(234, 194);
+            this.txtPlaceholder.Location = new System.Drawing.Point(232, 214);
             this.txtPlaceholder.Multiline = true;
             this.txtPlaceholder.Name = "txtPlaceholder";
             this.txtPlaceholder.ReadOnly = true;
@@ -214,6 +217,9 @@
             this.tsbAutoAutophrase,
             this.toolStripSeparator6,
             this.tsbAutofit,
+            this.toolStripSeparator9,
+            this.tsbIntersectsMode,
+            this.tsbContainsMode,
             this.tsbRevert,
             this.toolStripSeparator2,
             this.tsbTextText,
@@ -223,7 +229,7 @@
             this.toolStripButton2});
             this.toolStrip1.Location = new System.Drawing.Point(3, 0);
             this.toolStrip1.Name = "toolStrip1";
-            this.toolStrip1.Size = new System.Drawing.Size(500, 31);
+            this.toolStrip1.Size = new System.Drawing.Size(562, 31);
             this.toolStrip1.TabIndex = 1;
             this.toolStrip1.Text = "toolStrip1";
             // 
@@ -247,6 +253,39 @@
             this.tsbClipboard.Size = new System.Drawing.Size(188, 30);
             this.tsbClipboard.Text = "Paste image";
             this.tsbClipboard.Click += new System.EventHandler(this.tsbClipboard_Click);
+            // 
+            // tsbSave
+            // 
+            this.tsbSave.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.tsbSave.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.tsbSaveTranslated,
+            this.tsbSaveRaw});
+            this.tsbSave.Image = ((System.Drawing.Image)(resources.GetObject("tsbSave.Image")));
+            this.tsbSave.ImageScaling = System.Windows.Forms.ToolStripItemImageScaling.None;
+            this.tsbSave.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.tsbSave.Name = "tsbSave";
+            this.tsbSave.Size = new System.Drawing.Size(40, 28);
+            this.tsbSave.Text = "Save";
+            this.tsbSave.ButtonClick += new System.EventHandler(this.btnSave_Click);
+            // 
+            // tsbSaveTranslated
+            // 
+            this.tsbSaveTranslated.Name = "tsbSaveTranslated";
+            this.tsbSaveTranslated.Size = new System.Drawing.Size(183, 22);
+            this.tsbSaveTranslated.Text = "Save with translation";
+            this.tsbSaveTranslated.Click += new System.EventHandler(this.btnSave_Click);
+            // 
+            // tsbSaveRaw
+            // 
+            this.tsbSaveRaw.Name = "tsbSaveRaw";
+            this.tsbSaveRaw.Size = new System.Drawing.Size(183, 22);
+            this.tsbSaveRaw.Text = "Save raw screenshot";
+            this.tsbSaveRaw.Click += new System.EventHandler(this.tsbSaveRaw_Click);
+            // 
+            // toolStripSeparator8
+            // 
+            this.toolStripSeparator8.Name = "toolStripSeparator8";
+            this.toolStripSeparator8.Size = new System.Drawing.Size(6, 31);
             // 
             // tsbVFW
             // 
@@ -347,10 +386,45 @@
             this.tsbAutoAutophrase.Text = "Automatic autophrase";
             this.tsbAutoAutophrase.Click += new System.EventHandler(this.tsbAutoAutophrase_Click);
             // 
+            // tsbAutofit
+            // 
+            this.tsbAutofit.Checked = true;
+            this.tsbAutofit.CheckOnClick = true;
+            this.tsbAutofit.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.tsbAutofit.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.tsbAutofit.Image = ((System.Drawing.Image)(resources.GetObject("tsbAutofit.Image")));
+            this.tsbAutofit.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.tsbAutofit.Name = "tsbAutofit";
+            this.tsbAutofit.Size = new System.Drawing.Size(28, 28);
+            this.tsbAutofit.Text = "Fit phrases to matching words";
+            this.tsbAutofit.Click += new System.EventHandler(this.tsbAutofit_Click);
+            // 
             // toolStripSeparator6
             // 
             this.toolStripSeparator6.Name = "toolStripSeparator6";
             this.toolStripSeparator6.Size = new System.Drawing.Size(6, 31);
+            // 
+            // tsbIntersectsMode
+            // 
+            this.tsbIntersectsMode.Checked = true;
+            this.tsbIntersectsMode.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.tsbIntersectsMode.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.tsbIntersectsMode.Image = ((System.Drawing.Image)(resources.GetObject("tsbIntersectsMode.Image")));
+            this.tsbIntersectsMode.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.tsbIntersectsMode.Name = "tsbIntersectsMode";
+            this.tsbIntersectsMode.Size = new System.Drawing.Size(28, 28);
+            this.tsbIntersectsMode.Text = "Intersect mode";
+            this.tsbIntersectsMode.Click += new System.EventHandler(this.tsbIntersectsMode_Click);
+            // 
+            // tsbContainsMode
+            // 
+            this.tsbContainsMode.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.tsbContainsMode.Image = ((System.Drawing.Image)(resources.GetObject("tsbContainsMode.Image")));
+            this.tsbContainsMode.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.tsbContainsMode.Name = "tsbContainsMode";
+            this.tsbContainsMode.Size = new System.Drawing.Size(28, 28);
+            this.tsbContainsMode.Text = "Contains mode";
+            this.tsbContainsMode.Click += new System.EventHandler(this.tsbContainsMode_Click);
             // 
             // tsbRevert
             // 
@@ -363,34 +437,6 @@
             this.tsbRevert.Text = "Revert";
             this.tsbRevert.ToolTipText = "Clear phrases";
             this.tsbRevert.Click += new System.EventHandler(this.btnRevert_Click);
-            // 
-            // tsbSave
-            // 
-            this.tsbSave.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.tsbSave.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.tsbSaveTranslated,
-            this.tsbSaveRaw});
-            this.tsbSave.Image = ((System.Drawing.Image)(resources.GetObject("tsbSave.Image")));
-            this.tsbSave.ImageScaling = System.Windows.Forms.ToolStripItemImageScaling.None;
-            this.tsbSave.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.tsbSave.Name = "tsbSave";
-            this.tsbSave.Size = new System.Drawing.Size(40, 28);
-            this.tsbSave.Text = "Save";
-            this.tsbSave.ButtonClick += new System.EventHandler(this.btnSave_Click);
-            // 
-            // tsbSaveTranslated
-            // 
-            this.tsbSaveTranslated.Name = "tsbSaveTranslated";
-            this.tsbSaveTranslated.Size = new System.Drawing.Size(183, 22);
-            this.tsbSaveTranslated.Text = "Save with translation";
-            this.tsbSaveTranslated.Click += new System.EventHandler(this.btnSave_Click);
-            // 
-            // tsbSaveRaw
-            // 
-            this.tsbSaveRaw.Name = "tsbSaveRaw";
-            this.tsbSaveRaw.Size = new System.Drawing.Size(183, 22);
-            this.tsbSaveRaw.Text = "Save raw screenshot";
-            this.tsbSaveRaw.Click += new System.EventHandler(this.tsbSaveRaw_Click);
             // 
             // toolStripSeparator2
             // 
@@ -586,23 +632,10 @@
             this.horizontallyToolStripMenuItem.Text = "Horizontally";
             this.horizontallyToolStripMenuItem.Click += new System.EventHandler(this.horizontallyToolStripMenuItem_Click);
             // 
-            // toolStripSeparator8
+            // toolStripSeparator9
             // 
-            this.toolStripSeparator8.Name = "toolStripSeparator8";
-            this.toolStripSeparator8.Size = new System.Drawing.Size(6, 31);
-            // 
-            // tsbAutofit
-            // 
-            this.tsbAutofit.Checked = true;
-            this.tsbAutofit.CheckOnClick = true;
-            this.tsbAutofit.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.tsbAutofit.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.tsbAutofit.Image = ((System.Drawing.Image)(resources.GetObject("tsbAutofit.Image")));
-            this.tsbAutofit.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.tsbAutofit.Name = "tsbAutofit";
-            this.tsbAutofit.Size = new System.Drawing.Size(28, 28);
-            this.tsbAutofit.Text = "Fit phrases to matching words";
-            this.tsbAutofit.Click += new System.EventHandler(this.tsbAutofit_Click);
+            this.toolStripSeparator9.Name = "toolStripSeparator9";
+            this.toolStripSeparator9.Size = new System.Drawing.Size(6, 31);
             // 
             // frmBabel
             // 
@@ -697,6 +730,9 @@
         private System.Windows.Forms.ToolStripButton toolStripButton2;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator8;
         private System.Windows.Forms.ToolStripButton tsbAutofit;
+        private System.Windows.Forms.ToolStripButton tsbIntersectsMode;
+        private System.Windows.Forms.ToolStripButton tsbContainsMode;
+        private System.Windows.Forms.ToolStripSeparator toolStripSeparator9;
     }
 }
 
