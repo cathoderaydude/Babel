@@ -130,6 +130,12 @@
     <Compile Include="BabelMethods.cs">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Include="Disclaimer.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Disclaimer.Designer.cs">
+      <DependentUpon>Disclaimer.cs</DependentUpon>
+    </Compile>
     <Compile Include="frmWindowPicker.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -173,6 +179,9 @@
     <Compile Include="Windows\user32.cs" />
     <EmbeddedResource Include="About.resx">
       <DependentUpon>About.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Disclaimer.resx">
+      <DependentUpon>Disclaimer.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="frmWindowPicker.resx">
       <DependentUpon>frmWindowPicker.cs</DependentUpon>

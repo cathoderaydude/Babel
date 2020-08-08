@@ -118,5 +118,17 @@ namespace Babel.Properties {
                 this["charsTranslated"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool WaiverSigned {
+            get {
+                return ((bool)(this["WaiverSigned"]));
+            }
+            set {
+                this["WaiverSigned"] = value;
+            }
+        }
     }
 }

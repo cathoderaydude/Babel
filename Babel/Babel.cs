@@ -19,6 +19,14 @@ namespace Babel
 
         private void Viewfinder_Load(object sender, EventArgs e)
         {
+            LoadSettings();
+
+            if (Properties.Settings.Default.WaiverSigned != true)
+            {
+                Disclaimer dc = new Disclaimer();
+                dc.ShowDialog(this);
+            }
+
             OCRResult = null;
             PhraseRects = new List<PhraseRect>();
 
@@ -39,8 +47,6 @@ namespace Babel
             Autofit = true;
 
             NewPhraseMode = PhraseRectMode.intersects;
-
-            LoadSettings();
 
             #if DEBUG
             //ToggleVFW(); // Show viewfinder immediately
@@ -232,6 +238,11 @@ namespace Babel
         {
             About abt = new About();
             abt.ShowDialog();
+        }
+
+        private void tsbHelp_Click(object sender, EventArgs e)
+        {
+            System.Diagnostics.Process.Start(Application.StartupPath + "\\Help\\index.html");
         }
         #endregion
 
@@ -594,9 +605,5 @@ namespace Babel
             }*/
         }
 
-        private void tsbHelp_Click(object sender, EventArgs e)
-        {
-
-        }
     }
 }
