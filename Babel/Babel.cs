@@ -131,6 +131,8 @@ namespace Babel
         private void toolStripButton1_Click(object sender, EventArgs e)
         {
             Text2Text text2Text = new Text2Text();
+            text2Text.StartPosition = FormStartPosition.Manual;
+            text2Text.Location = new Point(this.Location.X + 50, this.Location.Y + 50);
             text2Text.Show();
         }
 

@@ -49,13 +49,19 @@
             this.tsbOCR = new System.Windows.Forms.ToolStripButton();
             this.tsbAutoOCR = new System.Windows.Forms.ToolStripButton();
             this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
+            this.tsbAutophrase = new System.Windows.Forms.ToolStripButton();
+            this.tsbAutoAutophrase = new System.Windows.Forms.ToolStripButton();
+            this.toolStripSeparator6 = new System.Windows.Forms.ToolStripSeparator();
             this.tsbRevert = new System.Windows.Forms.ToolStripButton();
             this.tsbSave = new System.Windows.Forms.ToolStripSplitButton();
             this.tsbSaveTranslated = new System.Windows.Forms.ToolStripMenuItem();
             this.tsbSaveRaw = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparator2 = new System.Windows.Forms.ToolStripSeparator();
             this.tsbTextText = new System.Windows.Forms.ToolStripButton();
+            this.toolStripSeparator7 = new System.Windows.Forms.ToolStripSeparator();
             this.tsbSettings = new System.Windows.Forms.ToolStripButton();
+            this.toolStripButton1 = new System.Windows.Forms.ToolStripButton();
+            this.toolStripButton2 = new System.Windows.Forms.ToolStripButton();
             this.sfdDisplay = new System.Windows.Forms.SaveFileDialog();
             this.ctxPhrase = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.copyTranslatedToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -75,12 +81,7 @@
             this.distributeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.verticallyToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.horizontallyToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.tsbAutophrase = new System.Windows.Forms.ToolStripButton();
-            this.toolStripSeparator6 = new System.Windows.Forms.ToolStripSeparator();
-            this.tsbAutoAutophrase = new System.Windows.Forms.ToolStripButton();
-            this.toolStripButton1 = new System.Windows.Forms.ToolStripButton();
-            this.toolStripButton2 = new System.Windows.Forms.ToolStripButton();
-            this.toolStripSeparator7 = new System.Windows.Forms.ToolStripSeparator();
+            this.toolStripSeparator8 = new System.Windows.Forms.ToolStripSeparator();
             ((System.ComponentModel.ISupportInitialize)(this.pbxDisplay)).BeginInit();
             this.tscMain.BottomToolStripPanel.SuspendLayout();
             this.tscMain.ContentPanel.SuspendLayout();
@@ -155,7 +156,7 @@
             // 
             this.toolStripStatusLabel2.IsLink = true;
             this.toolStripStatusLabel2.Name = "toolStripStatusLabel2";
-            this.toolStripStatusLabel2.Size = new System.Drawing.Size(378, 17);
+            this.toolStripStatusLabel2.Size = new System.Drawing.Size(409, 17);
             this.toolStripStatusLabel2.Spring = true;
             this.toolStripStatusLabel2.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             // 
@@ -183,7 +184,7 @@
             this.txtPlaceholder.BackColor = System.Drawing.SystemColors.Control;
             this.txtPlaceholder.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.txtPlaceholder.Enabled = false;
-            this.txtPlaceholder.Location = new System.Drawing.Point(235, 184);
+            this.txtPlaceholder.Location = new System.Drawing.Point(234, 194);
             this.txtPlaceholder.Multiline = true;
             this.txtPlaceholder.Name = "txtPlaceholder";
             this.txtPlaceholder.ReadOnly = true;
@@ -200,6 +201,8 @@
             this.toolStrip1.ImageScalingSize = new System.Drawing.Size(24, 24);
             this.toolStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.tsbSnap,
+            this.tsbSave,
+            this.toolStripSeparator8,
             this.tsbVFW,
             this.tsbCrosshair,
             this.toolStripSeparator3,
@@ -210,7 +213,6 @@
             this.tsbAutoAutophrase,
             this.toolStripSeparator6,
             this.tsbRevert,
-            this.tsbSave,
             this.toolStripSeparator2,
             this.tsbTextText,
             this.toolStripSeparator7,
@@ -219,7 +221,7 @@
             this.toolStripButton2});
             this.toolStrip1.Location = new System.Drawing.Point(3, 0);
             this.toolStrip1.Name = "toolStrip1";
-            this.toolStrip1.Size = new System.Drawing.Size(466, 31);
+            this.toolStrip1.Size = new System.Drawing.Size(472, 31);
             this.toolStrip1.TabIndex = 1;
             this.toolStrip1.Text = "toolStrip1";
             // 
@@ -233,7 +235,7 @@
             this.tsbSnap.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.tsbSnap.Name = "tsbSnap";
             this.tsbSnap.Size = new System.Drawing.Size(40, 28);
-            this.tsbSnap.Text = "toolStripSplitButton1";
+            this.tsbSnap.Text = "Take picture";
             this.tsbSnap.ButtonClick += new System.EventHandler(this.btnSnap_Click);
             // 
             // tsbClipboard
@@ -241,7 +243,7 @@
             this.tsbClipboard.Image = ((System.Drawing.Image)(resources.GetObject("tsbClipboard.Image")));
             this.tsbClipboard.Name = "tsbClipboard";
             this.tsbClipboard.Size = new System.Drawing.Size(188, 30);
-            this.tsbClipboard.Text = "From Clipboard";
+            this.tsbClipboard.Text = "Paste image";
             this.tsbClipboard.Click += new System.EventHandler(this.tsbClipboard_Click);
             // 
             // tsbVFW
@@ -255,7 +257,7 @@
             this.tsbVFW.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.tsbVFW.Name = "tsbVFW";
             this.tsbVFW.Size = new System.Drawing.Size(40, 28);
-            this.tsbVFW.Text = "toolStripSplitButton1";
+            this.tsbVFW.Text = "Show viewfinder";
             this.tsbVFW.ButtonClick += new System.EventHandler(this.tsbVFW_Click);
             // 
             // tsbVFWAutoSize
@@ -285,7 +287,7 @@
             this.tsbCrosshair.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.tsbCrosshair.Name = "tsbCrosshair";
             this.tsbCrosshair.Size = new System.Drawing.Size(28, 28);
-            this.tsbCrosshair.Text = "toolStripButton1";
+            this.tsbCrosshair.Text = "Window picker";
             this.tsbCrosshair.MouseDown += new System.Windows.Forms.MouseEventHandler(this.tsbCrosshair_MouseDown);
             // 
             // toolStripSeparator3
@@ -301,7 +303,7 @@
             this.tsbOCR.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.tsbOCR.Name = "tsbOCR";
             this.tsbOCR.Size = new System.Drawing.Size(30, 28);
-            this.tsbOCR.Text = "toolStripButton1";
+            this.tsbOCR.Text = "Recognize words";
             this.tsbOCR.Click += new System.EventHandler(this.tsbOCR_Click);
             // 
             // tsbAutoOCR
@@ -313,13 +315,40 @@
             this.tsbAutoOCR.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.tsbAutoOCR.Name = "tsbAutoOCR";
             this.tsbAutoOCR.Size = new System.Drawing.Size(28, 28);
-            this.tsbAutoOCR.Text = "toolStripButton2";
+            this.tsbAutoOCR.Text = "Auto-recognize words";
             this.tsbAutoOCR.CheckedChanged += new System.EventHandler(this.tsbAutoOCR_CheckedChanged);
             // 
             // toolStripSeparator1
             // 
             this.toolStripSeparator1.Name = "toolStripSeparator1";
             this.toolStripSeparator1.Size = new System.Drawing.Size(6, 31);
+            // 
+            // tsbAutophrase
+            // 
+            this.tsbAutophrase.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.tsbAutophrase.Image = ((System.Drawing.Image)(resources.GetObject("tsbAutophrase.Image")));
+            this.tsbAutophrase.ImageScaling = System.Windows.Forms.ToolStripItemImageScaling.None;
+            this.tsbAutophrase.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.tsbAutophrase.Name = "tsbAutophrase";
+            this.tsbAutophrase.Size = new System.Drawing.Size(28, 28);
+            this.tsbAutophrase.Text = "Autophrase";
+            this.tsbAutophrase.Click += new System.EventHandler(this.tsbAutophrase_Click);
+            // 
+            // tsbAutoAutophrase
+            // 
+            this.tsbAutoAutophrase.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.tsbAutoAutophrase.Image = ((System.Drawing.Image)(resources.GetObject("tsbAutoAutophrase.Image")));
+            this.tsbAutoAutophrase.ImageScaling = System.Windows.Forms.ToolStripItemImageScaling.None;
+            this.tsbAutoAutophrase.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.tsbAutoAutophrase.Name = "tsbAutoAutophrase";
+            this.tsbAutoAutophrase.Size = new System.Drawing.Size(28, 28);
+            this.tsbAutoAutophrase.Text = "Automatic autophrase";
+            this.tsbAutoAutophrase.Click += new System.EventHandler(this.tsbAutoAutophrase_Click);
+            // 
+            // toolStripSeparator6
+            // 
+            this.toolStripSeparator6.Name = "toolStripSeparator6";
+            this.toolStripSeparator6.Size = new System.Drawing.Size(6, 31);
             // 
             // tsbRevert
             // 
@@ -377,6 +406,11 @@
             this.tsbTextText.Text = "Text Input";
             this.tsbTextText.Click += new System.EventHandler(this.toolStripButton1_Click);
             // 
+            // toolStripSeparator7
+            // 
+            this.toolStripSeparator7.Name = "toolStripSeparator7";
+            this.toolStripSeparator7.Size = new System.Drawing.Size(6, 31);
+            // 
             // tsbSettings
             // 
             this.tsbSettings.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
@@ -387,6 +421,24 @@
             this.tsbSettings.Size = new System.Drawing.Size(28, 28);
             this.tsbSettings.Text = "Settings";
             this.tsbSettings.Click += new System.EventHandler(this.settingsToolStripMenuItem_Click);
+            // 
+            // toolStripButton1
+            // 
+            this.toolStripButton1.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.toolStripButton1.Image = ((System.Drawing.Image)(resources.GetObject("toolStripButton1.Image")));
+            this.toolStripButton1.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.toolStripButton1.Name = "toolStripButton1";
+            this.toolStripButton1.Size = new System.Drawing.Size(28, 28);
+            this.toolStripButton1.Text = "toolStripButton1";
+            // 
+            // toolStripButton2
+            // 
+            this.toolStripButton2.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.toolStripButton2.Image = ((System.Drawing.Image)(resources.GetObject("toolStripButton2.Image")));
+            this.toolStripButton2.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.toolStripButton2.Name = "toolStripButton2";
+            this.toolStripButton2.Size = new System.Drawing.Size(28, 28);
+            this.toolStripButton2.Text = "toolStripButton2";
             // 
             // sfdDisplay
             // 
@@ -532,55 +584,10 @@
             this.horizontallyToolStripMenuItem.Text = "Horizontally";
             this.horizontallyToolStripMenuItem.Click += new System.EventHandler(this.horizontallyToolStripMenuItem_Click);
             // 
-            // tsbAutophrase
+            // toolStripSeparator8
             // 
-            this.tsbAutophrase.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.tsbAutophrase.Image = ((System.Drawing.Image)(resources.GetObject("tsbAutophrase.Image")));
-            this.tsbAutophrase.ImageScaling = System.Windows.Forms.ToolStripItemImageScaling.None;
-            this.tsbAutophrase.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.tsbAutophrase.Name = "tsbAutophrase";
-            this.tsbAutophrase.Size = new System.Drawing.Size(28, 28);
-            this.tsbAutophrase.Text = "Autophrase";
-            this.tsbAutophrase.Click += new System.EventHandler(this.tsbAutophrase_Click);
-            // 
-            // toolStripSeparator6
-            // 
-            this.toolStripSeparator6.Name = "toolStripSeparator6";
-            this.toolStripSeparator6.Size = new System.Drawing.Size(6, 31);
-            // 
-            // tsbAutoAutophrase
-            // 
-            this.tsbAutoAutophrase.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.tsbAutoAutophrase.Image = ((System.Drawing.Image)(resources.GetObject("tsbAutoAutophrase.Image")));
-            this.tsbAutoAutophrase.ImageScaling = System.Windows.Forms.ToolStripItemImageScaling.None;
-            this.tsbAutoAutophrase.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.tsbAutoAutophrase.Name = "tsbAutoAutophrase";
-            this.tsbAutoAutophrase.Size = new System.Drawing.Size(28, 28);
-            this.tsbAutoAutophrase.Text = "Automatic autophrase";
-            this.tsbAutoAutophrase.Click += new System.EventHandler(this.tsbAutoAutophrase_Click);
-            // 
-            // toolStripButton1
-            // 
-            this.toolStripButton1.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.toolStripButton1.Image = ((System.Drawing.Image)(resources.GetObject("toolStripButton1.Image")));
-            this.toolStripButton1.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.toolStripButton1.Name = "toolStripButton1";
-            this.toolStripButton1.Size = new System.Drawing.Size(28, 28);
-            this.toolStripButton1.Text = "toolStripButton1";
-            // 
-            // toolStripButton2
-            // 
-            this.toolStripButton2.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.toolStripButton2.Image = ((System.Drawing.Image)(resources.GetObject("toolStripButton2.Image")));
-            this.toolStripButton2.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.toolStripButton2.Name = "toolStripButton2";
-            this.toolStripButton2.Size = new System.Drawing.Size(28, 28);
-            this.toolStripButton2.Text = "toolStripButton2";
-            // 
-            // toolStripSeparator7
-            // 
-            this.toolStripSeparator7.Name = "toolStripSeparator7";
-            this.toolStripSeparator7.Size = new System.Drawing.Size(6, 31);
+            this.toolStripSeparator8.Name = "toolStripSeparator8";
+            this.toolStripSeparator8.Size = new System.Drawing.Size(6, 31);
             // 
             // frmBabel
             // 
@@ -673,6 +680,7 @@
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator7;
         private System.Windows.Forms.ToolStripButton toolStripButton1;
         private System.Windows.Forms.ToolStripButton toolStripButton2;
+        private System.Windows.Forms.ToolStripSeparator toolStripSeparator8;
     }
 }
 
