@@ -34,6 +34,7 @@
             this.textBox1 = new System.Windows.Forms.TextBox();
             this.linkLabel1 = new System.Windows.Forms.LinkLabel();
             this.textBox2 = new System.Windows.Forms.TextBox();
+            this.txtVersion = new System.Windows.Forms.TextBox();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             this.SuspendLayout();
             // 
@@ -63,7 +64,7 @@
             this.textBox1.BackColor = System.Drawing.SystemColors.Control;
             this.textBox1.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.textBox1.Font = new System.Drawing.Font("Microsoft Sans Serif", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.textBox1.Location = new System.Drawing.Point(180, 12);
+            this.textBox1.Location = new System.Drawing.Point(180, 42);
             this.textBox1.Multiline = true;
             this.textBox1.Name = "textBox1";
             this.textBox1.Size = new System.Drawing.Size(498, 99);
@@ -76,7 +77,7 @@
             // 
             this.linkLabel1.AutoSize = true;
             this.linkLabel1.Font = new System.Drawing.Font("Microsoft Sans Serif", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.linkLabel1.Location = new System.Drawing.Point(216, 84);
+            this.linkLabel1.Location = new System.Drawing.Point(216, 114);
             this.linkLabel1.Name = "linkLabel1";
             this.linkLabel1.Size = new System.Drawing.Size(51, 18);
             this.linkLabel1.TabIndex = 5;
@@ -88,19 +89,32 @@
             // 
             this.textBox2.BackColor = System.Drawing.SystemColors.Control;
             this.textBox2.BorderStyle = System.Windows.Forms.BorderStyle.None;
-            this.textBox2.Font = new System.Drawing.Font("Microsoft Sans Serif", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.textBox2.Location = new System.Drawing.Point(180, 117);
+            this.textBox2.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.textBox2.Location = new System.Drawing.Point(180, 147);
             this.textBox2.Multiline = true;
             this.textBox2.Name = "textBox2";
-            this.textBox2.Size = new System.Drawing.Size(403, 116);
+            this.textBox2.Size = new System.Drawing.Size(403, 86);
             this.textBox2.TabIndex = 6;
             this.textBox2.Text = resources.GetString("textBox2.Text");
+            // 
+            // txtVersion
+            // 
+            this.txtVersion.BackColor = System.Drawing.SystemColors.Control;
+            this.txtVersion.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            this.txtVersion.Font = new System.Drawing.Font("Microsoft Sans Serif", 11.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.txtVersion.Location = new System.Drawing.Point(180, 12);
+            this.txtVersion.Multiline = true;
+            this.txtVersion.Name = "txtVersion";
+            this.txtVersion.Size = new System.Drawing.Size(498, 24);
+            this.txtVersion.TabIndex = 7;
+            this.txtVersion.Text = "Babel - Version 0.0";
             // 
             // About
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(690, 244);
+            this.Controls.Add(this.txtVersion);
             this.Controls.Add(this.linkLabel1);
             this.Controls.Add(this.textBox1);
             this.Controls.Add(this.btnClose);
@@ -108,9 +122,12 @@
             this.Controls.Add(this.textBox2);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
+            this.MaximizeBox = false;
+            this.MinimizeBox = false;
             this.Name = "About";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             this.Text = "About";
+            this.Load += new System.EventHandler(this.About_Load);
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
@@ -124,5 +141,6 @@
         private System.Windows.Forms.TextBox textBox1;
         private System.Windows.Forms.LinkLabel linkLabel1;
         private System.Windows.Forms.TextBox textBox2;
+        private System.Windows.Forms.TextBox txtVersion;
     }
 }

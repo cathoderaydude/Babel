@@ -160,6 +160,11 @@ namespace Babel
             }
         }
 
+        public static string AppVersion()
+        {
+            return (String.Join(".", Application.ProductVersion.Split('.').Take(2)));
+        }
+
         // Keeps all our buttons enabled/disabled as needed
         private void ChangeState(State newState)
         {
@@ -167,7 +172,7 @@ namespace Babel
             switch (newState)
             {
                 case State.ready:
-                    Text = "Babel - Ready";
+                    Text = "Babel " + AppVersion() + " - Ready";
                     tsbRevert.Enabled = false;
                     tsbSave.Enabled = false;
                     tsbOCR.Enabled = false;
@@ -175,7 +180,7 @@ namespace Babel
                     break;
 
                 case State.snapped:
-                    Text = "Babel - Captured";
+                    Text = "Babel " + AppVersion() + " - Captured";
                     if (!tsbAutoOCR.Checked) tsbOCR.Enabled = true;
                     tsbAutophrase.Enabled = false;
                     tsbOCR.Enabled = true;
@@ -183,7 +188,7 @@ namespace Babel
                     break;
 
                 case State.OCRing:
-                    Text = "Babel - Recognizing...";
+                    Text = "Babel " + AppVersion() + " - Recognizing...";
                     tsbRevert.Enabled = false;
                     tsbSave.Enabled = false;
                     tsbOCR.Enabled = false;
@@ -191,7 +196,7 @@ namespace Babel
                     break;
 
                 case State.OCRed:
-                    Text = "Babel - Select text";
+                    Text = "Babel " + AppVersion() + " - Select text";
                     tsbRevert.Enabled = false;
                     tsbSave.Enabled = true;
                     tsbOCR.Enabled = false;
@@ -199,13 +204,13 @@ namespace Babel
                     break;
 
                 case State.translating:
-                    Text = "Babel - Translating...";
+                    Text = "Babel " + AppVersion() + " - Translating...";
                     tsbRevert.Enabled = false;
                     tsbSave.Enabled = false;
                     break;
 
                 case State.translated:
-                    Text = "Babel - Translated";
+                    Text = "Babel " + AppVersion() + " - Translated";
                     tsbRevert.Enabled = true;
                     tsbSave.Enabled = true;
                     break;

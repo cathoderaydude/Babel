@@ -26,5 +26,10 @@ namespace Babel
         {
             System.Diagnostics.Process.Start("https://github.com/CathodeRayDude/Babel");
         }
+
+        private void About_Load(object sender, EventArgs e)
+        {
+            txtVersion.Text = "Babel - Version " + frmBabel.AppVersion();
+        }
     }
 }

@@ -14,11 +14,15 @@
 	.auto-style1 {
 	color: #FF0000;
 }
+	.auto-style2 {
+	font-size: x-large;
+}
 	</style>
 </head>
 <body>
 
-<div class="title">Babel Manual</div>
+<div class="title">Babel Manual - V1.0</div>
+<p><img alt="Babel main window" src="Images/img3.jpg" /></p>
 <h1>Introduction</h1>
 <p>Babel is a free translation utility intended primarily for light home use 
 (non-professional applications) to translate things like old videogames and 
@@ -60,9 +64,11 @@ of human input, and while Babel attempts to make it as simple as possible,
 there's only so much that can be done automatically.</p>
 <p>In practice, you'll learn to use Babel quickly and efficiently in no time. 
 Let's get started!</p>
-<h1>Critical Disclaimer - <span class="auto-style1">Read This Now!</span></h1>
-<p>You must understand and agree to the below in order to use this program.
-<strong>Do not skip this section - it concerns your financial safety!</strong></p>
+<h1>Disclaimer - <span class="auto-style1">Read This Now!</span></h1>
+<p>When you start the program for the first time you will be asked to agree to a 
+waiver. This section does not replace that waiver, and you <em>must</em> read 
+and agree to it. This is only meant to expand on the info in the waiver. <strong>
+The following information is for your own protection!</strong></p>
 <p><strong>First:</strong> This app has no intrinsic translation capability. It 
 depends on Google Cloud services, which you must sign up for and obtain 
 credentials for on your own. This process requires a valid credit card. If you 
@@ -73,18 +79,241 @@ need to obtain an <em>API key file</em>. You must secure this file as if it were
 your credit card. While the instructions here will explain how to apply <em>very 
 limited</em> security to your account, if someone gets this file, they could run 
 up an enormous translation bill and you will have to pay it. If you aren't 
-comfortable with this, <em>do not use Babel!</em> </p>
+comfortable with this, <em>do not proceed!</em></p>
 <p><strong>Third:</strong> The developers of Babel are not responsible for any 
 expenditure incurred as a result of the use of this program. Google Cloud is a 
 paid service, and if you have concerns about limiting how much you can be 
 charged, you will need to take that up with Google. If a defect in Babel results 
 in unintended transactions, you are solely responsible for them, and your only 
 recourse is to not use the application.</p>
-<p>The above disclaimers are unfortunate realities of the way this program 
-works. Google, at the time of this programs release, has not seen fit to 
+<p>The above disclaimers are unfortunate realities of the way the service works. Google, at the time of this programs release, has not seen fit to 
 implement reasonable security measures in their cloud platform. As the 
 developers of this software, we find this outrageous and unbelievable, but have 
-no power to affect it. You use this software entirely at your own risk.</p>
+no power to affect it. You use this software entirely at your own risk, and if 
+you have any questions about how to protect yourself or what the actual risks 
+are, you must take those up with Google.</p>
+<h1>Translation may cost money!</h1>
+<p>While Babel itself is free software, it depends on Google Cloud, which is 
+not. If we find a way to use a local or free translation service, we will add 
+that as the default mode, but this is the only option we know of at this time. 
+OCR and translation is extremely hard and Google does a remarkably good job of 
+it usually, but they don't give it away.</p>
+<p>Google Cloud pricing is somewhat complicated, and <strong>this is not a guide 
+to Google Cloud or a reliable list of prices</strong>. This is a set of <strong>
+tips </strong>so you understand what you're undertaking.</p>
+<p>We use two services: <strong>Cloud Vision</strong> and <strong>Cloud 
+Translate, </strong>which are billed like this:</p>
+<p><strong>Cloud Vision</strong>:
+<a href="https://cloud.google.com/vision/pricing#prices">Pricing guide here</a>. 
+We use the "Text Detection" feature. This is billed per-transaction, and it 
+happens every time you click the <strong>OCR</strong> button (or AutoOCR occurs, 
+if enabled.) </p>
+<p><strong>Cloud Translate:</strong>
+<a href="https://cloud.google.com/translate/pricing#cloud-translation---basic">
+Pricing guide here</a>. This is billed per-character. If you have an image with 
+thousands of words but you only translate the phrase "Je ne sois quoi" you will 
+be charged for 15 characters.</p>
+<p>Google <em>seems</em> to permit a certain amount of usage per month for free. 
+At this time, that <em>appears to be</em> 1000 Vision requests and around half a 
+million characters of Translate per month. This information is provided for your 
+convenience only, and you should consider Google Cloud a paid service that will 
+bill at the maximum rate listed.</p>
+<h1>Installation</h1>
+<p>To install Babel you only need to extract the zip to a folder and run 
+Babel.exe.</p>
+<p>The first time you run the program you will need to agree to a waiver, after 
+which you'll be presented with the main window.</p>
+<p>To begin using Babel, you will need to register an account with Google Cloud, 
+which you can read about below:</p>
+<p class="auto-style2"><a href="google.html">Setting up Google Cloud</a></p>
+<p>Once you've done this, you'll need to select your<em> keyfile</em> and<em> 
+project name </em>in the Settings window, per the above document. At that point 
+you can begin using the app.</p>
+<h1>Quick Start</h1>
+<p>There are four stages to using Babel:</p>
+<ol>
+	<li><strong>Capture</strong> - obtaining an image of the thing you want to 
+	translate</li>
+	<li><strong>OCR</strong> - identifying which parts of the image are text</li>
+	<li><strong>Phrasing</strong> - selecting the parts of the image that should 
+	be translated as a single piece</li>
+	<li><strong>Translation</strong> - getting the actual translated text</li>
+</ol>
+<p>This isn't as complex as it looks, however. The following simple steps will 
+work for you in most cases:&nbsp;</p>
+<ol>
+	<li>Make sure you've followed the instructions to set up Google Cloud, 
+	obtained your keyfile, and entered it and the project name in the Settings 
+	dialog.</li>
+	<li>Click and hold the <strong>Window Picker</strong>
+	<img alt="Crosshair icon" height="24" src="../Icons/crosshair.png" width="24" /> 
+	button</li>
+	<li>Drag to the window you want to translate. If the white box doesn't 
+	surround the whole window, try aiming directly at its titlebar.</li>
+	<li>Let go of the mouse to select the window</li>
+	<li>Click the <strong>Snap</strong>
+	<img alt="Camera icon" height="24" src="../Icons/camera.png" width="24" /> 
+	button to take a picture of the program</li>
+	<li>Click the <strong>OCR</strong>
+	<img alt="OCR icon" height="24" src="../Icons/search-image.png" width="26" /> 
+	button to identify the text</li>
+	<li>Click the <strong>Autophrase</strong>
+	<img alt="Autophrase icon" height="24" src="../Icons/autophrase.png" width="24" /> 
+	button to find and translate everything</li>
+</ol>
+<p>In most cases, this will do exactly what you want. All the following 
+documentation will show you how to do more specific things which will help with 
+tougher situations.</p>
+<h1>Detailed Process</h1>
+<p>Let's start after you've captured a snap - by pasting it in with Ctrl+V, or 
+using the Snap button and the Viewfinder, for instance.</p>
+<h2>OCRing&nbsp;</h2>
+<p>The image first has to be OCRed to find out where words are. This can be done 
+manually by clicking the toolbar button, or will happen as soon as you take the 
+snap if you have AutoOCR enabled.</p>
+<p>Once OCR completes, the snap looks like this:</p>
+<p><a href="Images/img7.jpg">
+<img alt="Snap with identified words" height="279" src="Images/img7_small.jpg" width="320" /><!-- MSComment="autothumbnail" xthumbnail-orig-image="file:///D:/Code/Babel/Babel/Help/Images/img7.jpg" --></a></p>
+<p>The purple regions each represent a discrete <strong>word</strong> that 
+Google has identified. Sometimes these can get very confused, and sometimes 
+words get missed or multiple words run together, but usually Google finds the 
+borders reliably.</p>
+<h2>Phrasing</h2>
+<p>This part is where much of the complexity comes in: we must define <strong>
+phrases </strong>- groups of text that will be treated as a single "chunk" 
+during translation. Phrases are defined by shapes drawn over the snap, each of 
+which can contain (or "match") one or more identified words. Each phrase is sent 
+to Google Translate separately, and appears in a box like this:</p>
+<p><img alt="Phrase example" src="Images/imgA.gif" /></p>
+<p>You can create these by just clicking and dragging on the snapped image. Make 
+sure you make them as big as practical - notice that text is scaled to the size 
+of the phrase box.</p>
+<p>As soon as a phrase is created, it will be sent off to Google for 
+translation. White text has been translated - if Google is taking a while to do 
+it, you'll see the original untranslated text in grey.</p>
+<p>There are a few reasons we have to do this step manually:</p>
+<ul>
+	<li>Words can change meaning with context, especially in ideographic 
+	languages like Chinese and some Japanese scripts. Google Translate needs to 
+	know which text is part of a single word, sentence, or paragraph.</li>
+	<li>Google sometimes breaks up a word wrong, even in English - "Control" 
+	could show up as two words, "C" and "ontrol," but if we tell Translate to 
+	treat those as one word, it'll get it right.</li>
+	<li>Google charges by the character for translation services. The less text 
+	you send, the less you'll spend, so if you only translate the parts of an 
+	image you're interested in, you'll save money.</li>
+</ul>
+<p>To demonstrate, look at what happens if we translate each word of <strong>
+Calculator</strong> separately:</p>
+<p><img alt="Electricity - Zhuo" src="Images/imgC.gif" /></p>
+<p>Obviously this is nonsense. Google frequently makes mistakes even if it has 
+all the info, but to have a fighting chance,&nbsp;it needs to know which text goes 
+together.</p>
+<p>There is a tool called the <strong>Autophraser </strong>which attempts to do 
+this for you automatically by finding related words. To use this, you simply 
+click the Autophrase button on the toolbar, and all the detected phrases will 
+appear instantly. This is extremely effective in a lot of cases, but not always, 
+so you'll need to manually create phrases at times.</p>
+<p>Also, remember that the Autophraser will translate <em>everything </em>on the 
+screen, even things you didn't need translated, and you'll pay for all of it 
+even if it translates silly things like a copyright date, or text that's already 
+in English. If you manually define phrases however, you'll only get charged for 
+the text you actually needed to read.</p>
+<h3>Phrase Modes</h3>
+<p><img src="Images/imgE.jpg" /></p>
+<p>These icons enable <strong>Intersects</strong> and <strong>Contains</strong> 
+modes. Every phrase has this setting internally, and it controls which words are 
+considered part of the phrase. Sometimes you need these when words are so close 
+together that it's hard to cover the ones you want without hitting unrelated 
+ones from another line.</p>
+<p><img alt="Intersects mode" src="Images/imgF.gif" />
+<img alt="Contains mode" src="Images/img11.gif" /></p>
+<p>The first image is an "Intersects" phrase (dashed border.) Notice that it 
+doesn't entirely cover the second character in "Calculator," yet it shows the 
+correct translation.<br />
+The second image is a "Contains" &nbsp;phrase (solid border.) It touches both words, 
+but doesn't <em>cover</em> the second one, so it ignores it.</p>
+<h3>Readjusting Phrases</h3>
+<p>If a phrase didn't quite get drawn right, you can move it around to see if 
+you can make it cover the words you want by clicking and dragging. You can also 
+delete it and recreate it - other operations like resizing and copying will be 
+made available in a future release.</p>
+<p>When you drag a phrase and let go of the mouse, the text under it will be 
+immediately recalculated and retranslated.</p>
+<h1>Interface&nbsp;Guide</h1>
+<h2>Main Window</h2>
+<p><img alt="Main interface" height="449" src="Images/img6.jpg" width="593" />&nbsp;</p>
+<p>The main interface consists of:</p>
+<ol>
+	<li>The toolbar, where most of your functions are. Some functions are 
+	settings - clicking them will turn a mode on or off, or change modes.</li>
+	<li>The snap region, where your snap appears. You cannot zoom in and out at 
+	this time, but you can scroll around if the image is larger than the window.</li>
+	<li>The status area, which shows certain info such as the amount of time an 
+	OCR request took.</li>
+	<li>The "odometer," which shows how many requests you've made to Google in 
+	this form: <strong>Snaps / Characters</strong>. Remember that this is a <em>
+	courtesy, </em>to give you a rough idea of how much you've used the 
+	services, and you should rely <em>only</em> on Google's own usage monitoring 
+	tools.</li>
+</ol>
+<p>&nbsp;</p>
+<h2>Toolbar</h2>
+<p><img alt="Main toolbar" height="123" src="Images/img5.jpg" width="593" />&nbsp;</p>
+<p>Babel contains a large amount of functionality, so the toolbar looks 
+complicated, but there are only a few actual operations here - most of these are 
+ways to tweak the basic functionality. Arrows next to buttons open menus with 
+more options, which will be shown indented below.</p>
+<ol>
+	<li><strong>Snap</strong>: Takes a picture of whatever's under the 
+	viewfinder.<ol>
+		<li>&nbsp;<strong>From clipboard</strong>: Imports a snap from the clipboard 
+		if you've taken it with e.g. another screenshot tool or paint program. 
+		You can also press <strong>Ctrl+V</strong> at any time.</li>
+	</ol>
+	</li>
+	<li><strong>Save</strong>: Saves the current image, with translations, to a 
+	PNG<ol>
+		<li><strong>Save raw</strong>: Saves the original snap, without the 
+		translated text</li>
+	</ol>
+	</li>
+	<li><strong>Show Viewfinder</strong>: Makes the Viewfinder window visible. 
+	The Viewfinder does not have to be visible to work.<ol>
+		<li><strong>Match Viewfinder to window</strong>: With this setting 
+		enabled, the Viewfinder will always resize itself so that snaps will fit 
+		the Babel window.</li>
+		<li><strong>Fullscreen</strong>: The Viewfinder will expand to fit 
+		whichever monitor it's currently on.</li>
+	</ol>
+	</li>
+	<li><strong>Window Picker</strong>: Click and hold, then release the mouse 
+	cursor over a window you want to capture. The Viewfinder will snap to that 
+	window instantly.</li>
+	<li><strong>OCR Now</strong>: Send the snap to Google to identify text</li>
+	<li><strong>AutoOCR</strong>: If this is enabled, OCR will always occur 
+	instantly when you take a snap. <strong>This is off by default to save 
+	money!</strong></li>
+	<li><strong>Autophraser:</strong> Scan the image for words that look like 
+	they're part of a phrase.</li>
+	<li><strong>Auto-Autophraser:</strong> If this is enabled, the Autophraser 
+	will always run instantly after OCR completes.</li>
+	<li><strong>Autofit</strong>: If this is enabled, when you drag a new Phrase 
+	onto the snap, it will fit itself to the words it matched. Otherwise it will 
+	keep the exact dimensions you draw.</li>
+	<li><strong><em>Intersects</em> mode</strong>: When enabled, a newly-drawn 
+	Phrase will match whatever words it touches, even if they aren't fully 
+	contained inside it.</li>
+	<li><strong><em>Contains</em> mode</strong>: Like above, but a new Phrase 
+	will only match words that are fully contained inside it.</li>
+	<li><strong>Revert</strong>: Erases all Phrases</li>
+	<li><strong>Text2Text</strong>: Shows a simple form for translating text, as 
+	a convenience.</li>
+	<li><strong>Settings</strong></li>
+	<li><strong>Help</strong></li>
+	<li><strong>About</strong></li>
+</ol>
+<p>&nbsp;</p>
 	
 </body>
 
