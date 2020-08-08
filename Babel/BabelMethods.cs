@@ -80,22 +80,38 @@ namespace Babel
             // This should be global for the entire form, if not a persistent setting
             public static bool autoFit = true;
 
-            public PhraseRect(Rectangle Location, AsyncOCR OCRResult, Action<AsyncTranslation> callback = null)
+            // Meta-constructor used for constructor overloading
+            public void _PhraseRect(Rectangle Location, AsyncOCR OCRResult, PhraseRectMode Mode, Action<AsyncTranslation> callback = null)
             {
                 this.Location = Location;
 
-                UpdateText(OCRResult, callback);
                 if (autoFit) AutoFit(OCRResult);
+                UpdateText(OCRResult, callback);
+            }
+            public PhraseRect(Rectangle Location, AsyncOCR OCRResult, Action<AsyncTranslation> callback = null)
+            {
+                this._PhraseRect(Location, OCRResult, PhraseRectMode.contains, callback);
+            }
+            public PhraseRect(Rectangle Location, AsyncOCR OCRResult, PhraseRectMode Mode, Action<AsyncTranslation> callback = null)
+            {
+                this._PhraseRect(Location, OCRResult, Mode, callback);
             }
 
             public void AutoFit(AsyncOCR OCRResult)
             {
-                Location = GetBoxes(OCRResult).Select(box => box.rect).FitRect();
+                if (OCRResult != null)
+                {
+                    IEnumerable<OCRBox> FitRects = GetBoxes(OCRResult);
+                    if (FitRects.Count() > 0)
+                        Location = FitRects.Select(box => box.rect).FitRect();
+                }
             }
 
             public void UpdateText(AsyncOCR OCRResult, Action<AsyncTranslation> callback = null)
             {
-                atrans = new AsyncTranslation(GetText(OCRResult), callback);
+                // Only reevaluate if the underlying text actually changed
+                if (atrans == null || this.GetText(OCRResult) != this.atrans.rawText)
+                    atrans = new AsyncTranslation(GetText(OCRResult), callback);
             }
 
             // Get the combined text content of all boxes under this rect
@@ -128,6 +144,7 @@ namespace Babel
 
             IEnumerable<OCRBox> GetBoxes(AsyncOCR ocrResult)
             {
+                if (ocrResult == null) return null;
                 return GetBoxes(ocrResult.smallBoxes);
             }
         }
@@ -400,6 +417,14 @@ namespace Babel
                 if (PRect.Hovered) BoxColor = Pens.LightGreen;
                 if (PRect.Selected) BoxColor = Pens.LightBlue;
                 if (PRect.Clicked) BoxColor = Pens.DarkBlue;
+                BoxColor = (Pen)BoxColor.Clone(); // Clone the pen prototype so we can modify it if need be
+                // If the box is an intersect box, draw it dashed
+                if (PRect.mode == PhraseRectMode.intersects)
+                {
+                    BoxColor.DashStyle = System.Drawing.Drawing2D.DashStyle.Dash;
+                    //BoxColor.DashStyle = System.Drawing.Drawing2D.DashStyle.Custom;
+                    //BoxColor.DashPattern = new float[] { 5, 2, 15, 4 };
+                }
                 g.DrawRectangle(BoxColor, PRect.Location); // Draw outline
 
                 if (!PRect.atrans.isDone)

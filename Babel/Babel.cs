@@ -337,7 +337,9 @@ namespace Babel
                     if (TestRect.Width > 25 && TestRect.Height > 15)
                     {
                         ChangeState(State.translated);
-                        PhraseRects.Add(new PhraseRect(TestRect, OCRResult, AsyncTranslation_callback));
+                        PhraseRect NewPRect = new PhraseRect(TestRect, OCRResult, AsyncTranslation_callback);
+                        NewPRect.mode = PhraseRectMode.intersects;
+                        PhraseRects.Add(NewPRect);
                     }
                     Marking = false;
                 }
