@@ -58,6 +58,12 @@ namespace Babel
         private frmWindowPicker Picker;
         #endregion
 
+        public enum PhraseRectMode
+        {
+            intersects,
+            contains,
+        }
+
         // Contains a rectangle the user has drawn around one or more words to be translated as a single phrase
         public class PhraseRect
         {
@@ -67,22 +73,56 @@ namespace Babel
             public bool Clicked;
             public bool Selected;
 
+            // This should be controlled via the context menu
+            public PhraseRectMode mode = PhraseRectMode.contains;
+
+            // This should be global for the entire form, if not a persistent setting
+            public static bool autoFit = true;
+
             public PhraseRect(Rectangle Location, AsyncOCR OCRResult, Action<AsyncTranslation> callback = null)
             {
                 this.Location = Location;
 
-                this.UpdateText(OCRResult, callback);
+                UpdateText(OCRResult, callback);
+                if (autoFit) AutoFit(OCRResult);
+            }
+
+            public void AutoFit(AsyncOCR OCRResult)
+            {
+                Location = GetBoxes(OCRResult).Select(box => box.rect).FitRect();
             }
 
             public void UpdateText(AsyncOCR OCRResult, Action<AsyncTranslation> callback = null)
             {
-                string text = GetTextInRect(Location, OCRResult);
-                atrans = new AsyncTranslation(text, callback);
+                atrans = new AsyncTranslation(GetText(OCRResult), callback);
+            }
+
+            // Get the combined text content of all boxes under this rect
+            private string GetText(AsyncOCR OCRResult)
+            {
+                var myBoxes = GetBoxes(OCRResult);
+                if (myBoxes.Any())
+                {
+                    return myBoxes
+                        .Select(ocr => ocr.text)
+                        .Aggregate((l, r) => l + " " + r);
+                }
+                else
+                {
+                    return "";
+                }
             }
 
             IEnumerable<OCRBox> GetBoxes(IEnumerable<OCRBox> boxes)
             {
-                return boxes.Where(box => box.rect.IntersectsWith(Location));
+                switch (mode)
+                {
+                    default:
+                    case PhraseRectMode.intersects:
+                        return boxes.Where(box => Location.IntersectsWith(box.rect));
+                    case PhraseRectMode.contains:
+                        return boxes.Where(box => Location.Contains(box.rect));
+                }
             }
 
             IEnumerable<OCRBox> GetBoxes(AsyncOCR ocrResult)
@@ -223,11 +263,6 @@ namespace Babel
             }
         }
 
-        public void AddPhrase(Rectangle location)
-        {
-            PhraseRects.Add(new PhraseRect(location, OCRResult, AsyncTranslation_callback));
-        }
-
         public void AsyncTranslation_callback(AsyncTranslation result)
         {
             //pbxDisplay.Image = edit;
@@ -264,36 +299,34 @@ namespace Babel
             Queue<OCRBox> boxes = new Queue<OCRBox>(OCRResult.smallBoxes.OrderBy(box => box.rect.Left));
 
             // We're planning to cut items out of this queue as we go,
-            // so I don't think we can safely enumerate over it
+            // so I don't think we can safely foreach over it
             while (boxes.Count > 0)
             {
                 // Pick the current leftmost box, and start with its rect exactly.
-                OCRBox box = boxes.Dequeue();
-                Rectangle rect = box.rect;
+                OCRBox firstBox = boxes.Dequeue();
+                Rectangle growingRect = firstBox.rect;
+                int charWidth = firstBox.CharWidth();
 
-                List<OCRBox> phraseCandidates = new List<OCRBox>();
-                phraseCandidates.Add(box);
-                int spacing = box.AllowedSpace();
+                List<OCRBox> phraseCandidates = new List<OCRBox> { firstBox };
 
                 // While there are any boxes in the queue that are aligned with my current rect:
-                while (boxes.Any(other => rect.IsAlignedWith(other.rect) && rect.IsHorizontallyNear(other.rect)))
+                while (boxes.Any(other => growingRect.CouldBeNextRect(other.rect, charWidth)))
                 {
-                    // Pick out the leftmost aligned box.
-                    OCRBox next = boxes.First(other => rect.IsAlignedWith(other.rect) && rect.IsHorizontallyNear(other.rect));
+                    // Pick out the leftmost aligned box
+                    OCRBox next = boxes.First(other => growingRect.CouldBeNextRect(other.rect, charWidth));
 
                     // Add it to our phrase
                     phraseCandidates.Add(next);
 
-                    // Remake the queue without any elements from the growing phrase
-                    // 1) this is the only way to delete from the middle of a queue
-                    // 2) luckily this also means that we don't remove the initial box until we have at least one match
+                    // Remake the queue without any elements from the phrase
+                    // (this is the only way to delete from the middle of a queue)
                     boxes = new Queue<OCRBox>(boxes.Except(phraseCandidates));
 
-                    // Expand the rect to include all the rects of the growing phrase
-                    rect = phraseCandidates.SelectMany(p => p.rect.Corners()).FitRect();
+                    // Expand the rect to include the new smallbox
+                    growingRect = growingRect.Include(next.rect);
                 }
 
-                PhraseRects.Add(new PhraseRect(rect, OCRResult, AsyncTranslation_callback));
+                PhraseRects.Add(new PhraseRect(growingRect, OCRResult, AsyncTranslation_callback));
             }
         }
         #endregion
@@ -480,23 +513,6 @@ namespace Babel
             if (OCRResult == null) return false;
             return OCRResult.smallBoxes
                 .Where(ocr => ocr.rect.IntersectsWith(rect)).Count() > 0;
-        }
-
-        // Get the combined text content of all boxes under this rect
-        private static string GetTextInRect(Rectangle rect, AsyncOCR OCRResult)
-        {
-            if (OCRResult == null) return null;
-            if (OCRResult.smallBoxes
-                .Where(ocr => ocr.rect.IntersectsWith(rect)).Count() < 1) return null;
-
-            return OCRResult.smallBoxes
-                .Where(ocr => ocr.rect.IntersectsWith(rect))
-                .Select(ocr => ocr.text)
-                .Aggregate((l, r) => l + " " + r);
-        }
-        private string GetTextInRect(Rectangle rect)
-        {
-            return GetTextInRect(rect, OCRResult);
         }
 
         // Get the largest difference between coords in a pair of points
