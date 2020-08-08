@@ -242,7 +242,20 @@ namespace Babel
 
         private void tsbHelp_Click(object sender, EventArgs e)
         {
-            System.Diagnostics.Process.Start(Application.StartupPath + "\\Help\\index.html");
+            string HelpLoc = Application.StartupPath + "\\Help\\index.html";
+            try
+            {
+                System.Diagnostics.Process.Start(HelpLoc);
+            } catch (System.ComponentModel.Win32Exception err) {
+                if (err.NativeErrorCode == 2)
+                {
+                    MessageBox.Show("The Help file could not be found at " + HelpLoc);
+                }
+                else
+                {
+                    MessageBox.Show("There was an error opening Help: \r\n\r\n" + err.Message);
+                }
+            }
         }
         #endregion
 
