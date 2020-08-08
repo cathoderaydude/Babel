@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
+using System.Windows.Threading;
 
 using Google.Cloud.Vision.V1;
 using Google.Api.Gax.ResourceNames;

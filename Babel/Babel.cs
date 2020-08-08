@@ -19,6 +19,14 @@ namespace Babel
 
         private void Viewfinder_Load(object sender, EventArgs e)
         {
+            LoadSettings();
+
+            if (Properties.Settings.Default.WaiverSigned != true)
+            {
+                Disclaimer dc = new Disclaimer();
+                dc.ShowDialog(this);
+            }
+
             OCRResult = null;
             PhraseRects = new List<PhraseRect>();
 
@@ -34,9 +42,15 @@ namespace Babel
 
             Picker = new frmWindowPicker();
 
+            AutoOCR = false;
+            Auto_Autophrase = false;
+            Autofit = true;
+
+            NewPhraseMode = PhraseRectMode.intersects;
+
             #if DEBUG
-            ToggleVFW(); // Show viewfinder immediately
-            #endif
+            //ToggleVFW(); // Show viewfinder immediately
+#endif
         }
 
         private void frmBabel_Resize(object sender, EventArgs e)
@@ -69,6 +83,7 @@ namespace Babel
         private void tsbVFW_Click(object sender, EventArgs e)
         {
             ToggleVFW();
+            vfw.Flicker();
         }
 
         
@@ -77,14 +92,16 @@ namespace Babel
             if(tsbAutoOCR.Checked)
             {
                 tsbOCR.Enabled = false;
-                Properties.Settings.Default.autoOCR = false;
+                //Properties.Settings.Default.autoOCR = false;
+                AutoOCR = true;
                 if (AppState == State.snapped) DoOCR(true);
             } else
             {
-                Properties.Settings.Default.autoOCR = true;
+                //Properties.Settings.Default.autoOCR = true;
+                AutoOCR = false;
                 tsbOCR.Enabled = true;
             }
-            Properties.Settings.Default.Save();
+            //Properties.Settings.Default.Save();
         }
 
         // Clear all identified phrases
@@ -126,6 +143,8 @@ namespace Babel
         private void toolStripButton1_Click(object sender, EventArgs e)
         {
             Text2Text text2Text = new Text2Text();
+            text2Text.StartPosition = FormStartPosition.Manual;
+            text2Text.Location = new Point(this.Location.X + 50, this.Location.Y + 50);
             text2Text.Show();
         }
 
@@ -143,38 +162,89 @@ namespace Babel
             AutoScaleVFW = !AutoScaleVFW;
             vfw.SizeGripStyle = AutoScaleVFW ? SizeGripStyle.Hide : SizeGripStyle.Show;
             vfw.Size = panel1.Size;
+            vfw.Flicker();
             vfw.Invalidate();
         }
 
+        // Summon window picker
         private void tsbCrosshair_MouseDown(object sender, MouseEventArgs e)
         {
             Picker.Show();
-            // Make a temporary timer that flashes the viewfinder for attention
-            Timer FlashTimer = new Timer();
-            FlashTimer.Interval = 60;
-            FlashTimer.Tag = 6;
+            // Make a temporary timer that updates the position of the window picker until the user lets off the mouse
+            // This could maybe be moved to the Picker class
+            Timer PickerTimer = new Timer();
+            PickerTimer.Interval = 60;
             MouseStart = MousePosition;
-            FlashTimer.Tick += delegate (object ssender, EventArgs ee)
+            PickerTimer.Tick += delegate (object ssender, EventArgs ee)
             {
                 Timer t = ((Timer)ssender);
 
-                if (MouseStart != MousePosition)
+                if (MouseStart != MousePosition) // Only update if the mouse has moved
                 {
-                    Picker.GoPoint(MousePosition);
+                    Picker.GoPoint(MousePosition); // Tell the picker to look for a window at the mouse location
                     MouseStart = MousePosition;
                 }
-                if (MouseButtons != MouseButtons.Left)
+                if (MouseButtons != MouseButtons.Left) // When the user lets off the mouse, set viewfinder size/loc
                 {
-                    // TODO: Resize the viewfinder
                     vfw.Size = Picker.Size;
                     vfw.Location = Picker.Location;
                     Picker.Hide();
+                    vfw.Flicker();
                     t.Dispose();
                 }
             };
-            FlashTimer.Enabled = true;
+            PickerTimer.Enabled = true;
         }
-#endregion
+
+        private void tsbAutophrase_Click(object sender, EventArgs e)
+        {
+            AutoPhrases();
+        }
+        private void tsbAutoAutophrase_Click(object sender, EventArgs e)
+        {
+            if (tsbAutoAutophrase.Checked)
+            {
+                tsbAutophrase.Enabled = false;
+                Auto_Autophrase = true;
+                if (AppState == State.OCRed) AutoPhrases();
+            }
+            else
+            {
+                Auto_Autophrase = false;
+                tsbAutophrase.Enabled = true;
+            }
+        }
+
+        
+        private void tsbAutofit_Click(object sender, EventArgs e)
+        {
+            Autofit = tsbAutofit.Checked;
+        }
+
+        private void tsbIntersectsMode_Click(object sender, EventArgs e)
+        {
+            NewPhraseMode = PhraseRectMode.intersects;
+            tsbContainsMode.Checked = false;
+            tsbIntersectsMode.Checked = true;
+        }
+        private void tsbContainsMode_Click(object sender, EventArgs e)
+        {
+            NewPhraseMode = PhraseRectMode.contains;
+            tsbIntersectsMode.Checked = false;
+            tsbContainsMode.Checked = true;
+        }
+
+        private void tsbAbout_Click(object sender, EventArgs e)
+        {
+            About abt = new About();
+            abt.ShowDialog();
+        }
+
+        private void tsbHelp_Click(object sender, EventArgs e)
+        {
+            System.Diagnostics.Process.Start(Application.StartupPath + "\\Help\\index.html");
+        }
+        #endregion
 
         #region Keyboard events
 
@@ -195,6 +265,10 @@ namespace Babel
                 {
                     GetSnap(Clipboard.GetImage());
                 }
+            } else if (e.KeyCode == Keys.A && e.Modifiers == Keys.Control)
+            {
+                // Select all phrases
+                PhraseRects.ForEach(x => x.Selected = true);
             }
         }
 
@@ -217,9 +291,10 @@ namespace Babel
         }
 
         #endregion
-        
+
         #region Mouse events
         //======= Mouse events
+
 
         // Begin drawing or dragging bounding box
         private void pbxDisplay_MouseDown(object sender, MouseEventArgs e)
@@ -233,34 +308,58 @@ namespace Babel
                 return;
             }
 
+            // Don't permit any mouse actions unless OCR is complete
+            // This is a crowbar and we may need a better solution when we implement retained phrases between snaps
+            if (OCRResult == null || !OCRResult.isDone) return;
+
             if (PRect != null && !CtrlDown)
             {
                 // There was a phrase under the mouse
                 // Select it, then set up for a drag if desired
 
-                // If the user wasn't holding shift, clear all other selections
-                if (!WindowFunctions.IsPressed((int)WindowFunctions.VirtualKeyStates.VK_LSHIFT))
+                if (PRect.Selected != true) // If the box wasn't already selected
                 {
-                    foreach (PhraseRect TPRect in PhraseRects) { TPRect.Clicked = false; TPRect.Selected = false; }
+                    // If the user wasn't holding shift, clear all other selections
+                    if (!WindowFunctions.IsPressed((int)WindowFunctions.VirtualKeyStates.VK_LSHIFT))
+                    {
+                        foreach (PhraseRect TPRect in PhraseRects) { TPRect.Clicked = false; TPRect.Selected = false; }
+
+                        // And begin a drag process on that one item
+                        if (e.Button == MouseButtons.Left)
+                        {
+                            MouseStart = e.Location;
+                            StartingDrag = true;
+                        }
+                        PRect.Clicked = true;
+                    }
+                    PRect.Selected = true;
+                } else // If the box was already selected
+                {
+                    if (WindowFunctions.IsPressed((int)WindowFunctions.VirtualKeyStates.VK_LSHIFT))
+                    {
+                        // If the user is holding shift, deselect the current box and do nothing else.
+                        PRect.Selected = false;
+                    }
+                    else
+                    {
+                        // If not, then start a drag, which may be multi-drag.
+                        PRect.Clicked = true;
+                        if (e.Button == MouseButtons.Left)
+                        {
+                            MouseStart = e.Location;
+                            StartingDrag = true;
+                        }
+                    }
                 }
 
-                PRect.Clicked = true;
-                PRect.Selected = true;
-                if (e.Button == MouseButtons.Left)
-                {
-                    MouseStart = e.Location;
-                    Dragging = true;
-                    DrugPhrase = PRect;
-                }
-
+                // Pop the clicked phrase to the top (technically the bottom) of the stack
                 PhraseRects.Remove(PRect);
                 PhraseRects.Add(PRect);
             }
-            else
+            else // There was no phrase under the mouse, start a bounding box
             {
                 if (e.Button == MouseButtons.Left)
                 {
-                    // There was no phrase under the mouse, start a bounding box
                     MouseStart = e.Location;
                     MouseEnd = e.Location;
                     Marking = true;
@@ -273,68 +372,57 @@ namespace Babel
         // Finish drawing/dragging
         private void pbxDisplay_MouseUp(object sender, MouseEventArgs e)
         {
-            if (e.Button == MouseButtons.Right)
+            if (e.Button == MouseButtons.Right) // Right click
             {
                 // Summon a context menu
                 SelectedRect = GetPhraseAtPoint(e.Location); // Find all selected phrases
                 if (PhraseRects.FindAll(x => x.Selected == true).Count() < 1) return; // Don't display menu if nothing's selected
                 ctxPhrase.Show(MousePosition); // Display menu
-                return; // Do nothing else
-            }
-
-            if (OCRResult != null)
+            } else // Left click
             {
                 if (Marking == true) // We were drawing a bounding box
                 {
-                    // Find out if any words were selected and, if so, create a phrase box around them
+                    // Create a phrase box
                     Rectangle TestRect = MouseStart.RectTo(MouseEnd);
                     if (TestRect.Width > 25 && TestRect.Height > 15)
                     {
                         ChangeState(State.translated);
-                        PhraseRects.Add(new PhraseRect(TestRect, OCRResult, AsyncTranslation_callback));
+                        PhraseRect NewPRect = new PhraseRect(TestRect, OCRResult, IncrementOdometer, AsyncTranslation_callback);
+                        PhraseRects.Add(NewPRect);
                     }
                     Marking = false;
-
-                    // If the user wasn't holding shift, clear all other selections
-                    if (!WindowFunctions.IsPressed((int)WindowFunctions.VirtualKeyStates.VK_LSHIFT))
-                    {
-                        foreach (PhraseRect TPRect in PhraseRects) { TPRect.Clicked = false; TPRect.Selected = false; }
-                    }
                 }
                 else
                 { // We were selecting/dragging
                     PhraseRect PRect = GetPhraseAtPoint(e.Location);
                     if (PRect != null)
                     {
-                        if (PRect.Clicked == true)
-                        {
-                            PRect.Clicked = false; // Clear item active state
-                            PRect.UpdateText(OCRResult, AsyncTranslation_callback);
-                        }
-                        if (!Dragging)
-                        {
-                            // If the user wasn't holding shift, clear all other selections
+                        PhraseRects.FindAll(x => x.Selected == true).ForEach(x => x.UpdateText(OCRResult, AsyncTranslation_callback));
+                    }
 
-                            if (!WindowFunctions.IsPressed((int)WindowFunctions.VirtualKeyStates.VK_LSHIFT))
-                            {
-                                foreach (PhraseRect TPRect in PhraseRects) { TPRect.Clicked = false; TPRect.Selected = false; }
-                                PRect.Selected = true;
-                            }
-                        }
+                    PhraseRects.ForEach(x => x.Clicked = false);
+                }
+
+                if (!Dragging && !StartingDrag)
+                {
+                    // If the user wasn't holding shift, clear all other selections
+                    if (!WindowFunctions.IsPressed((int)WindowFunctions.VirtualKeyStates.VK_LSHIFT))
+                    {
+                        PhraseRects.ForEach(x => { x.Clicked = false; x.Selected = false; });
                     }
                 }
-                Dragging = false;
-                pbxDisplay.Invalidate();
             }
 
-            StartingDrag = false;
             Dragging = false;
+            StartingDrag = false;
             pbxDisplay.Invalidate();
         }
 
         
         private void pbxDisplay_MouseMove(object sender, MouseEventArgs e)
         {
+            if (StartingDrag == true) Dragging = true;
+
             if (Marking) // We're drawing a bounding box, set the second endpoint
             {
                 MouseEnd = e.Location;
@@ -346,6 +434,7 @@ namespace Babel
                     BoundingBoxState = BoundingState.TooSmall;
                 } else if (CheckForText(TestRec))
                 {
+                    // TODO: This needs to be extended to understand the intersect vs bounding modes
                     BoundingBoxState = BoundingState.RectsFound; // If it's over any text, draw it green
                 } else
                 {
@@ -492,5 +581,29 @@ namespace Babel
             }
         }
         #endregion
+
+
+        private void pbxDisplay_MouseDoubleClick(object sender, MouseEventArgs e)
+        {
+            // Experimental approach for creating a text box when you double click a phrase, to make copying
+            // part of a translation easier. It has problems right now.
+            /*
+            PhraseRect PRect = GetPhraseAtPoint(e.Location);
+            if (PRect != null)
+            {
+                TextBox TBox = new TextBox();
+                TBox.Text = PRect.atrans.translatedText;
+                TBox.Multiline = true;
+                Point ScreenPoint = pbxDisplay.PointToScreen(PRect.Location.Location);
+                TBox.Location = this.PointToClient(ScreenPoint);
+                TBox.Size = PRect.Location.Size;
+                TBox.LostFocus += delegate (object ssender, EventArgs ee) { ((Control)sender).Dispose(); };
+                this.Controls.Add(TBox);
+                TBox.CreateControl();
+                TBox.Show();
+                TBox.BringToFront();
+            }*/
+        }
+
     }
 }

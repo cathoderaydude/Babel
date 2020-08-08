@@ -117,21 +117,26 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <metadata name="tRefresh.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
-    <value>17, 17</value>
-  </metadata>
-  <metadata name="toolStrip1.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
-    <value>113, 17</value>
-  </metadata>
-  <assembly alias="System.Drawing" name="System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
-  <data name="tsbPause.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
-    <value>
-        iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8
-        YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAABsSURBVEhL3cuxCcBADARBNeAuXNH338s7MQ4MCxP/gCLt
-        zZmue+3/va+PNEnG0iQZS5NkLE2SsTRJxtIkGUuTZCxNkrE0ScbSJBlLk2QsTZKxNEnG0iQZS5NkLE2S
-        sTRJxtIkGUuTZCzNCWYeVo4toM5fdRgAAAAASUVORK5CYII=
-</value>
+  <data name="textBox1.Text" xml:space="preserve">
+    <value>These terms are for your own protection, as well as the developers. If you do not agree with these terms, you may not use this program.
+
+Babel relies on Google Cloud, which costs money to use. You must register an account with Google to use Babel. While Babel accepts no payment directly, all transactions will be billed by Google.
+
+Babel's documentation provides a minimal explanation of how to create an account and restrict it to only the needed API calls, but does not attempt to limit it to use only by you or by Babel. This documentation is not a guide to securing your account.
+
+You are responsible for protecting your Google API keyfile against theft and fraudulent use, and monitoring your account for unauthorized use.
+
+Prices are set by Google and may change at any time with no warning. You are responsible for monitoring Google's prices and your invoices
+
+The developers of Babel are not responsible for any costs incurred by the use of this program, even those incurred by a defect in the program such as an infinite loop.
+
+Babel provides a feature to track how many requests have been made. This is for convenience, and is not guaranteed to work. Use Google's tools to see your actual billed usage, not Babel's.
+
+Babel provides a feature to disable requests to Google ("dummy data") which is intended for debugging use. There are also features to disable automatic processing which are provided for your convenience. Any of these options may fail at any time and result in unintended transactions.
+
+If you are not comfortable with any of these risks, click Decline and delete this program.</value>
   </data>
+  <assembly alias="System.Drawing" name="System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
   <data name="$this.Icon" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
     <value>
         AAABAAEAGBgAAAEAGABIBwAAFgAAACgAAAAYAAAAMAAAAAEAGAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA

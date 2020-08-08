@@ -94,5 +94,41 @@ namespace Babel.Properties {
                 this["autoOCR"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        public long snapsTaken {
+            get {
+                return ((long)(this["snapsTaken"]));
+            }
+            set {
+                this["snapsTaken"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        public long charsTranslated {
+            get {
+                return ((long)(this["charsTranslated"]));
+            }
+            set {
+                this["charsTranslated"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool WaiverSigned {
+            get {
+                return ((bool)(this["WaiverSigned"]));
+            }
+            set {
+                this["WaiverSigned"] = value;
+            }
+        }
     }
 }

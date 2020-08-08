@@ -34,6 +34,15 @@ namespace Babel
         public Rectangle SnapRegion; // Position of capture
         public bool AutoScaleVFW; // Whether viewfinder size should always follow main form
 
+        public static bool AutoOCR;
+        public static bool Auto_Autophrase;
+        public static bool Autofit;
+        public static PhraseRectMode NewPhraseMode;
+
+        // Odometer readings
+        public static long SnapsTaken;
+        public static long CharsTranslated;
+
         BoundingState BoundingBoxState;
         enum BoundingState
         {
@@ -71,28 +80,49 @@ namespace Babel
             public bool Clicked;
             public bool Selected;
 
-            // This should be controlled via the context menu
-            public PhraseRectMode mode = PhraseRectMode.contains;
+            public PhraseRectMode mode;
 
-            // This should be global for the entire form, if not a persistent setting
-            public static bool autoFit = true;
+            public Action<int, int> odometer;
 
-            public PhraseRect(Rectangle Location, AsyncOCR OCRResult, Action<AsyncTranslation> callback = null)
+            // Meta-constructor used for constructor overloading
+            public void _PhraseRect(Rectangle Location, AsyncOCR OCRResult, PhraseRectMode Mode, Action<int, int> odometer = null, Action<AsyncTranslation> callback = null)
             {
                 this.Location = Location;
 
+                this.odometer = odometer;
+
+                this.mode = Mode;
+                if (Autofit) DoAutoFit(OCRResult);
                 UpdateText(OCRResult, callback);
-                if (autoFit) AutoFit(OCRResult);
+            }
+            public PhraseRect(Rectangle Location, AsyncOCR OCRResult, Action<int, int> odometer, Action<AsyncTranslation> callback = null)
+            {
+                this._PhraseRect(Location, OCRResult, NewPhraseMode, odometer, callback);
+            }
+            public PhraseRect(Rectangle Location, AsyncOCR OCRResult, PhraseRectMode Mode, Action<int, int> odometer, Action<AsyncTranslation> callback = null)
+            {
+                this._PhraseRect(Location, OCRResult, Mode, odometer, callback);
             }
 
-            public void AutoFit(AsyncOCR OCRResult)
+            public void DoAutoFit(AsyncOCR OCRResult)
             {
-                Location = GetBoxes(OCRResult).Select(box => box.rect).FitRect();
+                if (OCRResult != null)
+                {
+                    IEnumerable<OCRBox> FitRects = GetBoxes(OCRResult);
+                    if (FitRects.Count() > 0)
+                        Location = FitRects.Select(box => box.rect).FitRect();
+                }
             }
 
             public void UpdateText(AsyncOCR OCRResult, Action<AsyncTranslation> callback = null)
             {
-                atrans = new AsyncTranslation(GetText(OCRResult), callback);
+                // Only reevaluate if the underlying text actually changed
+                if (atrans == null || this.GetText(OCRResult) != this.atrans.rawText)
+                {
+                    string NewText = GetText(OCRResult);
+                    odometer.Invoke(0, NewText.Length); // Update odometer
+                    atrans = new AsyncTranslation(NewText, callback);
+                }
             }
 
             // Get the combined text content of all boxes under this rect
@@ -125,6 +155,7 @@ namespace Babel
 
             IEnumerable<OCRBox> GetBoxes(AsyncOCR ocrResult)
             {
+                if (ocrResult == null) return null;
                 return GetBoxes(ocrResult.smallBoxes);
             }
         }
@@ -140,11 +171,15 @@ namespace Babel
                     tsbRevert.Enabled = false;
                     tsbSave.Enabled = false;
                     tsbOCR.Enabled = false;
+                    tsbAutophrase.Enabled = false;
                     break;
 
                 case State.snapped:
                     Text = "Babel - Captured";
                     if (!tsbAutoOCR.Checked) tsbOCR.Enabled = true;
+                    tsbAutophrase.Enabled = false;
+                    tsbOCR.Enabled = true;
+                    tsbRevert.Enabled = false;
                     break;
 
                 case State.OCRing:
@@ -152,6 +187,7 @@ namespace Babel
                     tsbRevert.Enabled = false;
                     tsbSave.Enabled = false;
                     tsbOCR.Enabled = false;
+                    tsbAutophrase.Enabled = false;
                     break;
 
                 case State.OCRed:
@@ -159,6 +195,7 @@ namespace Babel
                     tsbRevert.Enabled = false;
                     tsbSave.Enabled = true;
                     tsbOCR.Enabled = false;
+                    tsbAutophrase.Enabled = true;
                     break;
 
                 case State.translating:
@@ -179,11 +216,38 @@ namespace Babel
         void LoadSettings()
         {
             Properties.Settings.Default.Reload();
-            tsbOCR.Enabled = !Properties.Settings.Default.autoOCR;
-            tsbAutoOCR.Checked = Properties.Settings.Default.autoOCR;
+            SnapsTaken = Properties.Settings.Default.snapsTaken;
+            CharsTranslated = Properties.Settings.Default.charsTranslated;
+            UpdateOdometer();
+            //tsbOCR.Enabled = !Properties.Settings.Default.autoOCR;
+            //tsbAutoOCR.Checked = Properties.Settings.Default.autoOCR;
 
+    }
+
+        // Update odometer reading in statusbar
+        public void UpdateOdometer()
+        {
+            string odoReading = SnapsTaken.ToString() + " / " + CharsTranslated.ToString();
+            statusBarRight.Text = odoReading;
+            statusBarRight.ToolTipText = "OCR requests: " + SnapsTaken.ToString() + "\nChars translated: " + CharsTranslated.ToString();
         }
 
+        // Increment odometer, then save and update
+        public void IncrementOdometer(int snaps, int chars)
+        {
+            if (Properties.Settings.Default.dummyData == false) // Don't increment odometer if we're not really sending requests
+            {
+                SnapsTaken += snaps;
+                CharsTranslated += chars;
+                Properties.Settings.Default.snapsTaken = SnapsTaken;
+                Properties.Settings.Default.charsTranslated = CharsTranslated;
+                Properties.Settings.Default.Save();
+            }
+            UpdateOdometer(); // Leave this outside the if, otherwise we might never get an odo reading even on program start
+        }
+      
+
+        // Clear all phrases
         void ClearPhrases()
         {
             PhraseRects.Clear();
@@ -199,15 +263,17 @@ namespace Babel
         }
 
         #region Image capture routines
-        // Takes a screenshot of what's behind the window and returns it
+        // Takes a screenshot of the SnapRegion and returns it
         private Image Snap()
         {
             bool VfwWasVisible = vfw.Visible;
             if (VfwWasVisible) vfw.Visible = false; // Hide viewfinder if appropriate
+            this.Visible = false; // Hide self (nobody wants to translate Babel)
 
             Image result = GDI32.Grab(SnapRegion);
 
             if (VfwWasVisible) vfw.Visible = true; // Reshow viewfinder if appropriate
+            this.Visible = true; // Show self again
             this.Focus(); // Return focus to the main form
 
             return result;
@@ -222,7 +288,7 @@ namespace Babel
             pbxDisplay.Visible = true;
             txtPlaceholder.Visible = false;
             ChangeState(State.snapped);
-            DoOCR(true);
+            DoOCR(true); // Trigger AutoOCR, if enabled.
         }
 
         // Display or hide the viewfinder
@@ -246,9 +312,10 @@ namespace Babel
             if (AppState != State.snapped) return false; // Prevent double OCR
 
             // Proceed if it's a manual request, or if it's an auto request and autoOCR is on
-            if (!Auto || Properties.Settings.Default.autoOCR)
+            if (!Auto || AutoOCR) //Properties.Settings.Default.autoOCR)
             {
                 ChangeState(State.OCRing);
+                IncrementOdometer(1, 0); // Add one snap to the odometer
                 OCRResult = new AsyncOCR(snap, AsyncOCR_callback);
                 return true;
             }
@@ -265,15 +332,39 @@ namespace Babel
             pbxDisplay.Invalidate();
         }
 
+
+        private delegate void SafeAsyncOCR_Callback(AsyncOCR result);
         private void AsyncOCR_callback(AsyncOCR result)
         {
-            //ChangeState(State.OCRed);
-            AutoPhrases();
-            pbxDisplay.Invalidate();
+            if (InvokeRequired)
+            {
+                var d = new SafeAsyncOCR_Callback(AsyncOCR_callback);
+                Invoke(d, new object[] { result });
+            }
+            else
+            {
+                if (Auto_Autophrase) AutoPhrases();
+
+                ChangeState(State.OCRed);
+                statusBarLeft.Text = "Recognition complete [" + result.timeStamp + " elapsed]";
+                pbxDisplay.Invalidate();
+            }
         }
 
         public void AutoPhrases()
         {
+            if (PhraseRects.Count() > 0)
+            {
+                switch (MessageBox.Show("Do you want to clear phrases before running the autophraser?", "Existing phrases", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Warning))
+                {
+                    case (DialogResult.Yes):
+                        PhraseRects.Clear();
+                        break;
+                    case (DialogResult.Cancel):
+                        return;
+                        break;
+                }
+            }
             // Put all smallboxes into a queue, left to right
             Queue<OCRBox> boxes = new Queue<OCRBox>(OCRResult.smallBoxes.OrderBy(box => box.rect.Left));
 
@@ -305,7 +396,7 @@ namespace Babel
                     growingRect = growingRect.Include(next.rect);
                 }
 
-                PhraseRects.Add(new PhraseRect(growingRect, OCRResult, AsyncTranslation_callback));
+                PhraseRects.Add(new PhraseRect(growingRect, OCRResult, IncrementOdometer, AsyncTranslation_callback));
             }
         }
         #endregion
@@ -360,38 +451,44 @@ namespace Babel
                 if (PRect.Hovered) BoxColor = Pens.LightGreen;
                 if (PRect.Selected) BoxColor = Pens.LightBlue;
                 if (PRect.Clicked) BoxColor = Pens.DarkBlue;
+                BoxColor = (Pen)BoxColor.Clone(); // Clone the pen prototype so we can modify it if need be
+                // If the box is an intersect box, draw it dashed
+                if (PRect.mode == PhraseRectMode.intersects)
+                {
+                    BoxColor.DashStyle = System.Drawing.Drawing2D.DashStyle.Dash;
+                    //BoxColor.DashStyle = System.Drawing.Drawing2D.DashStyle.Custom;
+                    //BoxColor.DashPattern = new float[] { 5, 2, 15, 4 };
+                }
                 g.DrawRectangle(BoxColor, PRect.Location); // Draw outline
 
-                if (!PRect.atrans.isDone)
+                string TextToRender = PRect.atrans.rawText;
+                Brush ColorToRender = Brushes.Gray;
+                if (PRect.atrans.isDone)
                 {
-                    // Draw untranslated text
-                    g.DrawString(
-                            PRect.atrans.rawText,
-                            DefaultFont,
-                            Brushes.Gray,
-                            PRect.Location);
+                    // Draw translated text if available
+                    TextToRender = PRect.atrans.translatedText;
+                    ColorToRender = Brushes.White;
                 }
-                else
-                {
-                    // Draw translated text
 
-                    // Fit font to bounding box
-                    Font LargeFont = GetAdjustedFont(g, PRect.atrans.translatedText, DefaultFont, PRect.Location, 32, 6, true);
+                // Draw text
 
-                    // Center-justify text
-                    // TODO: Currently disabled to enable wordwrap, fix this
-                    int JustifySpace = (int)(PRect.Location.Width - g.MeasureString(PRect.atrans.translatedText, LargeFont).Width) / 2;
-                    Rectangle AdjustedPosition = new Rectangle(
-                        PRect.Location.Left + JustifySpace, PRect.Location.Top,
-                        PRect.Location.Width, PRect.Location.Height);
+                // Fit font to bounding box
+                Font LargeFont = GetAdjustedFont(g, TextToRender, DefaultFont, PRect.Location, 32, 6, true);
 
-                    // Draw translated text
-                    g.DrawString(
-                            PRect.atrans.translatedText,
-                            LargeFont,
-                            Brushes.White,
-                            PRect.Location);
-                }
+                // Center-justify text
+                // TODO: Currently disabled to enable wordwrap, fix this
+                int JustifySpace = (int)(PRect.Location.Width - g.MeasureString(TextToRender, LargeFont).Width) / 2;
+                Rectangle AdjustedPosition = new Rectangle(
+                    PRect.Location.Left + JustifySpace, PRect.Location.Top,
+                    PRect.Location.Width, PRect.Location.Height);
+
+                // Draw translated text
+                g.DrawString(
+                        TextToRender,
+                        LargeFont,
+                        ColorToRender,
+                        PRect.Location);
+                
 
 
                 if (Properties.Settings.Default.displayTimes)
@@ -489,6 +586,7 @@ namespace Babel
         // Check whether there are any text boxes underneath this rect
         private bool CheckForText(Rectangle rect)
         {
+            if (OCRResult == null) return false;
             return OCRResult.smallBoxes
                 .Where(ocr => ocr.rect.IntersectsWith(rect)).Count() > 0;
         }
