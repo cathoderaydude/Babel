@@ -34,6 +34,9 @@ namespace Babel
 
             Picker = new frmWindowPicker();
 
+            AutoOCR = false;
+            Auto_Autophrase = false;
+
             #if DEBUG
             //ToggleVFW(); // Show viewfinder immediately
             #endif
@@ -176,7 +179,26 @@ namespace Babel
             };
             FlashTimer.Enabled = true;
         }
-#endregion
+
+        private void tsbAutophrase_Click(object sender, EventArgs e)
+        {
+            AutoPhrases();
+        }
+        private void tsbAutoAutophrase_Click(object sender, EventArgs e)
+        {
+            if (tsbAutoAutophrase.Checked)
+            {
+                tsbAutophrase.Enabled = false;
+                Auto_Autophrase = true;
+                if (AppState == State.OCRed) AutoPhrases();
+            }
+            else
+            {
+                Auto_Autophrase = false;
+                tsbAutophrase.Enabled = true;
+            }
+        }
+        #endregion
 
         #region Keyboard events
 
@@ -531,5 +553,6 @@ namespace Babel
                 TBox.BringToFront();
             }*/
         }
+
     }
 }
