@@ -82,10 +82,13 @@ namespace Babel.Google
         // pre-OCR
         public SImage image { get; private set; }
         private event Action<AsyncOCR> callback;
+        public frmBabel Form;
 
-        public AsyncOCR(SImage image, Action<AsyncOCR> callback = null)
+        public AsyncOCR(SImage image, frmBabel Form, Action<AsyncOCR> callback = null)
         {
             this.image = image.Copy();
+            this.Form = Form; 
+            Form.Invoke(Form.SafeLogWorkerError, new object[] { "Unable to horble dorble blorb", "http://www.yahoo" });
 
             if (Properties.Settings.Default.dummyData)
             {
@@ -161,6 +164,7 @@ namespace Babel.Google
                 sw.Elapsed.Milliseconds);
 
             isDone = true;
+            //Form.Invoke(Form.SafeAsyncOCR_Callback, this);
             callback?.Invoke(this);
         }
     }
@@ -170,10 +174,12 @@ namespace Babel.Google
         // pre-translation
         public string rawText { get; private set; }
         private event Action<AsyncTranslation> callback;
-        
-        public AsyncTranslation(string text, Action<AsyncTranslation> callback = null)
+        public frmBabel Form;
+
+        public AsyncTranslation(string text, frmBabel Form, Action<AsyncTranslation> callback = null)
         {
             rawText = text;
+            this.Form = Form;
 
             if (Properties.Settings.Default.dummyData)
             {

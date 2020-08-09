@@ -10,10 +10,25 @@
     <AssemblyName>Babel</AssemblyName>
     <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
-    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+    <AutoGenerateBindingRedirects>false</AutoGenerateBindingRedirects>
     <Deterministic>true</Deterministic>
     <NuGetPackageImportStamp>
     </NuGetPackageImportStamp>
+    <PublishUrl>publish\</PublishUrl>
+    <Install>true</Install>
+    <InstallFrom>Disk</InstallFrom>
+    <UpdateEnabled>false</UpdateEnabled>
+    <UpdateMode>Foreground</UpdateMode>
+    <UpdateInterval>7</UpdateInterval>
+    <UpdateIntervalUnits>Days</UpdateIntervalUnits>
+    <UpdatePeriodically>false</UpdatePeriodically>
+    <UpdateRequired>false</UpdateRequired>
+    <MapFileExtensions>true</MapFileExtensions>
+    <ApplicationRevision>0</ApplicationRevision>
+    <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
+    <IsWebBootstrapper>false</IsWebBootstrapper>
+    <UseApplicationTrust>false</UseApplicationTrust>
+    <BootstrapperEnabled>true</BootstrapperEnabled>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -33,6 +48,9 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationIcon>babel.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Google.Api.CommonProtos, Version=2.0.0.0, Culture=neutral, PublicKeyToken=3ec5ea7f18953e47, processorArchitecture=MSIL">
@@ -136,6 +154,12 @@
     <Compile Include="Disclaimer.Designer.cs">
       <DependentUpon>Disclaimer.cs</DependentUpon>
     </Compile>
+    <Compile Include="ErrorLog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="ErrorLog.Designer.cs">
+      <DependentUpon>ErrorLog.cs</DependentUpon>
+    </Compile>
     <Compile Include="frmWindowPicker.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -183,6 +207,9 @@
     <EmbeddedResource Include="Disclaimer.resx">
       <DependentUpon>Disclaimer.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="ErrorLog.resx">
+      <DependentUpon>ErrorLog.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="frmWindowPicker.resx">
       <DependentUpon>frmWindowPicker.cs</DependentUpon>
     </EmbeddedResource>
@@ -216,7 +243,21 @@
   <ItemGroup>
     <None Include="App.config" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Content Include="babel.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <BootstrapperPackage Include=".NETFramework,Version=v4.6.1">
+      <Visible>False</Visible>
+      <ProductName>Microsoft .NET Framework 4.6.1 %28x86 and x64%29</ProductName>
+      <Install>true</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Net.Framework.3.5.SP1">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5 SP1</ProductName>
+      <Install>false</Install>
+    </BootstrapperPackage>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="..\packages\Grpc.Core.2.27.0\build\net45\Grpc.Core.targets" Condition="Exists('..\packages\Grpc.Core.2.27.0\build\net45\Grpc.Core.targets')" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">

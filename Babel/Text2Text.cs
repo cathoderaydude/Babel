@@ -7,6 +7,8 @@ namespace Babel
 {
     public partial class Text2Text : Form
     {
+        public frmBabel BabelForm;
+
         public Text2Text()
         {
             InitializeComponent();
@@ -30,7 +32,7 @@ namespace Babel
         {
             if (dirty)
             {
-                ts.Enqueue(new AsyncTranslation(txtInput.Text, Translation_callback));
+                ts.Enqueue(new AsyncTranslation(txtInput.Text, BabelForm, Translation_callback));
                 dirty = false;
             }
         }

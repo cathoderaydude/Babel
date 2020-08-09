@@ -12,6 +12,69 @@ namespace Babel
 {
     public partial class frmBabel : Form
     {
+        #region Header
+        public List<PhraseRect> PhraseRects; // Track user-selected phrases
+        public AsyncOCR OCRResult;
+
+        // For bounding box code
+        public bool Marking;
+        Point MouseStart;
+        Point MouseEnd;
+        public bool StartingDrag;
+        public bool Dragging;
+        public PhraseRect DrugPhrase;
+        public bool CtrlDown;
+        PhraseRect SelectedRect;
+
+        // Image buffers
+        private Image snap = null; // Exact image captured from screenshot
+        private Image edit = null; // Modified image
+
+        Viewfinder vfw; // Persistent viewfinder window
+        public Rectangle SnapRegion; // Position of capture
+        public bool AutoScaleVFW; // Whether viewfinder size should always follow main form
+
+        public static bool AutoOCR;
+        public static bool Auto_Autophrase;
+        public static bool Autofit;
+        public static PhraseRectMode NewPhraseMode;
+
+        // Odometer readings
+        public static long SnapsTaken;
+        public static long CharsTranslated;
+
+        BoundingState BoundingBoxState;
+        enum BoundingState
+        {
+            Normal,
+            RectsFound,
+            TooSmall
+        }
+
+        public enum State
+        {
+            ready,
+            snapped,
+            OCRing,
+            OCRed,
+            translating,
+            translated,
+        }
+        State AppState;
+
+        private frmWindowPicker Picker;
+
+        public enum PhraseRectMode
+        {
+            intersects,
+            contains,
+        }
+
+        public static List<WorkerError> WorkerErrors;
+
+        public ErrorLog ErrorWindow;
+        #endregion
+
         public frmBabel()
         {
             InitializeComponent();
@@ -48,7 +111,14 @@ namespace Babel
 
             NewPhraseMode = PhraseRectMode.intersects;
 
-            #if DEBUG
+            SafeAsyncOCR_Callback = new SafeAsyncOCR_Delegate(AsyncOCR_callback);
+
+            SafeLogWorkerError = new SafeLogWorkerError_Delegate(LogWorkerError);
+            WorkerErrors = new List<WorkerError>();
+
+            ErrorWindow = new ErrorLog();
+
+#if DEBUG
             //ToggleVFW(); // Show viewfinder immediately
 #endif
         }
@@ -143,6 +213,7 @@ namespace Babel
         private void toolStripButton1_Click(object sender, EventArgs e)
         {
             Text2Text text2Text = new Text2Text();
+            text2Text.BabelForm = this;
             text2Text.StartPosition = FormStartPosition.Manual;
             text2Text.Location = new Point(this.Location.X + 50, this.Location.Y + 50);
             text2Text.Show();
@@ -400,7 +471,7 @@ namespace Babel
                     if (TestRect.Width > 25 && TestRect.Height > 15)
                     {
                         ChangeState(State.translated);
-                        PhraseRect NewPRect = new PhraseRect(TestRect, OCRResult, IncrementOdometer, AsyncTranslation_callback);
+                        PhraseRect NewPRect = new PhraseRect(TestRect, OCRResult, this, AsyncTranslation_callback);
                         PhraseRects.Add(NewPRect);
                     }
                     Marking = false;

@@ -12,64 +12,6 @@ namespace Babel
 {
     public partial class frmBabel : Form
     {
-        #region Header
-        public List<PhraseRect> PhraseRects; // Track user-selected phrases
-        public AsyncOCR OCRResult;
-
-        // For bounding box code
-        public bool Marking;
-        Point MouseStart;
-        Point MouseEnd;
-        public bool StartingDrag;
-        public bool Dragging;
-        public PhraseRect DrugPhrase;
-        public bool CtrlDown;
-        PhraseRect SelectedRect;
-
-        // Image buffers
-        private Image snap = null; // Exact image captured from screenshot
-        private Image edit = null; // Modified image
-
-        Viewfinder vfw; // Persistent viewfinder window
-        public Rectangle SnapRegion; // Position of capture
-        public bool AutoScaleVFW; // Whether viewfinder size should always follow main form
-
-        public static bool AutoOCR;
-        public static bool Auto_Autophrase;
-        public static bool Autofit;
-        public static PhraseRectMode NewPhraseMode;
-
-        // Odometer readings
-        public static long SnapsTaken;
-        public static long CharsTranslated;
-
-        BoundingState BoundingBoxState;
-        enum BoundingState
-        {
-            Normal,
-            RectsFound,
-            TooSmall
-        }
-
-        public enum State
-        {
-            ready,
-            snapped,
-            OCRing,
-            OCRed,
-            translating,
-            translated,
-        }
-        State AppState;
-
-        private frmWindowPicker Picker;
-        #endregion
-
-        public enum PhraseRectMode
-        {
-            intersects,
-            contains,
-        }
 
         // Contains a rectangle the user has drawn around one or more words to be translated as a single phrase
         public class PhraseRect
@@ -82,26 +24,26 @@ namespace Babel
 
             public PhraseRectMode mode;
 
-            public Action<int, int> odometer;
+            public frmBabel BabelForm;
 
             // Meta-constructor used for constructor overloading
-            public void _PhraseRect(Rectangle Location, AsyncOCR OCRResult, PhraseRectMode Mode, Action<int, int> odometer = null, Action<AsyncTranslation> callback = null)
+            public void _PhraseRect(Rectangle Location, AsyncOCR OCRResult, PhraseRectMode Mode, frmBabel BabelForm, Action<AsyncTranslation> callback = null)
             {
                 this.Location = Location;
 
-                this.odometer = odometer;
+                this.BabelForm = BabelForm;
 
                 this.mode = Mode;
                 if (Autofit) DoAutoFit(OCRResult);
                 UpdateText(OCRResult, callback);
             }
-            public PhraseRect(Rectangle Location, AsyncOCR OCRResult, Action<int, int> odometer, Action<AsyncTranslation> callback = null)
+            public PhraseRect(Rectangle Location, AsyncOCR OCRResult, frmBabel BabelForm, Action<AsyncTranslation> callback = null)
             {
-                this._PhraseRect(Location, OCRResult, NewPhraseMode, odometer, callback);
+                this._PhraseRect(Location, OCRResult, NewPhraseMode, BabelForm, callback);
             }
-            public PhraseRect(Rectangle Location, AsyncOCR OCRResult, PhraseRectMode Mode, Action<int, int> odometer, Action<AsyncTranslation> callback = null)
+            public PhraseRect(Rectangle Location, AsyncOCR OCRResult, PhraseRectMode Mode, frmBabel BabelForm, Action<AsyncTranslation> callback = null)
             {
-                this._PhraseRect(Location, OCRResult, Mode, odometer, callback);
+                this._PhraseRect(Location, OCRResult, Mode, BabelForm, callback);
             }
 
             public void DoAutoFit(AsyncOCR OCRResult)
@@ -120,8 +62,8 @@ namespace Babel
                 if (atrans == null || this.GetText(OCRResult) != this.atrans.rawText)
                 {
                     string NewText = GetText(OCRResult);
-                    odometer.Invoke(0, NewText.Length); // Update odometer
-                    atrans = new AsyncTranslation(NewText, callback);
+                    BabelForm.Invoke(BabelForm.SafeIncrementOdometer, new object[] { 0, NewText.Length }); // Update odometer
+                    atrans = new AsyncTranslation(NewText, BabelForm, callback);
                 }
             }
 
@@ -238,17 +180,26 @@ namespace Babel
         }
 
         // Increment odometer, then save and update
+        public delegate void SafeIncrementOdometer_Delegate(string message, string url);
+        public SafeIncrementOdometer_Delegate SafeIncrementOdometer;
         public void IncrementOdometer(int snaps, int chars)
         {
-            if (Properties.Settings.Default.dummyData == false) // Don't increment odometer if we're not really sending requests
+            if (InvokeRequired)
             {
-                SnapsTaken += snaps;
-                CharsTranslated += chars;
-                Properties.Settings.Default.snapsTaken = SnapsTaken;
-                Properties.Settings.Default.charsTranslated = CharsTranslated;
-                Properties.Settings.Default.Save();
+                Invoke(SafeIncrementOdometer, new object[] { snaps, chars });
             }
-            UpdateOdometer(); // Leave this outside the if, otherwise we might never get an odo reading even on program start
+            else
+            {
+                if (Properties.Settings.Default.dummyData == false) // Don't increment odometer if we're not really sending requests
+                {
+                    SnapsTaken += snaps;
+                    CharsTranslated += chars;
+                    Properties.Settings.Default.snapsTaken = SnapsTaken;
+                    Properties.Settings.Default.charsTranslated = CharsTranslated;
+                    Properties.Settings.Default.Save();
+                }
+                UpdateOdometer(); // Leave this outside the if, otherwise we might never get an odo reading even on program start
+            }
         }
       
 
@@ -321,7 +272,7 @@ namespace Babel
             {
                 ChangeState(State.OCRing);
                 IncrementOdometer(1, 0); // Add one snap to the odometer
-                OCRResult = new AsyncOCR(snap, AsyncOCR_callback);
+                OCRResult = new AsyncOCR(snap, this, AsyncOCR_callback);
                 return true;
             }
             else
@@ -337,14 +288,48 @@ namespace Babel
             pbxDisplay.Invalidate();
         }
 
+        public class WorkerError
+        {
+            public string message;
+            public string url;
+            public bool read;
+            public string timestamp;
 
-        private delegate void SafeAsyncOCR_Callback(AsyncOCR result);
-        private void AsyncOCR_callback(AsyncOCR result)
+            public WorkerError(string message, string url, string timestamp)
+            {
+                this.message = message;
+                this.url = url;
+                this.timestamp = timestamp;
+                this.read = false;
+            }
+        }
+
+
+        public delegate void SafeLogWorkerError_Delegate(string message, string url);
+        public SafeLogWorkerError_Delegate SafeLogWorkerError;
+        public void LogWorkerError(string message, string url)
         {
             if (InvokeRequired)
             {
-                var d = new SafeAsyncOCR_Callback(AsyncOCR_callback);
-                Invoke(d, new object[] { result });
+                Invoke(SafeLogWorkerError, new object[] { message, url });
+            }
+            else
+            {
+                // Put an error in the queue
+                WorkerErrors.Add(new WorkerError(message, url, DateTime.Now.ToString()));
+                // Display worker error interface
+                ErrorWindow.ShowDialog();
+                ErrorWindow.UpdateLog();
+            }
+        }
+
+        public delegate void SafeAsyncOCR_Delegate(AsyncOCR result);
+        public SafeAsyncOCR_Delegate SafeAsyncOCR_Callback;
+        public void AsyncOCR_callback(AsyncOCR result)
+        {
+            if (InvokeRequired)
+            {
+                Invoke(SafeAsyncOCR_Callback, new object[] { result });
             }
             else
             {
@@ -401,7 +386,7 @@ namespace Babel
                     growingRect = growingRect.Include(next.rect);
                 }
 
-                PhraseRects.Add(new PhraseRect(growingRect, OCRResult, IncrementOdometer, AsyncTranslation_callback));
+                PhraseRects.Add(new PhraseRect(growingRect, OCRResult, this, AsyncTranslation_callback));
             }
         }
         #endregion
