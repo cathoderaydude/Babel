@@ -8,7 +8,8 @@ using Babel.Windows;
 using Babel.Google;
 using System.Windows.Input;
 using System.Configuration;
-//using System.Runtime.Extensions;
+using System.Reflection;
+using System.IO;
 
 namespace Babel
 {
@@ -82,11 +83,30 @@ namespace Babel
             InitializeComponent();
         }
 
-        /*private static Assembly MyResolveEventHandler(object sender, ResolveEventArgs args)
+        private static Assembly MyResolveEventHandler(object sender, ResolveEventArgs args)
         {
-            Console.WriteLine("Resolving...");
-            return typeof(MyType).Assembly;
-        }*/
+            string AssName = args.Name.Split(',')[0];
+            string AssPath = Application.StartupPath + "\\DLLs\\" + AssName + ".dll";
+            if (File.Exists(AssPath))
+            {
+                return (Assembly.LoadFile(AssPath));
+            } else
+            {
+                String[] IgnoredModules =
+                {
+                    "Xamarin",
+                    "Unity",
+                    "Mono",
+                    ".resources"
+                };
+                bool IgnoredModule = false;
+                foreach(string module in IgnoredModules)
+                { if (args.Name.Contains(module)) IgnoredModule = true; }
+                if (!IgnoredModule) DebugLog.Log("Couldn't find assembly: " + args.Name);
+                return null;
+            }
+            //return typeof(MyType).Assembly;
+        }
 
         private void Viewfinder_Load(object sender, EventArgs e)
         {
@@ -94,9 +114,9 @@ namespace Babel
             DebugLog.Log("Babel starting");
             LoadSettings();
 
-            //AppDomain currentDomain = AppDomain.CurrentDomain;
+            AppDomain currentDomain = AppDomain.CurrentDomain;
 
-            //currentDomain.AssemblyResolve += new ResolveEventHandler(MyResolveEventHandler);
+            currentDomain.AssemblyResolve += new ResolveEventHandler(MyResolveEventHandler);
             
 
             if (Properties.Settings.Default.WaiverSigned != true)
