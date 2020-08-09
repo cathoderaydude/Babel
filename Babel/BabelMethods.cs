@@ -71,8 +71,8 @@ namespace Babel
                 var myBoxes = GetBoxes(OCRResult);
                 if (myBoxes.Any())
                 {
-                    var myRects = AutoPhraseRects(myBoxes);
-                    // sorry about the forbidden alchemy
+                    var myRects = AutoPhraseRects(myBoxes)
+                        .OrderBy(box =>box.Top);
                     var myTexts = myRects
                         .Select(rect => GetBoxesInRect(rect, myBoxes, PhraseRectMode.contains))
                         .Select(boxenum => boxenum
