@@ -146,19 +146,19 @@ work for you in most cases:&nbsp;</p>
 	obtained your keyfile, and entered it and the project name in the Settings 
 	dialog.</li>
 	<li>Click and hold the <strong>Window Picker</strong>
-	<img alt="Crosshair icon" height="24" src="../Icons/crosshair.png" width="24" /> 
+	<img alt="Crosshair icon" height="24" src="Images/crosshair.png" width="24" /> 
 	button</li>
 	<li>Drag to the window you want to translate. If the white box doesn't 
 	surround the whole window, try aiming directly at its titlebar.</li>
 	<li>Let go of the mouse to select the window</li>
 	<li>Click the <strong>Snap</strong>
-	<img alt="Camera icon" height="24" src="../Icons/camera.png" width="24" /> 
+	<img alt="Camera icon" height="24" src="Images/camera.png" width="24" /> 
 	button to take a picture of the program</li>
 	<li>Click the <strong>OCR</strong>
-	<img alt="OCR icon" height="24" src="../Icons/search-image.png" width="26" /> 
+	<img alt="OCR icon" height="24" src="Images/search-image.png" width="26" /> 
 	button to identify the text</li>
 	<li>Click the <strong>Autophrase</strong>
-	<img alt="Autophrase icon" height="24" src="../Icons/autophrase.png" width="24" /> 
+	<img alt="Autophrase icon" height="24" src="Images/autophrase.png" width="24" /> 
 	button to find and translate everything</li>
 </ol>
 <p>In most cases, this will do exactly what you want. All the following 
@@ -240,6 +240,17 @@ delete it and recreate it - other operations like resizing and copying will be
 made available in a future release.</p>
 <p>When you drag a phrase and let go of the mouse, the text under it will be 
 immediately recalculated and retranslated.</p>
+<h1>Stream Support</h1>
+<p>If you want to stream foreign-language content, Babel provides a mechanism 
+that might be helpful.</p>
+<p>Under the save button dropdown arrow you'll find the option "Save for 
+streaming." This saves a file in the Babel directory called <em>stream.png</em> 
+which contains nothing other than the translated text and some translucent boxes 
+to make it stand out. If you add this as an overlay in OBS Studio and scale it 
+to fit over your original content, the text should line up.</p>
+<p>Every time you hit "Save for streaming" again, OBS should reload the image 
+immediately. There's no way to easily hide the text, so you'll have to do this 
+from OBS itself for now.</p>
 <h1>Interface&nbsp;Guide</h1>
 <h2>Main Window</h2>
 <p><img alt="Main interface" height="449" src="Images/img6.jpg" width="593" />&nbsp;</p>
@@ -313,7 +324,97 @@ more options, which will be shown indented below.</p>
 	<li><strong>Help</strong></li>
 	<li><strong>About</strong></li>
 </ol>
+<h1>Troubleshooting</h1>
+<p>You're going to spend a lot of time troubleshooting, so get used to it now. 
+What we're trying to do here shouldn't work at all, and will be touchy at best.</p>
+<h2>What works and what doesn't</h2>
+<p>In general you should know that trying to translate e.g. the dialogue in a 
+Japanese RPG is going to be sketchy, but simple phrases like menus will be more 
+practical.</p>
+<p>Here's an example of a severe case:</p>
+<p><a href="Images/img32.jpg">
+<img alt="Hokuto no Ken translation error" height="222" src="Images/img32_small.jpg" width="320" /><!-- MSComment="autothumbnail" xthumbnail-orig-image="file:///C:/Users/dthom/Documents/My Web Sites/BabelHelp/Images/img32.jpg" --></a></p>
+<p>Even if you don't speak a lick of Japanese you can probably tell that some of 
+the text is being missed here, and other parts are basically nonsense. This 
+could be due to a bug in Babel, or in Google Translate, or who knows what. After 
+deleting the phrase surrounding the first line of dialogue and recreating it as 
+three phrases, we get a little closer:</p>
+<p><a href="Images/img35.jpg">
+<img alt="Hokuto no Ken, better" height="144" src="Images/img35_small.jpg" width="320" /><!-- MSComment="autothumbnail" xthumbnail-orig-image="file:///C:/Users/dthom/Documents/My Web Sites/BabelHelp/Images/img35.jpg" --></a></p>
+<p>It's better, but still not right - this dialogue is really just too much for 
+machine translation to handle.</p>
+<p>Sometimes dialogue will be surprisingly legible, and other times it'll be 
+atrocious. One big problem is that you'll never know if what you're reading is a 
+reasonable translation, or a total misunderstanding that just seems plausible - 
+again,<em> don't</em> use this to fan-translate a videogame!</p>
+<p>On the other hand, let's take a look at normal gameplay screens:</p>
+<p><a href="Images/img38.jpg">
+<img alt="Hokuto no Ken gameplay" height="220" src="Images/img38_small.jpg" width="320" /><!-- MSComment="autothumbnail" xthumbnail-orig-image="file:///C:/Users/dthom/Documents/My Web Sites/BabelHelp/Images/img38.jpg" --></a>
+<a href="Images/img3B.jpg">
+<img alt="Hokuto no Ken gameplay 2" height="222" src="Images/img3B_small.jpg" width="320" /><!-- MSComment="autothumbnail" xthumbnail-orig-image="file:///C:/Users/dthom/Documents/My Web Sites/BabelHelp/Images/img3B.jpg" --></a></p>
+<p>These menus are largely legible, and the dialogue is sort of readable as 
+well. As limited as this is, you'd probably be able to navigate this game enough 
+to get the gist of it. That's what Babel is intended for, and that's what you 
+should stick to.</p>
+<h2>FAQ</h2>
+<p><strong><em>Q:</em></strong><em> I'm trying to translate some text but the 
+first couple characters don't have purple boxes over them, and the translated 
+text is obviously missing something at the beginning.<br />
+</em><strong>A:</strong> That's just how Google is sometimes. There's nothing 
+you can do about it except wait for them to improve their translation model or 
+submit a different image. Sometimes, taking a screenshot and putting it through 
+some filters in Photoshop to increase contrast can help. This is a feature that 
+may be included in a future release.</p>
 <p>&nbsp;</p>
+<p><strong><em>Q:</em></strong><em> I hit the OCR button and nothing happens, 
+the program just sits there. Is it just slow?</em><br />
+<strong>A:</strong> You probably have a bad API key, possibly because the <em>
+service account </em>was deleted on the Google side. The Google APIs have <em>
+very</em> weird behavior when this happens. Try generating a new JSON keyfile 
+and assigning it in Settings.</p>
+<p>&nbsp;</p>
+<p><strong><em>Q:</em></strong><em> I'm getting a popup error that says 
+something about an API never having been used before? And there's a link?<br />
+</em><strong>A:</strong> You missed a step in the Google Cloud setup procedure. 
+Fortunately, Google helps by sending the correct link to fix the problem at in 
+the error message. Read the error carefully, then click the link to go to the 
+page to fix the problem (usually just clicking the big blue Enable button.)</p>
+<p>&nbsp;</p>
+<p><strong><em>Q:</em></strong><em> I'm getting some kind of bizarre error when 
+I try to start the program or do something about a library or DLL not being 
+present?<br />
+</em><strong>A:</strong> Make sure you have Microsoft .NET Framework 4.6.1 or 
+newer installed. If that doesn't do it, open an Issue on Github and we'll try to 
+work with you to figure it out.</p>
+<p>&nbsp;</p>
+<p><strong><em>Q:</em></strong><em> When I translate an image, the program 
+freezes, sometimes for a really really long time.</em><br />
+<strong>A:</strong> We've implemented a very basic rate limiter in Babel to 
+prevent accidental overuse of the API. We hope to make this slicker in future 
+releases, but for now it's just a "crowbar" included for essential safety, in 
+case the program gets into an infinite loop. You might have triggered it by 
+accident if you managed to send more than 50 phrases at once. You can increase 
+this number in the Settings panel, but please don't set it to something 
+obscenely high - this is for your safety!</p>
+<p>If Babel freezes when you <em>aren't</em> doing something very complex, don't 
+just leave it frozen forever, in case it<em> </em>really<em> is </em>stuck in a 
+loop. Wait a couple minutes, and if it doesn't unfreeze, force close it from 
+Task Manager. If the problem recurs, get in touch with us so we can try to 
+figure it out. There's a logfile in the program directory you can use to find 
+out if the same text is being translated over and over, which would indicate 
+this problem.</p>
+<p>&nbsp;</p>
+<p><strong><em>Q:</em></strong><em> Something else really weird is happening.<br />
+</em><strong>A:</strong> If you think it's a bug, go ahead and submit an
+<a href="https://github.com/cathoderaydude/Babel/issues">Issue</a> on Github. 
+Please remember that it may be very hard to replicate your problem and in the 
+end we may have to say "sorry, it's Google's fault."</p>
+<p>&nbsp;</p>
+<p><strong><em>Q:</em></strong><em> I have an idea for a KILLER feature!</em><strong><em><br />
+</em>A:</strong> Submit an
+<a href="https://github.com/cathoderaydude/Babel/issues">Issue</a> on Github for 
+a Feature Request. This program is the effort of two people, not a business, so 
+progress will probably not be rapid, but we'll give it a shot.</p>
 	
 </body>
 

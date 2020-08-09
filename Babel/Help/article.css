@@ -38,6 +38,7 @@ p {
 }
 img {
 	max-width: 100%;
+	border: 2px solid grey;
 }
 h1 {
 	border-bottom: 2px solid black;
