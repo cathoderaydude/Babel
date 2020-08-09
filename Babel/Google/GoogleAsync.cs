@@ -14,6 +14,7 @@ using Google.Cloud.Translate.V3;
 
 using SImage = System.Drawing.Image;
 using GImage = Google.Cloud.Vision.V1.Image;
+using Google.Protobuf.Collections;
 
 using System.Text.RegularExpressions;
 
@@ -94,7 +95,8 @@ namespace Babel.Google
         public AsyncOCR(SImage image, frmBabel Form, Action<AsyncOCR> callback = null)
         {
             this.image = image.Copy();
-            this.Form = Form; 
+            this.Form = Form;
+            this.callback += callback;
 
             if (Properties.Settings.Default.dummyData)
             {
@@ -114,7 +116,6 @@ namespace Babel.Google
             }
             else
             {
-                this.callback += callback;
                 task = Task.Run(DoOCR);
             }
         }
@@ -224,6 +225,7 @@ namespace Babel.Google
         {
             rawText = text;
             this.Form = Form;
+            this.callback += callback;
 
             if (Properties.Settings.Default.dummyData)
             {
@@ -243,7 +245,6 @@ namespace Babel.Google
             }
             else
             {
-                this.callback += callback;
                 task = Task.Run(DoTranslation);
             }
         }
@@ -280,20 +281,27 @@ namespace Babel.Google
                 // Request translation
                 TranslateTextRequest request = new TranslateTextRequest
                 {
-                    Contents = { rawText },
+                    //Contents = { rawText },
                     TargetLanguageCode = Properties.Settings.Default.targetLocale,
                     ParentAsLocationName = new LocationName(Properties.Settings.Default.projectName, "global"),
                 };
+
+                // It does not appear that there's any way initialize the Contents above directly with a split of strings
+                string[] splitters = new string[] { Environment.NewLine };
+                request.Contents.AddRange(rawText.Split(splitters, StringSplitOptions.RemoveEmptyEntries));
 
                 // Send request
                 sw.Start();
                 TranslateTextResponse response = await translationServiceClient.TranslateTextAsync(request);
                 sw.Stop();
 
-                // Really only anticipating a single result here
-                Translation tr = response.Translations.First();
-                _translatedText = WebUtility.HtmlDecode(tr.TranslatedText);
-                _detectedLocale = tr.DetectedLanguageCode;
+                // Anticipating one result per submitted line, in same order
+                _translatedText = response.Translations
+                    .Select(tr => WebUtility.HtmlDecode(tr.TranslatedText))
+                    .Aggregate((l, r) => l + Environment.NewLine + r);
+
+                // Close enough
+                _detectedLocale = response.Translations.First().DetectedLanguageCode;
 
                 _timeStamp = string.Format("{0:00}:{1:00}:{2:00}.{3:000}",
                     sw.Elapsed.Hours,

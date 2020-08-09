@@ -293,7 +293,7 @@ namespace Babel
 
         private void tsbAutophrase_Click(object sender, EventArgs e)
         {
-            AutoPhrases();
+            MakeAutoPhrases();
         }
         private void tsbAutoAutophrase_Click(object sender, EventArgs e)
         {
@@ -301,7 +301,7 @@ namespace Babel
             {
                 tsbAutophrase.Enabled = false;
                 Auto_Autophrase = true;
-                if (AppState == State.OCRed) AutoPhrases();
+                if (AppState == State.OCRed) MakeAutoPhrases();
             }
             else
             {
