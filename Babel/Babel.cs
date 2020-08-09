@@ -8,6 +8,7 @@ using Babel.Windows;
 using Babel.Google;
 using System.Windows.Input;
 using System.Configuration;
+//using System.Runtime.Extensions;
 
 namespace Babel
 {
@@ -81,11 +82,22 @@ namespace Babel
             InitializeComponent();
         }
 
+        /*private static Assembly MyResolveEventHandler(object sender, ResolveEventArgs args)
+        {
+            Console.WriteLine("Resolving...");
+            return typeof(MyType).Assembly;
+        }*/
+
         private void Viewfinder_Load(object sender, EventArgs e)
         {
             DebugLog.Log("==============================================");
             DebugLog.Log("Babel starting");
             LoadSettings();
+
+            //AppDomain currentDomain = AppDomain.CurrentDomain;
+
+            //currentDomain.AssemblyResolve += new ResolveEventHandler(MyResolveEventHandler);
+            
 
             if (Properties.Settings.Default.WaiverSigned != true)
             {

@@ -139,6 +139,9 @@ namespace Babel.Google
                 string Identifer = Utility.RandomHex();
                 DebugLog.Log("Making OCR request [" + Identifer + "]");
 
+                if (!File.Exists(Properties.Settings.Default.apiKeyPath))
+                    throw new FileNotFoundException("Keyfile not present at " + Properties.Settings.Default.apiKeyPath);
+
                 // Wait for rate limiter before starting the clock
                 GoogleAsyncStatic.rate.Check();
                 Stopwatch sw = new Stopwatch();
@@ -267,6 +270,9 @@ namespace Babel.Google
             {
                 string Identifer = Utility.RandomHex();
                 DebugLog.Log("Making translation request ["+Identifer+"]: " + this.rawText);
+
+                if (!File.Exists(Properties.Settings.Default.apiKeyPath))
+                    throw new FileNotFoundException("Keyfile not present at " + Properties.Settings.Default.apiKeyPath);
 
                 // Wait for rate limiter before starting the clock
                 GoogleAsyncStatic.rate.Check();

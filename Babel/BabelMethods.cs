@@ -77,7 +77,9 @@ namespace Babel
                         .Select(boxenum => boxenum
                             .Select(box => box.text)
                             .Aggregate((l, r) => l + " " + r));
-                    return myTexts.Aggregate((l, r) => l + Environment.NewLine + r);
+                    // Temporarily disabling newlines until we figure out what's going on with them
+                    //return myTexts.Aggregate((l, r) => l + Environment.NewLine + r);
+                    return myTexts.Aggregate((l, r) => l + " " + r);
                 }
                 else
                 {
