@@ -57,7 +57,7 @@ namespace Babel
                 if (atrans == null || this.GetText(OCRResult) != this.atrans.rawText)
                 {
                     string NewText = GetText(OCRResult);
-                    //BabelForm.Invoke(BabelForm.SafeIncrementOdometer, new object[] { 0, NewText.Length }); // Update odometer
+                    BabelForm.Invoke(BabelForm.SafeIncrementOdometer, new object[] { 0, NewText.Length }); // Update odometer
                     atrans = new AsyncTranslation(NewText, BabelForm, callback);
                 }
             }
@@ -68,7 +68,7 @@ namespace Babel
                 var myBoxes = GetBoxes(OCRResult);
                 if (myBoxes.Any())
                 {
-                    var myRects = AutoPhraseRects(myBoxes)
+                    var myRects = AutoPhraseLineRects(myBoxes)
                         .OrderBy(box =>box.Top);
                     var myTexts = myRects
                         .Select(rect => GetBoxesInRect(rect, myBoxes, PhraseRectMode.contains))
@@ -363,6 +363,44 @@ namespace Babel
             }
         }
 
+        // Variant on the autophraser that doesn't care about horizontal spacing
+        private static IEnumerable<Rectangle> AutoPhraseLineRects(IEnumerable<OCRBox> boxes)
+        {
+            // Put all smallboxes into a queue, left to right
+            Queue<OCRBox> boxQueue = new Queue<OCRBox>(boxes.OrderBy(box => box.rect.Left));
+
+            // We're planning to cut items out of this queue as we go,
+            // so I don't think we can safely foreach over it
+            while (boxQueue.Count > 0)
+            {
+                // Pick the current leftmost box, and start with its rect exactly.
+                OCRBox firstBox = boxQueue.Dequeue();
+                Rectangle growingRect = firstBox.rect;
+                int charWidth = firstBox.CharWidth();
+
+                List<OCRBox> phraseCandidates = new List<OCRBox> { firstBox };
+
+                // While there are any boxes in the queue that are aligned with my current rect:
+                while (boxQueue.Any(other => growingRect.IsOnSameLine(other.rect)))
+                {
+                    // Pick out the leftmost aligned box
+                    OCRBox next = boxQueue.First(other => growingRect.IsOnSameLine(other.rect));
+
+                    // Add it to our phrase
+                    phraseCandidates.Add(next);
+
+                    // Remake the queue without any elements from the phrase
+                    // (this is the only way to delete from the middle of a queue)
+                    boxQueue = new Queue<OCRBox>(boxQueue.Except(phraseCandidates));
+
+                    // Expand the rect to include the new smallbox
+                    growingRect = growingRect.Include(next.rect);
+                }
+
+                yield return growingRect;
+            }
+        }
+
         // Generate all the phraserects for a certain enumerable of OCRBoxes
         private static IEnumerable<Rectangle> AutoPhraseRects(IEnumerable<OCRBox> boxes)
         {
@@ -417,7 +455,7 @@ namespace Babel
             }
 
             foreach (Rectangle rect in AutoPhraseRects(OCRResult.smallBoxes))
-                PhraseRects.Add(new PhraseRect(rect, OCRResult, this, AsyncTranslation_callback));
+                PhraseRects.Add(new PhraseRect(rect, OCRResult, PhraseRectMode.contains, this, AsyncTranslation_callback));
         }
         #endregion
 
