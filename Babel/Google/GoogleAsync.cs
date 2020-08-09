@@ -87,8 +87,8 @@ namespace Babel.Google
         public AsyncOCR(SImage image, frmBabel Form, Action<AsyncOCR> callback = null)
         {
             this.image = image.Copy();
-            this.Form = Form; 
-            Form.Invoke(Form.SafeLogWorkerError, new object[] { "Unable to horble dorble blorb", "http://www.yahoo" });
+            this.Form = Form;
+            //Form.Invoke(Form.SafeLogWorkerError, new object[] { "Unable to horble dorble blorb", "http://www.yahoo" });
 
             if (Properties.Settings.Default.dummyData)
             {
