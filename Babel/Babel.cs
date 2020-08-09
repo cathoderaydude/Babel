@@ -209,6 +209,23 @@ namespace Babel
                 snap.Save(sfdDisplay.FileName);
             }
         }
+        private void saveForStreamingToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            // Copy the current snap, run the graphics draw routine on it and save it
+            Image tempImage = new Bitmap(snap.Width, snap.Height, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
+            Graphics g = Graphics.FromImage(tempImage);
+            g.FillRectangle(new SolidBrush(Color.FromArgb(50, 0, 0, 0)), 50, 50, 100, 100);
+            DrawOBS(g);
+
+            string streampath = Application.StartupPath + "\\stream.png";
+            try
+            {
+                tempImage.Save(streampath);
+            } catch (Exception err)
+            {
+                MessageBox.Show("Failed to write file to " + streampath + ".\r\n\r\nThe file may be in use. Wait a moment and try again.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
 
         private void settingsToolStripMenuItem_Click(object sender, EventArgs e)
         {
@@ -702,5 +719,6 @@ namespace Babel
             DebugLog.Log("Odometer: " + SnapsTaken + "/" + CharsTranslated);
             DebugLog.Log("==============================================");
         }
+
     }
 }

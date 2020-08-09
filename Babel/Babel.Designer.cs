@@ -86,6 +86,7 @@
             this.verticallyToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.horizontallyToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparator9 = new System.Windows.Forms.ToolStripSeparator();
+            this.saveForStreamingToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             ((System.ComponentModel.ISupportInitialize)(this.pbxDisplay)).BeginInit();
             this.tscMain.BottomToolStripPanel.SuspendLayout();
             this.tscMain.ContentPanel.SuspendLayout();
@@ -229,7 +230,7 @@
             this.tsbAbout});
             this.toolStrip1.Location = new System.Drawing.Point(3, 0);
             this.toolStrip1.Name = "toolStrip1";
-            this.toolStrip1.Size = new System.Drawing.Size(531, 31);
+            this.toolStrip1.Size = new System.Drawing.Size(562, 31);
             this.toolStrip1.TabIndex = 1;
             this.toolStrip1.Text = "toolStrip1";
             // 
@@ -259,7 +260,8 @@
             this.tsbSave.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
             this.tsbSave.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.tsbSaveTranslated,
-            this.tsbSaveRaw});
+            this.tsbSaveRaw,
+            this.saveForStreamingToolStripMenuItem});
             this.tsbSave.Image = ((System.Drawing.Image)(resources.GetObject("tsbSave.Image")));
             this.tsbSave.ImageScaling = System.Windows.Forms.ToolStripItemImageScaling.None;
             this.tsbSave.ImageTransparentColor = System.Drawing.Color.Magenta;
@@ -639,6 +641,13 @@
             this.toolStripSeparator9.Name = "toolStripSeparator9";
             this.toolStripSeparator9.Size = new System.Drawing.Size(6, 31);
             // 
+            // saveForStreamingToolStripMenuItem
+            // 
+            this.saveForStreamingToolStripMenuItem.Name = "saveForStreamingToolStripMenuItem";
+            this.saveForStreamingToolStripMenuItem.Size = new System.Drawing.Size(183, 22);
+            this.saveForStreamingToolStripMenuItem.Text = "Save for streaming";
+            this.saveForStreamingToolStripMenuItem.Click += new System.EventHandler(this.saveForStreamingToolStripMenuItem_Click);
+            // 
             // frmBabel
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -736,6 +745,7 @@
         private System.Windows.Forms.ToolStripButton tsbIntersectsMode;
         private System.Windows.Forms.ToolStripButton tsbContainsMode;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator9;
+        private System.Windows.Forms.ToolStripMenuItem saveForStreamingToolStripMenuItem;
     }
 }
 

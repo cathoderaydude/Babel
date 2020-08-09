@@ -443,7 +443,7 @@ namespace Babel
             {
                 //Rectangle DisplayRect = QuantizeRect(PRect.Location, 8, 8); // This was quantizing the display location of the box, but this is a bad idea as it turns out and may not ever be practical
 
-                g.FillRectangle(new SolidBrush(Color.FromArgb(230, 0, 0, 0)), PRect.Location); // Background
+                g.FillRectangle(new SolidBrush(Color.FromArgb(200, 0, 0, 0)), PRect.Location); // Background
 
                 // Pick color for outline
                 Pen BoxColor = Pens.Green;
@@ -504,8 +504,50 @@ namespace Babel
                 }
             }
         }
-        // Find the biggest font to fit a given rect
-        public Font GetAdjustedFont(Graphics g, string graphicString, Font originalFont, Rectangle Container, int maxFontSize, int minFontSize, bool smallestOnFail)
+
+
+        // Special case of drawimage intended only to draw text for overlay in OBS
+        private void DrawOBS(Graphics g)
+        {
+            // Draw phrases
+            foreach (PhraseRect PRect in PhraseRects)
+            {
+
+                g.FillRectangle(new SolidBrush(Color.FromArgb(180, 0, 0, 0)), PRect.Location); // Background
+
+                string TextToRender = PRect.atrans.rawText;
+                Brush ColorToRender = Brushes.Gray;
+                if (PRect.atrans.isDone)
+                {
+                    // Draw translated text if available
+                    TextToRender = PRect.atrans.translatedText;
+                    ColorToRender = Brushes.White;
+                }
+
+                // Draw text
+
+                // Fit font to bounding box
+                Font LargeFont = GetAdjustedFont(g, TextToRender, DefaultFont, PRect.Location, 32, 6, true);
+
+                // Center-justify text
+                // TODO: Currently disabled to enable wordwrap, fix this
+                int JustifySpace = (int)(PRect.Location.Width - g.MeasureString(TextToRender, LargeFont).Width) / 2;
+                Rectangle AdjustedPosition = new Rectangle(
+                    PRect.Location.Left + JustifySpace, PRect.Location.Top,
+                    PRect.Location.Width, PRect.Location.Height);
+
+                // Draw translated text
+                g.DrawString(
+                        TextToRender,
+                        LargeFont,
+                        ColorToRender,
+                        PRect.Location);
+            }
+        }
+
+
+            // Find the biggest font to fit a given rect
+            public Font GetAdjustedFont(Graphics g, string graphicString, Font originalFont, Rectangle Container, int maxFontSize, int minFontSize, bool smallestOnFail)
         {
             Font testFont = null;
             // We utilize MeasureString which we get via a control instance           
