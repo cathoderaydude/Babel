@@ -93,7 +93,6 @@ namespace Babel.Google
         {
             this.image = image.Copy();
             this.Form = Form; 
-            Form.Invoke(Form.SafeLogWorkerError, new object[] { "Unable to horble dorble blorb", "http://www.yahoo" });
 
             if (Properties.Settings.Default.dummyData)
             {
@@ -134,6 +133,9 @@ namespace Babel.Google
         {
             try
             {
+                string Identifer = Utility.RandomHex();
+                DebugLog.Log("Making OCR request [" + Identifer + "]");
+
                 // Wait for rate limiter before starting the clock
                 GoogleAsyncStatic.rate.Check();
                 Stopwatch sw = new Stopwatch();
@@ -182,10 +184,12 @@ namespace Babel.Google
 
                 isDone = true;
                 callback?.Invoke(this);
+
+                DebugLog.Log("Finished OCR request [" + Identifer + "]");
             }
             catch (Grpc.Core.RpcException e)
             {
-                Console.WriteLine(e);
+                Form.Invoke(Form.SafeLogWorkerError, new object[] { e.Message, "http://www.yahoo" });
             }
         }
     }
@@ -241,6 +245,9 @@ namespace Babel.Google
         {
             try
             {
+                string Identifer = Utility.RandomHex();
+                DebugLog.Log("Making translation request ["+Identifer+"]: " + this.rawText);
+
                 // Wait for rate limiter before starting the clock
                 GoogleAsyncStatic.rate.Check();
                 Stopwatch sw = new Stopwatch();
@@ -276,11 +283,13 @@ namespace Babel.Google
                     sw.Elapsed.Milliseconds);
 
                 isDone = true;
+
                 callback?.Invoke(this);
+                DebugLog.Log("Finishing translation ["+Identifer+"]: " + this._translatedText);
             }
             catch(Grpc.Core.RpcException e)
             {
-                Console.WriteLine(e);
+                Form.Invoke(Form.SafeLogWorkerError, new object[] { e.Message, "http://www.yahoo" });
             }
         }
     }

@@ -24,6 +24,7 @@ namespace Babel
 
         private void button2_Click(object sender, EventArgs e)
         {
+            DebugLog.Log("User agreed to waiver.");
             Properties.Settings.Default.WaiverSigned = true;
             Properties.Settings.Default.Save();
             this.Close();

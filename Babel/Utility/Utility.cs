@@ -6,9 +6,30 @@ using System.Drawing;
 using System.Linq;
 using System.Threading;
 using static Babel.frmBabel;
+using System.IO;
+using System.Windows.Forms;
 
 namespace Babel
 {
+    public class DebugLog
+    {
+        static object DebugLock;
+
+        public static void Log(string message)
+        {
+            if (DebugLock == null) DebugLock = new object();
+            lock(DebugLock)
+            {
+                string LogMessage = "[" + DateTime.Now.ToString() + "] " + message;
+                StreamWriter log = new StreamWriter(Application.StartupPath + "\\babel.log", true);
+                Console.WriteLine("D:" + LogMessage);
+                log.WriteLine(LogMessage);
+                log.Close();
+            }
+            
+        }
+    }
+
     public class RateLimiter
     {
         #region Circular queue
@@ -48,6 +69,7 @@ namespace Babel
 
         #endregion
 
+
         public void Check()
         {
             // If the rate limit is zero, the rate limiter does not check anything
@@ -75,6 +97,21 @@ namespace Babel
 
     public static class Utility
     {
+        public static object HexLock = new object();
+        public static string RandomHex()
+        {
+            lock (HexLock)
+            {
+                Random random = new Random();
+                var bytes = new Byte[6];
+                random.NextBytes(bytes);
+
+                var hexArray = Array.ConvertAll(bytes, x => x.ToString("X2"));
+                var hexStr = String.Concat(hexArray);
+                return (hexStr.ToLower());
+            }
+        }
+
         public static Rectangle RectTo(this Point p1, Point p2)
         {
             return new Rectangle(
