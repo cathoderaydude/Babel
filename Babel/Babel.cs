@@ -637,6 +637,13 @@ namespace Babel
             pbxDisplay.Invalidate();
         }
 
+        private void tsmiBreakLines_Click(object sender, EventArgs e)
+        {
+            SelectedRect.breakLines = !tsmiBreakLines.Checked;
+            SelectedRect.UpdateText(OCRResult, AsyncTranslation_callback);
+            pbxDisplay.Invalidate();
+        }
+
         private void ctxPhrase_Opening(object sender, System.ComponentModel.CancelEventArgs e)
         {
             // If the mouse cursor wasn't over a phrase, disable some phrase-specific options
@@ -644,10 +651,13 @@ namespace Babel
             {
                 alignToolStripMenuItem.Enabled = false;
                 fitToolStripMenuItem.Enabled = false;
+                tsmiBreakLines.Enabled = false;
             } else
             {
                 alignToolStripMenuItem.Enabled = true;
                 fitToolStripMenuItem.Enabled = true;
+                tsmiBreakLines.Enabled = true;
+                tsmiBreakLines.Checked = SelectedRect.breakLines;
             }
         }
 
@@ -751,6 +761,5 @@ namespace Babel
             DebugLog.Log("Odometer: " + SnapsTaken + "/" + CharsTranslated);
             DebugLog.Log("==============================================");
         }
-
     }
 }
