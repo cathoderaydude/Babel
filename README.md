@@ -31,3 +31,11 @@ Babel includes documentation on how to use it (in the Help folder) but in short:
 Babel itself is free, but it depends on Google Cloud, a paid service.
 
 Links in the documentation will take you to the rate sheets for each of the services we're using, and **it's on you to make sure you understand them.** We __think__ that it's really cheap - like, "the first 1000 OCRs a month are free and then it's $1.50/1000 after that," if we understood Google's docs right, but we really aren't experts. It's up to you to make sure you don't get overbilled!
+
+# Streaming Mode
+
+Babel includes a streaming feature. By clicking a button, the current translated text is written to an image file in the folder with transparency so that you can overlay it on a stream with e.g. OBS, allowing your audience to see translations without needing to capture the entire Babel window.
+
+# Donate
+If you like this program and want to support its development, a donation would be appreciated!
+## [Donate on Ko-Fi](ko-fi.com/gravis)
