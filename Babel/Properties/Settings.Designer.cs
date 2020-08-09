@@ -130,5 +130,17 @@ namespace Babel.Properties {
                 this["WaiverSigned"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("50")]
+        public int reqsPerSecond {
+            get {
+                return ((int)(this["reqsPerSecond"]));
+            }
+            set {
+                this["reqsPerSecond"] = value;
+            }
+        }
     }
 }

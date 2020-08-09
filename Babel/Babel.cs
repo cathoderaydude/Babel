@@ -82,6 +82,8 @@ namespace Babel
 
         private void Viewfinder_Load(object sender, EventArgs e)
         {
+            DebugLog.Log("Babel starting");
+
             LoadSettings();
 
             if (Properties.Settings.Default.WaiverSigned != true)
@@ -116,7 +118,11 @@ namespace Babel
             SafeLogWorkerError = new SafeLogWorkerError_Delegate(LogWorkerError);
             WorkerErrors = new List<WorkerError>();
 
+            SafeIncrementOdometer = new SafeIncrementOdometer_Delegate(IncrementOdometer);
+
             ErrorWindow = new ErrorLog();
+
+            DebugLog.Log("Babel started");
 
 #if DEBUG
             //ToggleVFW(); // Show viewfinder immediately
@@ -689,5 +695,10 @@ namespace Babel
             }*/
         }
 
+        private void frmBabel_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            DebugLog.Log("Babel exiting.");
+            DebugLog.Log("Odometer: " + SnapsTaken + "/" + CharsTranslated);
+        }
     }
 }

@@ -182,10 +182,11 @@ namespace Babel
             SnapsTaken = Properties.Settings.Default.snapsTaken;
             CharsTranslated = Properties.Settings.Default.charsTranslated;
             UpdateOdometer();
+            DebugLog.Log("Settings loaded.");
             //tsbOCR.Enabled = !Properties.Settings.Default.autoOCR;
             //tsbAutoOCR.Checked = Properties.Settings.Default.autoOCR;
 
-    }
+        }
 
         // Update odometer reading in statusbar
         public void UpdateOdometer()
@@ -196,7 +197,7 @@ namespace Babel
         }
 
         // Increment odometer, then save and update
-        public delegate void SafeIncrementOdometer_Delegate(string message, string url);
+        public delegate void SafeIncrementOdometer_Delegate(int snaps, int chars);
         public SafeIncrementOdometer_Delegate SafeIncrementOdometer;
         public void IncrementOdometer(int snaps, int chars)
         {
@@ -213,6 +214,7 @@ namespace Babel
                     Properties.Settings.Default.snapsTaken = SnapsTaken;
                     Properties.Settings.Default.charsTranslated = CharsTranslated;
                     Properties.Settings.Default.Save();
+                    DebugLog.Log("Odometer += " + snaps.ToString() + "/" + chars.ToString());
                 }
                 UpdateOdometer(); // Leave this outside the if, otherwise we might never get an odo reading even on program start
             }
@@ -242,13 +244,22 @@ namespace Babel
             if (VfwWasVisible) vfw.Visible = false; // Hide viewfinder if appropriate
             this.Visible = false; // Hide self (nobody wants to translate Babel)
 
-            Image result = GDI32.Grab(SnapRegion);
+            try
+            {
+                Image result = GDI32.Grab(SnapRegion);
 
-            if (VfwWasVisible) vfw.Visible = true; // Reshow viewfinder if appropriate
-            this.Visible = true; // Show self again
-            this.Focus(); // Return focus to the main form
+                if (VfwWasVisible) vfw.Visible = true; // Reshow viewfinder if appropriate
+                this.Visible = true; // Show self again
+                this.Focus(); // Return focus to the main form
 
-            return result;
+                DebugLog.Log("Took snap");
+
+                return result;
+            } catch (Exception ex)
+            {
+                DebugLog.Log(ex.Message);
+                return null;
+            }
         }
 
         // All ingest methods call this with an image to take a new snap
@@ -299,8 +310,6 @@ namespace Babel
 
         public void AsyncTranslation_callback(AsyncTranslation result)
         {
-            //pbxDisplay.Image = edit;
-            //ChangeState(State.translated);
             pbxDisplay.Invalidate();
         }
 

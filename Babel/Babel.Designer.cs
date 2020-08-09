@@ -229,7 +229,7 @@
             this.tsbAbout});
             this.toolStrip1.Location = new System.Drawing.Point(3, 0);
             this.toolStrip1.Name = "toolStrip1";
-            this.toolStrip1.Size = new System.Drawing.Size(562, 31);
+            this.toolStrip1.Size = new System.Drawing.Size(531, 31);
             this.toolStrip1.TabIndex = 1;
             this.toolStrip1.Text = "toolStrip1";
             // 
@@ -655,6 +655,7 @@
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Babel";
             this.TransparencyKey = System.Drawing.Color.Fuchsia;
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.frmBabel_FormClosing);
             this.Load += new System.EventHandler(this.Viewfinder_Load);
             this.KeyDown += new System.Windows.Forms.KeyEventHandler(this.frmViewFinder_KeyDown);
             this.KeyUp += new System.Windows.Forms.KeyEventHandler(this.frmViewFinder_KeyUp);
