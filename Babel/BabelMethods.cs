@@ -24,8 +24,13 @@ namespace Babel
 
             public frmBabel BabelForm;
 
-            // Meta-constructor used for constructor overloading
-            public void _PhraseRect(Rectangle Location, AsyncOCR OCRResult, PhraseRectMode Mode, frmBabel BabelForm, Action<AsyncTranslation> callback = null)
+            public PhraseRect(Rectangle Location, AsyncOCR OCRResult, frmBabel BabelForm, Action<AsyncTranslation> callback = null)
+                : this(Location, OCRResult, NewPhraseMode, BabelForm, callback)
+            {
+                // nothing to do
+            }
+
+            public PhraseRect(Rectangle Location, AsyncOCR OCRResult, PhraseRectMode Mode, frmBabel BabelForm, Action<AsyncTranslation> callback = null)
             {
                 this.Location = Location;
 
@@ -34,14 +39,6 @@ namespace Babel
                 this.mode = Mode;
                 if (Autofit) DoAutoFit(OCRResult);
                 UpdateText(OCRResult, callback);
-            }
-            public PhraseRect(Rectangle Location, AsyncOCR OCRResult, frmBabel BabelForm, Action<AsyncTranslation> callback = null)
-            {
-                this._PhraseRect(Location, OCRResult, NewPhraseMode, BabelForm, callback);
-            }
-            public PhraseRect(Rectangle Location, AsyncOCR OCRResult, PhraseRectMode Mode, frmBabel BabelForm, Action<AsyncTranslation> callback = null)
-            {
-                this._PhraseRect(Location, OCRResult, Mode, BabelForm, callback);
             }
 
             public void DoAutoFit(AsyncOCR OCRResult)
