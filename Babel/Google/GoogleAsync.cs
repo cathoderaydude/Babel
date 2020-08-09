@@ -15,6 +15,8 @@ using Google.Cloud.Translate.V3;
 using SImage = System.Drawing.Image;
 using GImage = Google.Cloud.Vision.V1.Image;
 
+using System.Text.RegularExpressions;
+
 namespace Babel.Google
 {
     public class OCRBox
@@ -189,10 +191,24 @@ namespace Babel.Google
             }
             catch (Grpc.Core.RpcException e)
             {
-                Form.Invoke(Form.SafeLogWorkerError, new object[] { e.Message, "http://www.yahoo" });
+                string url = "";
+
+                // Define a regular expression for repeated words.
+                Regex rx = new Regex(@"(http\S*)",
+                  RegexOptions.Compiled | RegexOptions.IgnoreCase);
+
+                // Find matches.
+                MatchCollection matches = rx.Matches(e.Message);
+
+                if(matches.Count > 0)
+                {
+                    url = matches[0].Groups[0].Value;
+                }
+
+                Form.Invoke(Form.SafeLogWorkerError, new object[] { e.Message, url });
             } catch (Exception e)
             {
-                DebugLog.Log(e.Message);
+                Form.Invoke(Form.SafeLogWorkerError, new object[] { e.Message, "" });
             }
         }
     }
@@ -293,6 +309,10 @@ namespace Babel.Google
             catch(Grpc.Core.RpcException e)
             {
                 Form.Invoke(Form.SafeLogWorkerError, new object[] { e.Message, "http://www.yahoo" });
+            }
+            catch (Exception e)
+            {
+                Form.Invoke(Form.SafeLogWorkerError, new object[] { e.Message, "" });
             }
         }
     }

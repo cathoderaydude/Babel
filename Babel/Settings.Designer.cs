@@ -40,14 +40,14 @@
             this.groupBox2 = new System.Windows.Forms.GroupBox();
             this.cbxDisplayTimes = new System.Windows.Forms.CheckBox();
             this.groupBox3 = new System.Windows.Forms.GroupBox();
+            this.label1 = new System.Windows.Forms.Label();
+            this.numRateLimit = new System.Windows.Forms.NumericUpDown();
+            this.lblMaxReq = new System.Windows.Forms.Label();
             this.txtKeyFile = new System.Windows.Forms.TextBox();
             this.txtProjectName = new System.Windows.Forms.TextBox();
             this.btnBrowseKeyFile = new System.Windows.Forms.Button();
             this.lblKeyFile = new System.Windows.Forms.Label();
             this.lblProjectName = new System.Windows.Forms.Label();
-            this.lblMaxReq = new System.Windows.Forms.Label();
-            this.numRateLimit = new System.Windows.Forms.NumericUpDown();
-            this.label1 = new System.Windows.Forms.Label();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.groupBox3.SuspendLayout();
@@ -169,6 +169,36 @@
             this.groupBox3.TabStop = false;
             this.groupBox3.Text = "Backend Server Settings";
             // 
+            // label1
+            // 
+            this.label1.AutoSize = true;
+            this.label1.Location = new System.Drawing.Point(212, 74);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(109, 13);
+            this.label1.TabIndex = 18;
+            this.label1.Text = "(requests per second)";
+            // 
+            // numRateLimit
+            // 
+            this.numRateLimit.Location = new System.Drawing.Point(86, 72);
+            this.numRateLimit.Maximum = new decimal(new int[] {
+            10000,
+            0,
+            0,
+            0});
+            this.numRateLimit.Name = "numRateLimit";
+            this.numRateLimit.Size = new System.Drawing.Size(120, 20);
+            this.numRateLimit.TabIndex = 17;
+            // 
+            // lblMaxReq
+            // 
+            this.lblMaxReq.AutoSize = true;
+            this.lblMaxReq.Location = new System.Drawing.Point(22, 74);
+            this.lblMaxReq.Name = "lblMaxReq";
+            this.lblMaxReq.Size = new System.Drawing.Size(57, 13);
+            this.lblMaxReq.TabIndex = 15;
+            this.lblMaxReq.Text = "Rate Limit:";
+            // 
             // txtKeyFile
             // 
             this.txtKeyFile.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
@@ -195,6 +225,7 @@
             this.btnBrowseKeyFile.TabIndex = 14;
             this.btnBrowseKeyFile.Text = "Browse...";
             this.btnBrowseKeyFile.UseVisualStyleBackColor = true;
+            this.btnBrowseKeyFile.Click += new System.EventHandler(this.btnBrowseKeyFile_Click);
             // 
             // lblKeyFile
             // 
@@ -213,36 +244,6 @@
             this.lblProjectName.Size = new System.Drawing.Size(74, 13);
             this.lblProjectName.TabIndex = 13;
             this.lblProjectName.Text = "Project Name:";
-            // 
-            // lblMaxReq
-            // 
-            this.lblMaxReq.AutoSize = true;
-            this.lblMaxReq.Location = new System.Drawing.Point(22, 74);
-            this.lblMaxReq.Name = "lblMaxReq";
-            this.lblMaxReq.Size = new System.Drawing.Size(57, 13);
-            this.lblMaxReq.TabIndex = 15;
-            this.lblMaxReq.Text = "Rate Limit:";
-            // 
-            // numRateLimit
-            // 
-            this.numRateLimit.Location = new System.Drawing.Point(86, 72);
-            this.numRateLimit.Maximum = new decimal(new int[] {
-            10000,
-            0,
-            0,
-            0});
-            this.numRateLimit.Name = "numRateLimit";
-            this.numRateLimit.Size = new System.Drawing.Size(120, 20);
-            this.numRateLimit.TabIndex = 17;
-            // 
-            // label1
-            // 
-            this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(212, 74);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(109, 13);
-            this.label1.TabIndex = 18;
-            this.label1.Text = "(requests per second)";
             // 
             // Settings
             // 

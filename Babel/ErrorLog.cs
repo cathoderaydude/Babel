@@ -31,9 +31,19 @@ namespace Babel
                 NewRow.CreateCells(dataGridView1);
                 NewRow.Cells[0].Value = WE.timestamp;
                 NewRow.Cells[1].Value = WE.message;
-                if (WE.url != "") NewRow.Cells[2].Value = WE.url;
+                if (WE.url != "")
+                {
+                    NewRow.Cells[2].Value = "Link";
+                    NewRow.Cells[2].Tag = WE.url;
+                }
                 dataGridView1.Rows.Add(NewRow);
             }
+        }
+
+        private void dataGridView1_CellContentClick(object sender, DataGridViewCellEventArgs e)
+        {
+            string URL = dataGridView1.Rows[e.RowIndex].Cells[2].Tag.ToString();
+            if (e.ColumnIndex == 2 && URL != "") System.Diagnostics.Process.Start(URL);
         }
     }
 }
