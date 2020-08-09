@@ -7,6 +7,7 @@ using System.Windows.Forms;
 using Babel.Windows;
 using Babel.Google;
 using System.Windows.Input;
+using System.Configuration;
 
 namespace Babel
 {
@@ -166,7 +167,8 @@ namespace Babel
             SnapsTaken = Properties.Settings.Default.snapsTaken;
             CharsTranslated = Properties.Settings.Default.charsTranslated;
             UpdateOdometer();
-            DebugLog.Log("Settings loaded.");
+            var path = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.PerUserRoamingAndLocal).FilePath;
+            DebugLog.Log("Settings loaded from " + path);
             //tsbOCR.Enabled = !Properties.Settings.Default.autoOCR;
             //tsbAutoOCR.Checked = Properties.Settings.Default.autoOCR;
 

@@ -190,6 +190,9 @@ namespace Babel.Google
             catch (Grpc.Core.RpcException e)
             {
                 Form.Invoke(Form.SafeLogWorkerError, new object[] { e.Message, "http://www.yahoo" });
+            } catch (Exception e)
+            {
+                DebugLog.Log(e.Message);
             }
         }
     }

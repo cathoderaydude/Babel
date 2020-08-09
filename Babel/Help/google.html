@@ -1,0 +1,119 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+	<title>Babel - Introduction</title>
+	<link rel="stylesheet" href="article.css">
+	
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<style type="text/css">
+	li { padding: 5px 0px; }
+	table td:first-child {
+    border-right: 2px solid black;
+	}
+	.auto-style1 {
+	border-style: solid;
+	border-width: 1px;
+}
+.auto-style2 {
+	border-left: 1px solid black;
+	border-right: 1px solid black;
+	border-bottom: 1px solid black;
+	border-top: 10px solid black;
+	padding: 5px;
+	color: #FF0000;
+}
+	</style>
+</head>
+<body>
+
+<div class="title">Babel Manual - V1.0 - Google Cloud Account Setup</div>
+<h1>Disclaimer</h1>
+<p>This has been restated over and over in this documentation and in the 
+program, but it cannot be stressed enough: This is a paid product, and you need 
+to be careful about any service that you put your credit card into.</p>
+<p>Babel is only an interface to Google Cloud Services. We have no control over 
+how Google Cloud functions, it could break in ways we can't predict, and above 
+all else we cannot do anything about what they charge.</p>
+<p>This is a <em>paid service</em> which you may, possibly, be able to use 
+without paying anything, if you are careful about how you use it. However, that 
+is a <em>guess</em> based on Google's documentation, and Babel's developers are 
+not responsible if this speculation doesn't work. It is your responsibility to 
+monitor your own account usage and see how you're being billed.</p>
+<p>We are doing nothing but restating Google's own documentation and the text of 
+their own software. In return for a more-or-less free translation program, you 
+are taking on the burden of learning on your own about how the underlying 
+service works and finding out if it's safe to use for your purposes.</p>
+<h1>Introduction</h1>
+<p>Babel requires a Google Cloud Services account and an API key to use. You 
+will need to register an account, activate two services, and generate a keyfile 
+in order to use Babel. This document will give you the rough steps for how to do 
+this.</p>
+<p>If you miss a step or if something changes, Google will generally return an 
+error that Babel will show you which will explain how to fix the problem.</p>
+<p>Let's begin!</p>
+<h1>Register a Google Cloud account</h1>
+<p>Go to cloud.google.com, click the "get started" link, and log in with your 
+Google account.</p>
+<p>As part of this process, you will have to put in a valid credit card. Google 
+may initially tell you that you can't be billed, but that's only for the first 
+year, after which you'll need to enable billing on your account.</p>
+<p>At this point you should be logged in to the Google Cloud dashboard.</p>
+<h1>Create a Project</h1>
+<p><img alt="Google Cloud project name" src="Images/img17.jpg" /></p>
+<p>When you first log in, Cloud creates a project called "My First Project." You 
+can use this if you want.</p>
+<p>Click on the arrow next to the name to see the project list:</p>
+<p><img alt="Project list" src="Images/img18.jpg" /></p>
+<p>You could create a new project if you want from here, or just use the default 
+one.</p>
+<p>You'll notice the ID field is highlighted here. That's the "Project Name" 
+that you'll need later. If you make a new project, make sure you find this ID 
+and make a note of it. You can close this window now.</p>
+<h1>Enable APIs</h1>
+<p>You need to enable two APIs, <em>Cloud Vision</em> and <em>Cloud Translation</em>. 
+The easiest way to do this is to type their names in the search field at the 
+top:</p>
+<p><img alt="Search field" src="Images/img1B.jpg" /></p>
+<p>Click on the API result and you should see this page:</p>
+<p><img alt="API enable page" class="auto-style1" src="Images/img1C.jpg" /></p>
+<p>Click the Enable button. Make sure both APIs are enabled.</p>
+<h1>Create a Service Account</h1>
+<p>Now you need to create a <em>Service Account</em>, which will be used to 
+authenticate Babel to your account. To do this, go to the menu in the upper 
+left, select <em>IAM &amp; Admin</em>, and then <em>Service Accounts</em>:</p>
+<p><a href="Images/img1E.jpg">
+<img alt="Service account menu" height="320" src="Images/img1E_small.jpg" width="242" /><!-- MSComment="autothumbnail" xthumbnail-orig-image="file:///C:/Users/dthom/Documents/My Web Sites/BabelHelp/Images/img1E.jpg" --></a></p>
+<p>From here, click <strong>Add Service Account</strong><em>:</em></p>
+<p><a href="Images/img1F.jpg">
+<img alt="Adding a service account" height="154" src="Images/img1F_small.jpg" width="320" /><!-- MSComment="autothumbnail" xthumbnail-orig-image="file:///C:/Users/dthom/Documents/My Web Sites/BabelHelp/Images/img1F.jpg" --></a></p>
+<p>Put in whatever you like for the name and click <strong>Create</strong>.</p>
+<p><a href="Images/img24.jpg">
+<img alt="Selecting roles" height="257" src="Images/img24_small.jpg" width="320" /><!-- MSComment="autothumbnail" xthumbnail-orig-image="file:///C:/Users/dthom/Documents/My Web Sites/BabelHelp/Images/img24.jpg" --></a></p>
+<p>Now you need to specify the Roles to be assigned. Select <em>Cloud 
+Translation API User</em> as shown above, then click<strong> Add Another Role
+</strong>and select <em>Cloud Vision API User.</em></p>
+<p>Click <strong>Done</strong> on the next page. You should then see your new 
+account:</p>
+<p><img alt="New service account" src="Images/img28.jpg" /></p>
+<p>Click on the name of the account, then <strong>Add New Key</strong>, and then
+<strong>Create New Key</strong>:</p>
+<p><img alt="Create new key" src="Images/img29.jpg" /></p>
+<p>Pick <strong>JSON</strong> in the popup. This will download a file. This is 
+your JSON keyfile. Put it in your Babel folder.</p>
+<p class="auto-style2" style="border-color: red !important;"><strong>This 
+absolutely cannot be stressed enough: </strong>This file will give a hacker 
+access to use your account to make translation and OCR requests. Google will not 
+put a cap on how many they can make. Guard this file with your life, as if it 
+were the password to your bank account. Delete it if you aren't going to use the 
+program for a while, and make a new one when you need it again.</p>
+<h1>Configure Babel with keyfile</h1>
+<p><img alt="Babel Settings dialog" src="Images/img2C.gif" /></p>
+<p>Open Babel, go to the Settings, and configure as above. Use the Browse button 
+to select the keyfile you saved, and put the Project Name in the appropriate 
+field.</p>
+<p>Click OK, and you're ready to use Babel!</p>
+	
+</body>
+
+</html>

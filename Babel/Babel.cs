@@ -7,6 +7,7 @@ using System.Windows.Forms;
 using Babel.Windows;
 using Babel.Google;
 using System.Windows.Input;
+using System.Configuration;
 
 namespace Babel
 {
@@ -82,8 +83,8 @@ namespace Babel
 
         private void Viewfinder_Load(object sender, EventArgs e)
         {
+            DebugLog.Log("==============================================");
             DebugLog.Log("Babel starting");
-
             LoadSettings();
 
             if (Properties.Settings.Default.WaiverSigned != true)
@@ -699,6 +700,7 @@ namespace Babel
         {
             DebugLog.Log("Babel exiting.");
             DebugLog.Log("Odometer: " + SnapsTaken + "/" + CharsTranslated);
+            DebugLog.Log("==============================================");
         }
     }
 }

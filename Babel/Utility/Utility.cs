@@ -97,14 +97,14 @@ namespace Babel
 
     public static class Utility
     {
-        public static object HexLock = new object();
+        public static Random HexRNG = new Random();
         public static string RandomHex()
         {
-            lock (HexLock)
+            // Generates a random 6 digit hex string
+            lock (HexRNG)
             {
-                Random random = new Random();
                 var bytes = new Byte[6];
-                random.NextBytes(bytes);
+                HexRNG.NextBytes(bytes);
 
                 var hexArray = Array.ConvertAll(bytes, x => x.ToString("X2"));
                 var hexStr = String.Concat(hexArray);
