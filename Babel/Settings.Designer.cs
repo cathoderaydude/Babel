@@ -29,14 +29,9 @@
         private void InitializeComponent()
         {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Settings));
-            this.txtKeyFile = new System.Windows.Forms.TextBox();
-            this.txtProjectName = new System.Windows.Forms.TextBox();
             this.lblTargetLocale = new System.Windows.Forms.Label();
-            this.lblKeyFile = new System.Windows.Forms.Label();
-            this.lblProjectName = new System.Windows.Forms.Label();
             this.btnOk = new System.Windows.Forms.Button();
             this.btnCancel = new System.Windows.Forms.Button();
-            this.btnBrowseKeyFile = new System.Windows.Forms.Button();
             this.ofdKeyFile = new System.Windows.Forms.OpenFileDialog();
             this.cmbLocale = new System.Windows.Forms.ComboBox();
             this.cbxDummy = new System.Windows.Forms.CheckBox();
@@ -44,29 +39,20 @@
             this.cbxAutoOCR = new System.Windows.Forms.CheckBox();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
             this.cbxDisplayTimes = new System.Windows.Forms.CheckBox();
+            this.groupBox3 = new System.Windows.Forms.GroupBox();
+            this.txtKeyFile = new System.Windows.Forms.TextBox();
+            this.txtProjectName = new System.Windows.Forms.TextBox();
+            this.btnBrowseKeyFile = new System.Windows.Forms.Button();
+            this.lblKeyFile = new System.Windows.Forms.Label();
+            this.lblProjectName = new System.Windows.Forms.Label();
+            this.lblMaxReq = new System.Windows.Forms.Label();
+            this.numRateLimit = new System.Windows.Forms.NumericUpDown();
+            this.label1 = new System.Windows.Forms.Label();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
+            this.groupBox3.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.numRateLimit)).BeginInit();
             this.SuspendLayout();
-            // 
-            // txtKeyFile
-            // 
-            this.txtKeyFile.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.txtKeyFile.Location = new System.Drawing.Point(88, 39);
-            this.txtKeyFile.Name = "txtKeyFile";
-            this.txtKeyFile.Size = new System.Drawing.Size(297, 20);
-            this.txtKeyFile.TabIndex = 1;
-            this.txtKeyFile.TextChanged += new System.EventHandler(this.txtKeyFile_TextChanged);
-            // 
-            // txtProjectName
-            // 
-            this.txtProjectName.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.txtProjectName.Location = new System.Drawing.Point(88, 65);
-            this.txtProjectName.Name = "txtProjectName";
-            this.txtProjectName.Size = new System.Drawing.Size(378, 20);
-            this.txtProjectName.TabIndex = 2;
-            this.txtProjectName.TextChanged += new System.EventHandler(this.txtProjectName_TextChanged);
             // 
             // lblTargetLocale
             // 
@@ -77,27 +63,9 @@
             this.lblTargetLocale.TabIndex = 3;
             this.lblTargetLocale.Text = "Target Locale:";
             // 
-            // lblKeyFile
-            // 
-            this.lblKeyFile.AutoSize = true;
-            this.lblKeyFile.Location = new System.Drawing.Point(35, 42);
-            this.lblKeyFile.Name = "lblKeyFile";
-            this.lblKeyFile.Size = new System.Drawing.Size(47, 13);
-            this.lblKeyFile.TabIndex = 4;
-            this.lblKeyFile.Text = "Key File:";
-            // 
-            // lblProjectName
-            // 
-            this.lblProjectName.AutoSize = true;
-            this.lblProjectName.Location = new System.Drawing.Point(8, 68);
-            this.lblProjectName.Name = "lblProjectName";
-            this.lblProjectName.Size = new System.Drawing.Size(74, 13);
-            this.lblProjectName.TabIndex = 5;
-            this.lblProjectName.Text = "Project Name:";
-            // 
             // btnOk
             // 
-            this.btnOk.Location = new System.Drawing.Point(326, 216);
+            this.btnOk.Location = new System.Drawing.Point(318, 257);
             this.btnOk.Name = "btnOk";
             this.btnOk.Size = new System.Drawing.Size(75, 23);
             this.btnOk.TabIndex = 7;
@@ -107,23 +75,13 @@
             // 
             // btnCancel
             // 
-            this.btnCancel.Location = new System.Drawing.Point(407, 216);
+            this.btnCancel.Location = new System.Drawing.Point(399, 257);
             this.btnCancel.Name = "btnCancel";
             this.btnCancel.Size = new System.Drawing.Size(75, 23);
             this.btnCancel.TabIndex = 8;
             this.btnCancel.Text = "Cancel";
             this.btnCancel.UseVisualStyleBackColor = true;
             this.btnCancel.Click += new System.EventHandler(this.btnCancel_Click);
-            // 
-            // btnBrowseKeyFile
-            // 
-            this.btnBrowseKeyFile.Location = new System.Drawing.Point(391, 36);
-            this.btnBrowseKeyFile.Name = "btnBrowseKeyFile";
-            this.btnBrowseKeyFile.Size = new System.Drawing.Size(75, 23);
-            this.btnBrowseKeyFile.TabIndex = 9;
-            this.btnBrowseKeyFile.Text = "Browse...";
-            this.btnBrowseKeyFile.UseVisualStyleBackColor = true;
-            this.btnBrowseKeyFile.Click += new System.EventHandler(this.btnBrowseKeyFile_Click);
             // 
             // ofdKeyFile
             // 
@@ -156,22 +114,17 @@
             // 
             this.groupBox1.Controls.Add(this.cbxAutoOCR);
             this.groupBox1.Controls.Add(this.lblTargetLocale);
-            this.groupBox1.Controls.Add(this.txtKeyFile);
             this.groupBox1.Controls.Add(this.cmbLocale);
-            this.groupBox1.Controls.Add(this.txtProjectName);
-            this.groupBox1.Controls.Add(this.btnBrowseKeyFile);
-            this.groupBox1.Controls.Add(this.lblKeyFile);
-            this.groupBox1.Controls.Add(this.lblProjectName);
             this.groupBox1.Location = new System.Drawing.Point(5, 5);
             this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(477, 126);
+            this.groupBox1.Size = new System.Drawing.Size(477, 63);
             this.groupBox1.TabIndex = 12;
             this.groupBox1.TabStop = false;
             // 
             // cbxAutoOCR
             // 
             this.cbxAutoOCR.AutoSize = true;
-            this.cbxAutoOCR.Location = new System.Drawing.Point(11, 94);
+            this.cbxAutoOCR.Location = new System.Drawing.Point(6, 40);
             this.cbxAutoOCR.Name = "cbxAutoOCR";
             this.cbxAutoOCR.Size = new System.Drawing.Size(220, 17);
             this.cbxAutoOCR.TabIndex = 11;
@@ -182,7 +135,7 @@
             // 
             this.groupBox2.Controls.Add(this.cbxDisplayTimes);
             this.groupBox2.Controls.Add(this.cbxDummy);
-            this.groupBox2.Location = new System.Drawing.Point(5, 137);
+            this.groupBox2.Location = new System.Drawing.Point(5, 178);
             this.groupBox2.Name = "groupBox2";
             this.groupBox2.Size = new System.Drawing.Size(477, 73);
             this.groupBox2.TabIndex = 13;
@@ -199,11 +152,104 @@
             this.cbxDisplayTimes.Text = "Display translation round-trip times";
             this.cbxDisplayTimes.UseVisualStyleBackColor = true;
             // 
+            // groupBox3
+            // 
+            this.groupBox3.Controls.Add(this.label1);
+            this.groupBox3.Controls.Add(this.numRateLimit);
+            this.groupBox3.Controls.Add(this.lblMaxReq);
+            this.groupBox3.Controls.Add(this.txtKeyFile);
+            this.groupBox3.Controls.Add(this.txtProjectName);
+            this.groupBox3.Controls.Add(this.btnBrowseKeyFile);
+            this.groupBox3.Controls.Add(this.lblKeyFile);
+            this.groupBox3.Controls.Add(this.lblProjectName);
+            this.groupBox3.Location = new System.Drawing.Point(8, 74);
+            this.groupBox3.Name = "groupBox3";
+            this.groupBox3.Size = new System.Drawing.Size(474, 98);
+            this.groupBox3.TabIndex = 14;
+            this.groupBox3.TabStop = false;
+            this.groupBox3.Text = "Backend Server Settings";
+            // 
+            // txtKeyFile
+            // 
+            this.txtKeyFile.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.txtKeyFile.Location = new System.Drawing.Point(85, 18);
+            this.txtKeyFile.Name = "txtKeyFile";
+            this.txtKeyFile.Size = new System.Drawing.Size(300, 20);
+            this.txtKeyFile.TabIndex = 10;
+            // 
+            // txtProjectName
+            // 
+            this.txtProjectName.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.txtProjectName.Location = new System.Drawing.Point(86, 45);
+            this.txtProjectName.Name = "txtProjectName";
+            this.txtProjectName.Size = new System.Drawing.Size(380, 20);
+            this.txtProjectName.TabIndex = 11;
+            // 
+            // btnBrowseKeyFile
+            // 
+            this.btnBrowseKeyFile.Location = new System.Drawing.Point(391, 16);
+            this.btnBrowseKeyFile.Name = "btnBrowseKeyFile";
+            this.btnBrowseKeyFile.Size = new System.Drawing.Size(75, 23);
+            this.btnBrowseKeyFile.TabIndex = 14;
+            this.btnBrowseKeyFile.Text = "Browse...";
+            this.btnBrowseKeyFile.UseVisualStyleBackColor = true;
+            // 
+            // lblKeyFile
+            // 
+            this.lblKeyFile.AutoSize = true;
+            this.lblKeyFile.Location = new System.Drawing.Point(33, 21);
+            this.lblKeyFile.Name = "lblKeyFile";
+            this.lblKeyFile.Size = new System.Drawing.Size(47, 13);
+            this.lblKeyFile.TabIndex = 12;
+            this.lblKeyFile.Text = "Key File:";
+            // 
+            // lblProjectName
+            // 
+            this.lblProjectName.AutoSize = true;
+            this.lblProjectName.Location = new System.Drawing.Point(6, 48);
+            this.lblProjectName.Name = "lblProjectName";
+            this.lblProjectName.Size = new System.Drawing.Size(74, 13);
+            this.lblProjectName.TabIndex = 13;
+            this.lblProjectName.Text = "Project Name:";
+            // 
+            // lblMaxReq
+            // 
+            this.lblMaxReq.AutoSize = true;
+            this.lblMaxReq.Location = new System.Drawing.Point(22, 74);
+            this.lblMaxReq.Name = "lblMaxReq";
+            this.lblMaxReq.Size = new System.Drawing.Size(57, 13);
+            this.lblMaxReq.TabIndex = 15;
+            this.lblMaxReq.Text = "Rate Limit:";
+            // 
+            // numRateLimit
+            // 
+            this.numRateLimit.Location = new System.Drawing.Point(86, 72);
+            this.numRateLimit.Maximum = new decimal(new int[] {
+            10000,
+            0,
+            0,
+            0});
+            this.numRateLimit.Name = "numRateLimit";
+            this.numRateLimit.Size = new System.Drawing.Size(120, 20);
+            this.numRateLimit.TabIndex = 17;
+            // 
+            // label1
+            // 
+            this.label1.AutoSize = true;
+            this.label1.Location = new System.Drawing.Point(212, 74);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(109, 13);
+            this.label1.TabIndex = 18;
+            this.label1.Text = "(requests per second)";
+            // 
             // Settings
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(487, 243);
+            this.ClientSize = new System.Drawing.Size(487, 288);
+            this.Controls.Add(this.groupBox3);
             this.Controls.Add(this.groupBox2);
             this.Controls.Add(this.groupBox1);
             this.Controls.Add(this.btnCancel);
@@ -220,20 +266,17 @@
             this.groupBox1.PerformLayout();
             this.groupBox2.ResumeLayout(false);
             this.groupBox2.PerformLayout();
+            this.groupBox3.ResumeLayout(false);
+            this.groupBox3.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.numRateLimit)).EndInit();
             this.ResumeLayout(false);
 
         }
 
         #endregion
-
-        private System.Windows.Forms.TextBox txtKeyFile;
-        private System.Windows.Forms.TextBox txtProjectName;
         private System.Windows.Forms.Label lblTargetLocale;
-        private System.Windows.Forms.Label lblKeyFile;
-        private System.Windows.Forms.Label lblProjectName;
         private System.Windows.Forms.Button btnOk;
         private System.Windows.Forms.Button btnCancel;
-        private System.Windows.Forms.Button btnBrowseKeyFile;
         private System.Windows.Forms.OpenFileDialog ofdKeyFile;
         private System.Windows.Forms.ComboBox cmbLocale;
         private System.Windows.Forms.CheckBox cbxDummy;
@@ -241,5 +284,14 @@
         private System.Windows.Forms.GroupBox groupBox2;
         private System.Windows.Forms.CheckBox cbxDisplayTimes;
         private System.Windows.Forms.CheckBox cbxAutoOCR;
+        private System.Windows.Forms.GroupBox groupBox3;
+        private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.NumericUpDown numRateLimit;
+        private System.Windows.Forms.Label lblMaxReq;
+        private System.Windows.Forms.TextBox txtKeyFile;
+        private System.Windows.Forms.TextBox txtProjectName;
+        private System.Windows.Forms.Button btnBrowseKeyFile;
+        private System.Windows.Forms.Label lblKeyFile;
+        private System.Windows.Forms.Label lblProjectName;
     }
 }

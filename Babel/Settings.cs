@@ -39,6 +39,9 @@ namespace Babel
             Properties.Settings.Default.dummyData = cbxDummy.Checked;
             Properties.Settings.Default.displayTimes = cbxDisplayTimes.Checked;
             Properties.Settings.Default.autoOCR = cbxAutoOCR.Checked;
+            Properties.Settings.Default.reqsPerSecond = (int)numRateLimit.Value;
+            // Gotta reset this thing by hand
+            Google.GoogleAsyncStatic.rate.size = Properties.Settings.Default.reqsPerSecond;
 
             Properties.Settings.Default.Save();
             Close();
@@ -62,6 +65,7 @@ namespace Babel
             cbxDummy.Checked = Properties.Settings.Default.dummyData;
             cbxDisplayTimes.Checked = Properties.Settings.Default.displayTimes;
             cbxAutoOCR.Checked = Properties.Settings.Default.autoOCR;
+            numRateLimit.Value = Properties.Settings.Default.reqsPerSecond;
         }
     }
 }
