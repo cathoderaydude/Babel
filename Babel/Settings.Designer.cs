@@ -48,6 +48,7 @@
             this.btnBrowseKeyFile = new System.Windows.Forms.Button();
             this.lblKeyFile = new System.Windows.Forms.Label();
             this.lblProjectName = new System.Windows.Forms.Label();
+            this.btnRefreshGSL = new System.Windows.Forms.Button();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.groupBox3.SuspendLayout();
@@ -91,12 +92,9 @@
             // 
             this.cmbLocale.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cmbLocale.FormattingEnabled = true;
-            this.cmbLocale.Items.AddRange(new object[] {
-            "en",
-            "es"});
             this.cmbLocale.Location = new System.Drawing.Point(88, 13);
             this.cmbLocale.Name = "cmbLocale";
-            this.cmbLocale.Size = new System.Drawing.Size(121, 21);
+            this.cmbLocale.Size = new System.Drawing.Size(219, 21);
             this.cmbLocale.TabIndex = 10;
             this.cmbLocale.SelectedIndexChanged += new System.EventHandler(this.comboBox1_SelectedIndexChanged);
             // 
@@ -112,6 +110,7 @@
             // 
             // groupBox1
             // 
+            this.groupBox1.Controls.Add(this.btnRefreshGSL);
             this.groupBox1.Controls.Add(this.cbxAutoOCR);
             this.groupBox1.Controls.Add(this.lblTargetLocale);
             this.groupBox1.Controls.Add(this.cmbLocale);
@@ -245,6 +244,16 @@
             this.lblProjectName.TabIndex = 13;
             this.lblProjectName.Text = "Project Name:";
             // 
+            // btnRefreshGSL
+            // 
+            this.btnRefreshGSL.Location = new System.Drawing.Point(313, 11);
+            this.btnRefreshGSL.Name = "btnRefreshGSL";
+            this.btnRefreshGSL.Size = new System.Drawing.Size(156, 23);
+            this.btnRefreshGSL.TabIndex = 12;
+            this.btnRefreshGSL.Text = "Refresh Supported Locales";
+            this.btnRefreshGSL.UseVisualStyleBackColor = true;
+            this.btnRefreshGSL.Click += new System.EventHandler(this.btnRefreshGSL_Click);
+            // 
             // Settings
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -294,5 +303,6 @@
         private System.Windows.Forms.Button btnBrowseKeyFile;
         private System.Windows.Forms.Label lblKeyFile;
         private System.Windows.Forms.Label lblProjectName;
+        private System.Windows.Forms.Button btnRefreshGSL;
     }
 }
