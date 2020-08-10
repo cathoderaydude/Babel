@@ -14,6 +14,7 @@ namespace Babel
     public partial class frmWindowPicker : Form
     {
         private const int WM_NCHITTEST = 0x84;
+        public IntPtr TrackedWindow;
 
         public frmWindowPicker()
         {
@@ -38,6 +39,7 @@ namespace Babel
             Rectangle WindowLoc = WindowFunctions.GetRectFromHwnd(hWnd);
             this.Location = new Point(WindowLoc.Left, WindowLoc.Top);
             this.Size = new Size(WindowLoc.Width, WindowLoc.Height);
+            this.TrackedWindow = hWnd;
             //Console.WriteLine(this.Location.ToString() + " " + WindowFunctions.GetWindowText(hWnd));
             this.Invalidate();
         }
