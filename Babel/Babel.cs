@@ -791,5 +791,10 @@ namespace Babel
             pbxDisplay.Image = snap = edit = null;
             ChangeState(State.ready);
         }
+
+        private void toolStripButton1_Click_1(object sender, EventArgs e)
+        {
+
+        }
     }
 }
