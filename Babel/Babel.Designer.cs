@@ -88,6 +88,7 @@
             this.verticallyToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.horizontallyToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.tsbClear = new System.Windows.Forms.ToolStripButton();
+            this.tsmiBreakLines = new System.Windows.Forms.ToolStripMenuItem();
             ((System.ComponentModel.ISupportInitialize)(this.pbxDisplay)).BeginInit();
             this.tscMain.BottomToolStripPanel.SuspendLayout();
             this.tscMain.ContentPanel.SuspendLayout();
@@ -520,50 +521,51 @@
             this.toolStripSeparator4,
             this.deleteToolStripMenuItem,
             this.toolStripSeparator5,
+            this.tsmiBreakLines,
             this.alignToolStripMenuItem,
             this.fitToolStripMenuItem,
             this.distributeToolStripMenuItem});
             this.ctxPhrase.Name = "ctxPhrase";
-            this.ctxPhrase.Size = new System.Drawing.Size(159, 170);
+            this.ctxPhrase.Size = new System.Drawing.Size(181, 214);
             this.ctxPhrase.Opening += new System.ComponentModel.CancelEventHandler(this.ctxPhrase_Opening);
             // 
             // copyTranslatedToolStripMenuItem
             // 
             this.copyTranslatedToolStripMenuItem.Name = "copyTranslatedToolStripMenuItem";
-            this.copyTranslatedToolStripMenuItem.Size = new System.Drawing.Size(158, 22);
+            this.copyTranslatedToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.copyTranslatedToolStripMenuItem.Text = "Copy Translated";
             this.copyTranslatedToolStripMenuItem.Click += new System.EventHandler(this.copyTranslatedToolStripMenuItem_Click);
             // 
             // copyOriginalToolStripMenuItem
             // 
             this.copyOriginalToolStripMenuItem.Name = "copyOriginalToolStripMenuItem";
-            this.copyOriginalToolStripMenuItem.Size = new System.Drawing.Size(158, 22);
+            this.copyOriginalToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.copyOriginalToolStripMenuItem.Text = "Copy Original";
             this.copyOriginalToolStripMenuItem.Click += new System.EventHandler(this.copyOriginalToolStripMenuItem_Click);
             // 
             // copyBothToolStripMenuItem
             // 
             this.copyBothToolStripMenuItem.Name = "copyBothToolStripMenuItem";
-            this.copyBothToolStripMenuItem.Size = new System.Drawing.Size(158, 22);
+            this.copyBothToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.copyBothToolStripMenuItem.Text = "Copy Both";
             this.copyBothToolStripMenuItem.Click += new System.EventHandler(this.copyBothToolStripMenuItem_Click);
             // 
             // toolStripSeparator4
             // 
             this.toolStripSeparator4.Name = "toolStripSeparator4";
-            this.toolStripSeparator4.Size = new System.Drawing.Size(155, 6);
+            this.toolStripSeparator4.Size = new System.Drawing.Size(177, 6);
             // 
             // deleteToolStripMenuItem
             // 
             this.deleteToolStripMenuItem.Name = "deleteToolStripMenuItem";
-            this.deleteToolStripMenuItem.Size = new System.Drawing.Size(158, 22);
+            this.deleteToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.deleteToolStripMenuItem.Text = "Delete";
             this.deleteToolStripMenuItem.Click += new System.EventHandler(this.deleteToolStripMenuItem_Click);
             // 
             // toolStripSeparator5
             // 
             this.toolStripSeparator5.Name = "toolStripSeparator5";
-            this.toolStripSeparator5.Size = new System.Drawing.Size(155, 6);
+            this.toolStripSeparator5.Size = new System.Drawing.Size(177, 6);
             // 
             // alignToolStripMenuItem
             // 
@@ -573,7 +575,7 @@
             this.topEdgesToolStripMenuItem,
             this.bottomEdgesToolStripMenuItem});
             this.alignToolStripMenuItem.Name = "alignToolStripMenuItem";
-            this.alignToolStripMenuItem.Size = new System.Drawing.Size(158, 22);
+            this.alignToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.alignToolStripMenuItem.Text = "Align";
             // 
             // leftEdgesToolStripMenuItem
@@ -610,7 +612,7 @@
             this.horizontalToolStripMenuItem,
             this.verticalToolStripMenuItem});
             this.fitToolStripMenuItem.Name = "fitToolStripMenuItem";
-            this.fitToolStripMenuItem.Size = new System.Drawing.Size(158, 22);
+            this.fitToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.fitToolStripMenuItem.Text = "Fit";
             // 
             // horizontalToolStripMenuItem
@@ -633,7 +635,7 @@
             this.verticallyToolStripMenuItem,
             this.horizontallyToolStripMenuItem});
             this.distributeToolStripMenuItem.Name = "distributeToolStripMenuItem";
-            this.distributeToolStripMenuItem.Size = new System.Drawing.Size(158, 22);
+            this.distributeToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.distributeToolStripMenuItem.Text = "Distribute";
             // 
             // verticallyToolStripMenuItem
@@ -659,6 +661,12 @@
             this.tsbClear.Size = new System.Drawing.Size(28, 28);
             this.tsbClear.Text = "Clear all";
             this.tsbClear.Click += new System.EventHandler(this.tsbClear_Click);
+            // tsmiBreakLines
+            // 
+            this.tsmiBreakLines.Name = "tsmiBreakLines";
+            this.tsmiBreakLines.Size = new System.Drawing.Size(180, 22);
+            this.tsmiBreakLines.Text = "Break Lines";
+            this.tsmiBreakLines.Click += new System.EventHandler(this.tsmiBreakLines_Click);
             // 
             // frmBabel
             // 
@@ -759,6 +767,7 @@
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator9;
         private System.Windows.Forms.ToolStripMenuItem saveForStreamingToolStripMenuItem;
         private System.Windows.Forms.ToolStripButton tsbClear;
+        private System.Windows.Forms.ToolStripMenuItem tsmiBreakLines;
     }
 }
 

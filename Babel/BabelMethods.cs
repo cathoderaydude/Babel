@@ -24,6 +24,7 @@ namespace Babel
             public bool Selected;
 
             public PhraseRectMode mode;
+            public bool breakLines = false;
 
             public frmBabel BabelForm;
 
@@ -78,9 +79,10 @@ namespace Babel
                         .Select(boxenum => boxenum
                             .Select(box => box.text)
                             .Aggregate((l, r) => l + " " + r));
-                    // Temporarily disabling newlines until we figure out what's going on with them
-                    //return myTexts.Aggregate((l, r) => l + Environment.NewLine + r);
-                    return myTexts.Aggregate((l, r) => l + " " + r);
+                    if (breakLines)
+                        return myTexts.Aggregate((l, r) => l + Environment.NewLine + r);
+                    else
+                        return myTexts.Aggregate((l, r) => l + " " + r);
                 }
                 else
                 {
@@ -88,6 +90,7 @@ namespace Babel
                 }
             }
 
+            // The static functions don't really need to be in here, they're just utilities - but since this class is the only thing that uses them...
             private static string GetTextInBoxes(IEnumerable<OCRBox> boxes)
             {
                 return boxes
@@ -117,6 +120,47 @@ namespace Babel
             {
                 if (ocrResult == null) return null;
                 return GetBoxes(ocrResult.smallBoxes);
+            }
+
+            public Font FitFont(Graphics g, Font originalFont, int maxFontSize, int minFontSize, bool smallestOnFail = true)
+            {
+                Font testFont = null;
+                string targetString;
+                if (atrans.isDone)
+                    targetString = atrans.translatedText;
+                else
+                    targetString = atrans.rawText;
+
+                // We utilize MeasureString which we get via a control instance           
+                for (int adjustedSize = maxFontSize; adjustedSize >= minFontSize; adjustedSize--)
+                {
+                    testFont = new Font(originalFont.Name, adjustedSize, originalFont.Style);
+
+                    // Test the string with the new size
+                    SizeF adjustedSizeNew;
+                    if (breakLines)
+                        adjustedSizeNew = g.MeasureString(targetString, testFont);
+                    else
+                        adjustedSizeNew = g.MeasureString(targetString, testFont, Location.Width);
+
+                    if (Location.Width > Convert.ToInt32(adjustedSizeNew.Width) &&
+                        Location.Height > Convert.ToInt32(adjustedSizeNew.Height))
+                    {
+                        // Good font, return it
+                        return testFont;
+                    }
+                }
+
+                // If you get here there was no fontsize that worked
+                // return minimumSize or original?
+                if (smallestOnFail)
+                {
+                    return testFont;
+                }
+                else
+                {
+                    return originalFont;
+                }
             }
         }
 
@@ -548,7 +592,8 @@ namespace Babel
                 // Draw text
 
                 // Fit font to bounding box
-                Font LargeFont = GetAdjustedFont(g, TextToRender, DefaultFont, PRect.Location, 32, 6, true);
+                //Font LargeFont = GetAdjustedFont(g, TextToRender, DefaultFont, PRect.Location, 32, 6, true);
+                Font LargeFont = PRect.FitFont(g, DefaultFont, 32, 6);
 
                 // Center-justify text
                 // TODO: Currently disabled to enable wordwrap, fix this
@@ -602,7 +647,8 @@ namespace Babel
                 // Draw text
 
                 // Fit font to bounding box
-                Font LargeFont = GetAdjustedFont(g, TextToRender, DefaultFont, PRect.Location, 32, 6, true);
+                //Font LargeFont = GetAdjustedFont(g, TextToRender, DefaultFont, PRect.Location, 32, 6, true);
+                Font LargeFont = PRect.FitFont(g, DefaultFont, 32, 6);
 
                 // Center-justify text
                 // TODO: Currently disabled to enable wordwrap, fix this
@@ -621,8 +667,8 @@ namespace Babel
         }
 
 
-            // Find the biggest font to fit a given rect
-            public Font GetAdjustedFont(Graphics g, string graphicString, Font originalFont, Rectangle Container, int maxFontSize, int minFontSize, bool smallestOnFail)
+        // Find the biggest font to fit a given rect
+        public Font GetAdjustedFont(Graphics g, string graphicString, Font originalFont, Rectangle Container, int maxFontSize, int minFontSize, bool smallestOnFail)
         {
             Font testFont = null;
             // We utilize MeasureString which we get via a control instance           
@@ -634,8 +680,7 @@ namespace Babel
                 SizeF adjustedSizeNew = g.MeasureString(graphicString, testFont, Container.Width);
 
                 if (Container.Width > Convert.ToInt32(adjustedSizeNew.Width) &&
-                    Container.Height > Convert.ToInt32(adjustedSizeNew.Height)
-                    )
+                    Container.Height > Convert.ToInt32(adjustedSizeNew.Height))
                 {
                     // Good font, return it
                     return testFont;
