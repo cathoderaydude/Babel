@@ -1,4 +1,5 @@
-﻿using Babel.Google;
+﻿using Babel.Async;
+//using Babel.Async.GoogleImpl;
 using System;
 using System.Collections.Generic;
 using System.Windows.Forms;
@@ -21,9 +22,9 @@ namespace Babel
             dirty = true;
         }
 
-        Queue<AsyncTranslation> ts = new Queue<AsyncTranslation>();
+        Queue<IAsyncTranslation> ts = new Queue<IAsyncTranslation>();
 
-        private void Translation_callback(AsyncTranslation tr)
+        private void Translation_callback(IAsyncTranslation tr)
         {
             Invalidate();
         }
@@ -32,7 +33,7 @@ namespace Babel
         {
             if (dirty)
             {
-                ts.Enqueue(new AsyncTranslation(txtInput.Text, BabelForm, Translation_callback));
+                ts.Enqueue(AsyncStatic.MakeTranslation(txtInput.Text, Translation_callback));
                 dirty = false;
             }
         }

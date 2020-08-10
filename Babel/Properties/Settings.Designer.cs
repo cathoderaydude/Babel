@@ -12,7 +12,7 @@ namespace Babel.Properties {
     
     
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.Editors.SettingsDesigner.SettingsSingleFileGenerator", "16.3.0.0")]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.Editors.SettingsDesigner.SettingsSingleFileGenerator", "15.9.0.0")]
     internal sealed partial class Settings : global::System.Configuration.ApplicationSettingsBase {
         
         private static Settings defaultInstance = ((Settings)(global::System.Configuration.ApplicationSettingsBase.Synchronized(new Settings())));
@@ -26,12 +26,12 @@ namespace Babel.Properties {
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("")]
-        public string apiKeyPath {
+        public string googleApiKeyPath {
             get {
-                return ((string)(this["apiKeyPath"]));
+                return ((string)(this["googleApiKeyPath"]));
             }
             set {
-                this["apiKeyPath"] = value;
+                this["googleApiKeyPath"] = value;
             }
         }
         
@@ -50,24 +50,12 @@ namespace Babel.Properties {
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("")]
-        public string projectName {
+        public string googleProjectName {
             get {
-                return ((string)(this["projectName"]));
+                return ((string)(this["googleProjectName"]));
             }
             set {
-                this["projectName"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("False")]
-        public bool dummyData {
-            get {
-                return ((bool)(this["dummyData"]));
-            }
-            set {
-                this["dummyData"] = value;
+                this["googleProjectName"] = value;
             }
         }
         
@@ -140,6 +128,54 @@ namespace Babel.Properties {
             }
             set {
                 this["reqsPerSecond"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("Google")]
+        public global::Babel.Async.DataSource dataSource {
+            get {
+                return ((global::Babel.Async.DataSource)(this["dataSource"]));
+            }
+            set {
+                this["dataSource"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string microsoftOcrApiKey {
+            get {
+                return ((string)(this["microsoftOcrApiKey"]));
+            }
+            set {
+                this["microsoftOcrApiKey"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string microsoftOcrEndpoint {
+            get {
+                return ((string)(this["microsoftOcrEndpoint"]));
+            }
+            set {
+                this["microsoftOcrEndpoint"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string microsoftTranslatorApiKey {
+            get {
+                return ((string)(this["microsoftTranslatorApiKey"]));
+            }
+            set {
+                this["microsoftTranslatorApiKey"] = value;
             }
         }
     }

@@ -1,12 +1,11 @@
-﻿using Babel.Google;
-using Babel.Windows;
+﻿using Babel.Windows;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
-using System.Windows.Input;
 using System.Configuration;
+using Babel.Async;
 
 namespace Babel
 {
@@ -18,7 +17,7 @@ namespace Babel
         public class PhraseRect
         {
             public Rectangle Location;
-            public AsyncTranslation atrans;
+            public IAsyncTranslation atrans;
             public bool Hovered;
             public bool Clicked;
             public bool Selected;
@@ -27,13 +26,13 @@ namespace Babel
 
             public frmBabel BabelForm;
 
-            public PhraseRect(Rectangle Location, AsyncOCR OCRResult, frmBabel BabelForm, Action<AsyncTranslation> callback = null)
+            public PhraseRect(Rectangle Location, IAsyncOCR OCRResult, frmBabel BabelForm, TranslationCallback callback = null)
                 : this(Location, OCRResult, NewPhraseMode, BabelForm, callback)
             {
                 // nothing to do
             }
 
-            public PhraseRect(Rectangle Location, AsyncOCR OCRResult, PhraseRectMode Mode, frmBabel BabelForm, Action<AsyncTranslation> callback = null)
+            public PhraseRect(Rectangle Location, IAsyncOCR OCRResult, PhraseRectMode Mode, frmBabel BabelForm, TranslationCallback callback = null)
             {
                 this.Location = Location;
 
@@ -44,7 +43,7 @@ namespace Babel
                 UpdateText(OCRResult, callback);
             }
 
-            public void DoAutoFit(AsyncOCR OCRResult)
+            public void DoAutoFit(IAsyncOCR OCRResult)
             {
                 if (OCRResult != null)
                 {
@@ -54,19 +53,19 @@ namespace Babel
                 }
             }
 
-            public void UpdateText(AsyncOCR OCRResult, Action<AsyncTranslation> callback = null)
+            public void UpdateText(IAsyncOCR OCRResult, TranslationCallback callback = null)
             {
                 // Only reevaluate if the underlying text actually changed
                 if (atrans == null || this.GetText(OCRResult) != this.atrans.rawText)
                 {
                     string NewText = GetText(OCRResult);
                     BabelForm.Invoke(BabelForm.SafeIncrementOdometer, new object[] { 0, NewText.Length }); // Update odometer
-                    atrans = new AsyncTranslation(NewText, BabelForm, callback);
+                    atrans = AsyncStatic.MakeTranslation(NewText, callback);
                 }
             }
 
             // Get the combined text content of all boxes under this rect
-            private string GetText(AsyncOCR OCRResult)
+            private string GetText(IAsyncOCR OCRResult)
             {
                 var myBoxes = GetBoxes(OCRResult);
                 if (myBoxes.Any())
@@ -113,7 +112,7 @@ namespace Babel
                 return GetBoxesInRect(Location, boxes, mode);
             }
 
-            IEnumerable<OCRBox> GetBoxes(AsyncOCR ocrResult)
+            IEnumerable<OCRBox> GetBoxes(IAsyncOCR ocrResult)
             {
                 if (ocrResult == null) return null;
                 return GetBoxes(ocrResult.smallBoxes);
@@ -211,7 +210,7 @@ namespace Babel
             }
             else
             {
-                if (Properties.Settings.Default.dummyData == false) // Don't increment odometer if we're not really sending requests
+                if (Properties.Settings.Default.dataSource != DataSource.Dummy) // Don't increment odometer if we're not really sending requests
                 {
                     SnapsTaken += snaps;
                     CharsTranslated += chars;
@@ -312,7 +311,7 @@ namespace Babel
             {
                 ChangeState(State.OCRing);
                 IncrementOdometer(1, 0); // Add one snap to the odometer
-                OCRResult = new AsyncOCR(snap, this, AsyncOCR_callback);
+                OCRResult = AsyncStatic.MakeOCR(snap, AsyncOCR_callback);
                 return true;
             }
             else
@@ -321,7 +320,7 @@ namespace Babel
             }
         }
 
-        public void AsyncTranslation_callback(AsyncTranslation result)
+        public void AsyncTranslation_callback(IAsyncTranslation result)
         {
             if(PhraseRects.All(x => x.atrans.isDone == true)) SaveForStreaming();
             pbxDisplay.Invalidate();
@@ -342,29 +341,19 @@ namespace Babel
                 this.read = false;
             }
         }
-
-
-        public delegate void SafeLogWorkerError_Delegate(string message, string url);
-        public SafeLogWorkerError_Delegate SafeLogWorkerError;
-        public void LogWorkerError(string message, string url)
+        
+        private static Action<string, string> SafeLogWorkerError = LogWorkerError;
+        public static void LogWorkerError(string message, string url)
         {
-            if (InvokeRequired)
-            {
-                Invoke(SafeLogWorkerError, new object[] { message, url });
-            }
-            else
-            {
-                // Put an error in the queue
-                WorkerErrors.Add(new WorkerError(message, url, DateTime.Now.ToString()));
-                // Display worker error interface
-                ErrorWindow.ShowDialog();
-                ErrorWindow.UpdateLog();
-            }
+            // Put an error in the queue
+            WorkerErrors.Add(new WorkerError(message, url, DateTime.Now.ToString()));
+            // Display worker error interface
+            ErrorWindow.UpdateLog();
+            ErrorWindow.ShowDialog();
         }
-
-        public delegate void SafeAsyncOCR_Delegate(AsyncOCR result);
-        public SafeAsyncOCR_Delegate SafeAsyncOCR_Callback;
-        public void AsyncOCR_callback(AsyncOCR result)
+        
+        public OCRCallback SafeAsyncOCR_Callback;
+        public void AsyncOCR_callback(IAsyncOCR result)
         {
             if (InvokeRequired)
             {

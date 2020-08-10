@@ -1,15 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections;
 using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
 using Babel.Windows;
-using Babel.Google;
-using System.Windows.Input;
-using System.Configuration;
 using System.Reflection;
 using System.IO;
+using Babel.Async;
 
 namespace Babel
 {
@@ -17,7 +14,7 @@ namespace Babel
     {
         #region Header
         public List<PhraseRect> PhraseRects; // Track user-selected phrases
-        public AsyncOCR OCRResult;
+        public IAsyncOCR OCRResult;
 
         // For bounding box code
         public bool Marking;
@@ -77,7 +74,7 @@ namespace Babel
 
         public static List<WorkerError> WorkerErrors;
 
-        public ErrorLog ErrorWindow;
+        public static ErrorLog ErrorWindow = new ErrorLog();
         #endregion
 
         public frmBabel()
@@ -149,14 +146,11 @@ namespace Babel
 
             NewPhraseMode = PhraseRectMode.intersects;
 
-            SafeAsyncOCR_Callback = new SafeAsyncOCR_Delegate(AsyncOCR_callback);
-
-            SafeLogWorkerError = new SafeLogWorkerError_Delegate(LogWorkerError);
+            SafeAsyncOCR_Callback = AsyncOCR_callback;
+            
             WorkerErrors = new List<WorkerError>();
 
             SafeIncrementOdometer = new SafeIncrementOdometer_Delegate(IncrementOdometer);
-
-            ErrorWindow = new ErrorLog();
 
             TrackingWindow = (IntPtr) 0;
 
@@ -267,7 +261,7 @@ namespace Babel
             {
                 tempImage.Save(streampath);
             }
-            catch (Exception err)
+            catch //(Exception err)
             {
                 if (snap != null)
                 {

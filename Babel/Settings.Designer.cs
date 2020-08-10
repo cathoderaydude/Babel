@@ -34,8 +34,8 @@
             this.btnCancel = new System.Windows.Forms.Button();
             this.ofdKeyFile = new System.Windows.Forms.OpenFileDialog();
             this.cmbLocale = new System.Windows.Forms.ComboBox();
-            this.cbxDummy = new System.Windows.Forms.CheckBox();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.btnRefreshGSL = new System.Windows.Forms.Button();
             this.cbxAutoOCR = new System.Windows.Forms.CheckBox();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
             this.cbxDisplayTimes = new System.Windows.Forms.CheckBox();
@@ -43,16 +43,26 @@
             this.label1 = new System.Windows.Forms.Label();
             this.numRateLimit = new System.Windows.Forms.NumericUpDown();
             this.lblMaxReq = new System.Windows.Forms.Label();
-            this.txtKeyFile = new System.Windows.Forms.TextBox();
-            this.txtProjectName = new System.Windows.Forms.TextBox();
+            this.txtGoogleKeyFile = new System.Windows.Forms.TextBox();
+            this.txtGoogleProjectName = new System.Windows.Forms.TextBox();
             this.btnBrowseKeyFile = new System.Windows.Forms.Button();
             this.lblKeyFile = new System.Windows.Forms.Label();
             this.lblProjectName = new System.Windows.Forms.Label();
-            this.btnRefreshGSL = new System.Windows.Forms.Button();
+            this.groupBox4 = new System.Windows.Forms.GroupBox();
+            this.txtMsOcrEndpoint = new System.Windows.Forms.TextBox();
+            this.txtMsOcrApiKey = new System.Windows.Forms.TextBox();
+            this.label3 = new System.Windows.Forms.Label();
+            this.label2 = new System.Windows.Forms.Label();
+            this.rbMicrosoft = new System.Windows.Forms.RadioButton();
+            this.rbGoogle = new System.Windows.Forms.RadioButton();
+            this.rbDummy = new System.Windows.Forms.RadioButton();
+            this.label4 = new System.Windows.Forms.Label();
+            this.txtMsTranslatorApiKey = new System.Windows.Forms.TextBox();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.groupBox3.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.numRateLimit)).BeginInit();
+            this.groupBox4.SuspendLayout();
             this.SuspendLayout();
             // 
             // lblTargetLocale
@@ -66,7 +76,7 @@
             // 
             // btnOk
             // 
-            this.btnOk.Location = new System.Drawing.Point(318, 257);
+            this.btnOk.Location = new System.Drawing.Point(306, 458);
             this.btnOk.Name = "btnOk";
             this.btnOk.Size = new System.Drawing.Size(75, 23);
             this.btnOk.TabIndex = 7;
@@ -76,7 +86,7 @@
             // 
             // btnCancel
             // 
-            this.btnCancel.Location = new System.Drawing.Point(399, 257);
+            this.btnCancel.Location = new System.Drawing.Point(399, 458);
             this.btnCancel.Name = "btnCancel";
             this.btnCancel.Size = new System.Drawing.Size(75, 23);
             this.btnCancel.TabIndex = 8;
@@ -98,16 +108,6 @@
             this.cmbLocale.TabIndex = 10;
             this.cmbLocale.SelectedIndexChanged += new System.EventHandler(this.comboBox1_SelectedIndexChanged);
             // 
-            // cbxDummy
-            // 
-            this.cbxDummy.AutoSize = true;
-            this.cbxDummy.Location = new System.Drawing.Point(11, 19);
-            this.cbxDummy.Name = "cbxDummy";
-            this.cbxDummy.Size = new System.Drawing.Size(260, 17);
-            this.cbxDummy.TabIndex = 11;
-            this.cbxDummy.Text = "Use dummy data (disables calls to Google API - $)";
-            this.cbxDummy.UseVisualStyleBackColor = true;
-            // 
             // groupBox1
             // 
             this.groupBox1.Controls.Add(this.btnRefreshGSL);
@@ -119,6 +119,16 @@
             this.groupBox1.Size = new System.Drawing.Size(477, 63);
             this.groupBox1.TabIndex = 12;
             this.groupBox1.TabStop = false;
+            // 
+            // btnRefreshGSL
+            // 
+            this.btnRefreshGSL.Location = new System.Drawing.Point(313, 11);
+            this.btnRefreshGSL.Name = "btnRefreshGSL";
+            this.btnRefreshGSL.Size = new System.Drawing.Size(156, 23);
+            this.btnRefreshGSL.TabIndex = 12;
+            this.btnRefreshGSL.Text = "Refresh Supported Locales";
+            this.btnRefreshGSL.UseVisualStyleBackColor = true;
+            this.btnRefreshGSL.Click += new System.EventHandler(this.btnRefreshGSL_Click);
             // 
             // cbxAutoOCR
             // 
@@ -133,7 +143,6 @@
             // groupBox2
             // 
             this.groupBox2.Controls.Add(this.cbxDisplayTimes);
-            this.groupBox2.Controls.Add(this.cbxDummy);
             this.groupBox2.Location = new System.Drawing.Point(5, 178);
             this.groupBox2.Name = "groupBox2";
             this.groupBox2.Size = new System.Drawing.Size(477, 73);
@@ -156,8 +165,8 @@
             this.groupBox3.Controls.Add(this.label1);
             this.groupBox3.Controls.Add(this.numRateLimit);
             this.groupBox3.Controls.Add(this.lblMaxReq);
-            this.groupBox3.Controls.Add(this.txtKeyFile);
-            this.groupBox3.Controls.Add(this.txtProjectName);
+            this.groupBox3.Controls.Add(this.txtGoogleKeyFile);
+            this.groupBox3.Controls.Add(this.txtGoogleProjectName);
             this.groupBox3.Controls.Add(this.btnBrowseKeyFile);
             this.groupBox3.Controls.Add(this.lblKeyFile);
             this.groupBox3.Controls.Add(this.lblProjectName);
@@ -198,23 +207,23 @@
             this.lblMaxReq.TabIndex = 15;
             this.lblMaxReq.Text = "Rate Limit:";
             // 
-            // txtKeyFile
+            // txtGoogleKeyFile
             // 
-            this.txtKeyFile.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            this.txtGoogleKeyFile.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.txtKeyFile.Location = new System.Drawing.Point(85, 18);
-            this.txtKeyFile.Name = "txtKeyFile";
-            this.txtKeyFile.Size = new System.Drawing.Size(300, 20);
-            this.txtKeyFile.TabIndex = 10;
+            this.txtGoogleKeyFile.Location = new System.Drawing.Point(85, 18);
+            this.txtGoogleKeyFile.Name = "txtGoogleKeyFile";
+            this.txtGoogleKeyFile.Size = new System.Drawing.Size(300, 20);
+            this.txtGoogleKeyFile.TabIndex = 10;
             // 
-            // txtProjectName
+            // txtGoogleProjectName
             // 
-            this.txtProjectName.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            this.txtGoogleProjectName.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.txtProjectName.Location = new System.Drawing.Point(86, 45);
-            this.txtProjectName.Name = "txtProjectName";
-            this.txtProjectName.Size = new System.Drawing.Size(380, 20);
-            this.txtProjectName.TabIndex = 11;
+            this.txtGoogleProjectName.Location = new System.Drawing.Point(86, 45);
+            this.txtGoogleProjectName.Name = "txtGoogleProjectName";
+            this.txtGoogleProjectName.Size = new System.Drawing.Size(380, 20);
+            this.txtGoogleProjectName.TabIndex = 11;
             // 
             // btnBrowseKeyFile
             // 
@@ -244,21 +253,113 @@
             this.lblProjectName.TabIndex = 13;
             this.lblProjectName.Text = "Project Name:";
             // 
-            // btnRefreshGSL
+            // groupBox4
             // 
-            this.btnRefreshGSL.Location = new System.Drawing.Point(313, 11);
-            this.btnRefreshGSL.Name = "btnRefreshGSL";
-            this.btnRefreshGSL.Size = new System.Drawing.Size(156, 23);
-            this.btnRefreshGSL.TabIndex = 12;
-            this.btnRefreshGSL.Text = "Refresh Supported Locales";
-            this.btnRefreshGSL.UseVisualStyleBackColor = true;
-            this.btnRefreshGSL.Click += new System.EventHandler(this.btnRefreshGSL_Click);
+            this.groupBox4.Controls.Add(this.txtMsTranslatorApiKey);
+            this.groupBox4.Controls.Add(this.label4);
+            this.groupBox4.Controls.Add(this.txtMsOcrEndpoint);
+            this.groupBox4.Controls.Add(this.txtMsOcrApiKey);
+            this.groupBox4.Controls.Add(this.label3);
+            this.groupBox4.Controls.Add(this.label2);
+            this.groupBox4.Controls.Add(this.rbMicrosoft);
+            this.groupBox4.Controls.Add(this.rbGoogle);
+            this.groupBox4.Controls.Add(this.rbDummy);
+            this.groupBox4.Location = new System.Drawing.Point(8, 257);
+            this.groupBox4.Name = "groupBox4";
+            this.groupBox4.Size = new System.Drawing.Size(474, 195);
+            this.groupBox4.TabIndex = 15;
+            this.groupBox4.TabStop = false;
+            this.groupBox4.Text = "groupBox4";
+            // 
+            // txtMsOcrEndpoint
+            // 
+            this.txtMsOcrEndpoint.Location = new System.Drawing.Point(124, 115);
+            this.txtMsOcrEndpoint.Name = "txtMsOcrEndpoint";
+            this.txtMsOcrEndpoint.Size = new System.Drawing.Size(342, 20);
+            this.txtMsOcrEndpoint.TabIndex = 6;
+            // 
+            // txtMsOcrApiKey
+            // 
+            this.txtMsOcrApiKey.Location = new System.Drawing.Point(124, 91);
+            this.txtMsOcrApiKey.Name = "txtMsOcrApiKey";
+            this.txtMsOcrApiKey.PasswordChar = '*';
+            this.txtMsOcrApiKey.Size = new System.Drawing.Size(342, 20);
+            this.txtMsOcrApiKey.TabIndex = 5;
+            // 
+            // label3
+            // 
+            this.label3.AutoSize = true;
+            this.label3.Location = new System.Drawing.Point(6, 118);
+            this.label3.Name = "label3";
+            this.label3.Size = new System.Drawing.Size(88, 13);
+            this.label3.TabIndex = 4;
+            this.label3.Text = "MS API Endpoint";
+            // 
+            // label2
+            // 
+            this.label2.AutoSize = true;
+            this.label2.Location = new System.Drawing.Point(6, 94);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(90, 13);
+            this.label2.TabIndex = 3;
+            this.label2.Text = "MS OCR API Key";
+            // 
+            // rbMicrosoft
+            // 
+            this.rbMicrosoft.AutoSize = true;
+            this.rbMicrosoft.Location = new System.Drawing.Point(6, 65);
+            this.rbMicrosoft.Name = "rbMicrosoft";
+            this.rbMicrosoft.Size = new System.Drawing.Size(68, 17);
+            this.rbMicrosoft.TabIndex = 2;
+            this.rbMicrosoft.TabStop = true;
+            this.rbMicrosoft.Text = "Microsoft";
+            this.rbMicrosoft.UseVisualStyleBackColor = true;
+            // 
+            // rbGoogle
+            // 
+            this.rbGoogle.AutoSize = true;
+            this.rbGoogle.Location = new System.Drawing.Point(6, 42);
+            this.rbGoogle.Name = "rbGoogle";
+            this.rbGoogle.Size = new System.Drawing.Size(59, 17);
+            this.rbGoogle.TabIndex = 1;
+            this.rbGoogle.TabStop = true;
+            this.rbGoogle.Text = "Google";
+            this.rbGoogle.UseVisualStyleBackColor = true;
+            // 
+            // rbDummy
+            // 
+            this.rbDummy.AutoSize = true;
+            this.rbDummy.Location = new System.Drawing.Point(6, 19);
+            this.rbDummy.Name = "rbDummy";
+            this.rbDummy.Size = new System.Drawing.Size(60, 17);
+            this.rbDummy.TabIndex = 0;
+            this.rbDummy.TabStop = true;
+            this.rbDummy.Text = "Dummy";
+            this.rbDummy.UseVisualStyleBackColor = true;
+            // 
+            // label4
+            // 
+            this.label4.AutoSize = true;
+            this.label4.Location = new System.Drawing.Point(6, 144);
+            this.label4.Name = "label4";
+            this.label4.Size = new System.Drawing.Size(114, 13);
+            this.label4.TabIndex = 7;
+            this.label4.Text = "MS Translator API Key";
+            // 
+            // txtMsTranslatorApiKey
+            // 
+            this.txtMsTranslatorApiKey.Location = new System.Drawing.Point(124, 141);
+            this.txtMsTranslatorApiKey.Name = "txtMsTranslatorApiKey";
+            this.txtMsTranslatorApiKey.PasswordChar = '*';
+            this.txtMsTranslatorApiKey.Size = new System.Drawing.Size(342, 20);
+            this.txtMsTranslatorApiKey.TabIndex = 8;
             // 
             // Settings
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(487, 288);
+            this.ClientSize = new System.Drawing.Size(487, 489);
+            this.Controls.Add(this.groupBox4);
             this.Controls.Add(this.groupBox3);
             this.Controls.Add(this.groupBox2);
             this.Controls.Add(this.groupBox1);
@@ -279,6 +380,8 @@
             this.groupBox3.ResumeLayout(false);
             this.groupBox3.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.numRateLimit)).EndInit();
+            this.groupBox4.ResumeLayout(false);
+            this.groupBox4.PerformLayout();
             this.ResumeLayout(false);
 
         }
@@ -289,7 +392,6 @@
         private System.Windows.Forms.Button btnCancel;
         private System.Windows.Forms.OpenFileDialog ofdKeyFile;
         private System.Windows.Forms.ComboBox cmbLocale;
-        private System.Windows.Forms.CheckBox cbxDummy;
         private System.Windows.Forms.GroupBox groupBox1;
         private System.Windows.Forms.GroupBox groupBox2;
         private System.Windows.Forms.CheckBox cbxDisplayTimes;
@@ -298,11 +400,21 @@
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.NumericUpDown numRateLimit;
         private System.Windows.Forms.Label lblMaxReq;
-        private System.Windows.Forms.TextBox txtKeyFile;
-        private System.Windows.Forms.TextBox txtProjectName;
+        private System.Windows.Forms.TextBox txtGoogleKeyFile;
+        private System.Windows.Forms.TextBox txtGoogleProjectName;
         private System.Windows.Forms.Button btnBrowseKeyFile;
         private System.Windows.Forms.Label lblKeyFile;
         private System.Windows.Forms.Label lblProjectName;
         private System.Windows.Forms.Button btnRefreshGSL;
+        private System.Windows.Forms.GroupBox groupBox4;
+        private System.Windows.Forms.RadioButton rbMicrosoft;
+        private System.Windows.Forms.RadioButton rbGoogle;
+        private System.Windows.Forms.RadioButton rbDummy;
+        private System.Windows.Forms.TextBox txtMsOcrEndpoint;
+        private System.Windows.Forms.TextBox txtMsOcrApiKey;
+        private System.Windows.Forms.Label label3;
+        private System.Windows.Forms.Label label2;
+        private System.Windows.Forms.TextBox txtMsTranslatorApiKey;
+        private System.Windows.Forms.Label label4;
     }
 }
