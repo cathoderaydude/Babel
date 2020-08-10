@@ -6,7 +6,6 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
-using System.Windows.Threading;
 
 using Google.Cloud.Vision.V1;
 using Google.Api.Gax.ResourceNames;
@@ -14,7 +13,6 @@ using Google.Cloud.Translate.V3;
 
 using SImage = System.Drawing.Image;
 using GImage = Google.Cloud.Vision.V1.Image;
-using Google.Protobuf.Collections;
 
 using System.Text.RegularExpressions;
 
@@ -321,6 +319,114 @@ namespace Babel.Google
                 DebugLog.Log("Finishing translation ["+Identifer+"]: " + this._translatedText);
             }
             catch(Grpc.Core.RpcException e)
+            {
+                Form.Invoke(Form.SafeLogWorkerError, new object[] { e.Message, "http://www.yahoo" });
+            }
+            catch (Exception e)
+            {
+                Form.Invoke(Form.SafeLogWorkerError, new object[] { e.Message, "" });
+            }
+        }
+    }
+
+    public class LanguageItem
+    {
+        public string name;
+        public string code;
+
+        public override string ToString() => name;
+
+        public LanguageItem(SupportedLanguage lang)
+        {
+            name = lang.DisplayName;
+            code = lang.LanguageCode;
+        }
+    }
+
+    public class AsyncGSL
+    {
+        // pre-request
+        public event Action<AsyncGSL> callback;
+        public frmBabel Form;
+
+        public AsyncGSL(Action<AsyncGSL> callback)
+        {
+            this.callback += callback;
+
+            if (Properties.Settings.Default.dummyData)
+            {
+                _timeStamp = "[dummy]";
+                isDone = true;
+                callback?.Invoke(this);
+            }
+            else
+            {
+                task = Task.Run(DoGSL);
+            }
+        }
+
+        // do the request
+        private Task task;
+        public bool isDone { get; private set; }
+
+        // post-request
+        private LanguageItem[] _languages;
+        public LanguageItem[] languages => isDone ? _languages : new LanguageItem[0];
+        private string _timeStamp;
+        public string timeStamp => isDone ? _timeStamp : "";
+
+        private LanguageItem ConvertLanguage(SupportedLanguage lang) => new LanguageItem(lang);
+
+        private async Task DoGSL()
+        {
+            try
+            {
+                string Identifer = Utility.RandomHex();
+                DebugLog.Log("Making get supported languages request [" + Identifer + "]");
+
+                if (!File.Exists(Properties.Settings.Default.apiKeyPath))
+                    throw new FileNotFoundException("Keyfile not present at " + Properties.Settings.Default.apiKeyPath);
+
+                // Wait for rate limiter before starting the clock
+                GoogleAsyncStatic.rate.Check();
+                Stopwatch sw = new Stopwatch();
+
+                // Make our connection client
+                TranslationServiceClient translationServiceClient = new TranslationServiceClientBuilder
+                {
+                    CredentialsPath = Properties.Settings.Default.apiKeyPath,
+                }.Build();
+
+                // Request supported languages
+                GetSupportedLanguagesRequest request = new GetSupportedLanguagesRequest
+                {
+                    DisplayLanguageCode = "en",
+                    ParentAsLocationName = new LocationName(Properties.Settings.Default.projectName, "global"),
+                };
+
+                // Send request
+                sw.Start();
+                SupportedLanguages response = await translationServiceClient.GetSupportedLanguagesAsync(request);
+                sw.Stop();
+
+                // Convert these to a format the combo box will like
+                _languages = response.Languages
+                    .Where(lang => lang.SupportTarget)
+                    .Select(ConvertLanguage)
+                    .ToArray();
+
+                _timeStamp = string.Format("{0:00}:{1:00}:{2:00}.{3:000}",
+                    sw.Elapsed.Hours,
+                    sw.Elapsed.Minutes,
+                    sw.Elapsed.Seconds,
+                    sw.Elapsed.Milliseconds);
+
+                isDone = true;
+
+                callback?.Invoke(this);
+                DebugLog.Log("Finishing getting supported languages [" + Identifer + "]");
+            }
+            catch (Grpc.Core.RpcException e)
             {
                 Form.Invoke(Form.SafeLogWorkerError, new object[] { e.Message, "http://www.yahoo" });
             }
