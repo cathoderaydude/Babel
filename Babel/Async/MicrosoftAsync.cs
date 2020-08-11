@@ -97,8 +97,11 @@ namespace Babel.Async.MicrosoftImpl
                 // MS smallbox data, meanwhile, is organized in interesting ways
                 _smallBoxes = json["regions"]
                     .SelectMany(region => region["lines"])
-                    .SelectMany(line => line["words"])
-                    .Select(word => new OCRBox((string)word["boundingBox"], (string)word["text"]))
+                    .Select(line => new OCRBox(
+                        (string)line["boundingBox"],
+                        (string)line["words"]
+                            .Select(word => (string)word["text"])
+                            .Aggregate((x, y) => x + y)))
                     .ToArray();
 
                 _timeStamp = string.Format("{0:00}:{1:00}:{2:00}.{3:000}",
