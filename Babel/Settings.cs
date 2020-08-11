@@ -33,21 +33,24 @@ namespace Babel
 
         }
 
-        private DataSource DecodeDataSource()
+        private DataSource DecodeDataSource(string value)
         {
-            if (rbGoogle.Checked)
-                return DataSource.Google;
-            else if (rbMicrosoft.Checked)
-                return DataSource.Microsoft;
-            else // covers rbDummy, plus anything that slips through the cracks
-                return DataSource.Dummy;
+            switch (value) {
+                case "Google":
+                    return DataSource.Google;
+                case "Microsoft":
+                    return DataSource.Microsoft;
+                case "DeepL":
+                    return DataSource.DeepL;
+                default:
+                    return DataSource.Dummy;
+            }
         }
 
         private void btnOk_Click(object sender, EventArgs e)
         {
             Properties.Settings.Default.targetLocale = (cmbLocale.SelectedItem == null) ? "en" : ((LanguageItem)cmbLocale.SelectedItem).code;
             Properties.Settings.Default.displayTimes = cbxDisplayTimes.Checked;
-            Properties.Settings.Default.autoOCR = cbxAutoOCR.Checked;
 
             Properties.Settings.Default.googleApiKeyPath = txtGoogleKeyFile.Text;
             Properties.Settings.Default.googleProjectName = txtGoogleProjectName.Text;
@@ -55,8 +58,11 @@ namespace Babel
             Properties.Settings.Default.microsoftOcrApiKey = txtMsOcrApiKey.Text;
             Properties.Settings.Default.microsoftOcrEndpoint = txtMsOcrEndpoint.Text;
             Properties.Settings.Default.microsoftTranslatorApiKey = txtMsTranslatorApiKey.Text;
-            
-            Properties.Settings.Default.dataSource = DecodeDataSource();
+
+            Properties.Settings.Default.DeepLKey = txtDeepLKey.Text;
+
+            Properties.Settings.Default.OCRDataSource = DecodeDataSource(cboOCR.SelectedValue.ToString());
+            Properties.Settings.Default.TranslationDataSource = DecodeDataSource(cboTranslation.SelectedValue.ToString());
 
             if (Properties.Settings.Default.reqsPerSecond != (int)numRateLimit.Value)
             {
@@ -92,23 +98,24 @@ namespace Babel
             txtMsOcrEndpoint.Text = Properties.Settings.Default.microsoftOcrEndpoint;
             txtMsTranslatorApiKey.Text = Properties.Settings.Default.microsoftTranslatorApiKey;
 
-            switch (Properties.Settings.Default.dataSource)
+            txtDeepLKey.Text = Properties.Settings.Default.DeepLKey;
+
+            switch (Properties.Settings.Default.OCRDataSource)
             {
                 case DataSource.Google:
-                    rbGoogle.Checked = true;
+                    cboOCR.SelectedValue = "Google";
                     break;
 
                 case DataSource.Microsoft:
-                    rbMicrosoft.Checked = true;
+                    cboOCR.SelectedValue = "Microsoft";
                     break;
 
                 default:
-                    rbDummy.Checked = true;
+                    cboOCR.SelectedValue = "Dummy";
                     break;
             }
 
             cbxDisplayTimes.Checked = Properties.Settings.Default.displayTimes;
-            cbxAutoOCR.Checked = Properties.Settings.Default.autoOCR;
             numRateLimit.Value = Properties.Settings.Default.reqsPerSecond;
         }
 

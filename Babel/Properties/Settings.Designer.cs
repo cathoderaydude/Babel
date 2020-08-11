@@ -12,7 +12,7 @@ namespace Babel.Properties {
     
     
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.Editors.SettingsDesigner.SettingsSingleFileGenerator", "15.9.0.0")]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.Editors.SettingsDesigner.SettingsSingleFileGenerator", "16.3.0.0")]
     internal sealed partial class Settings : global::System.Configuration.ApplicationSettingsBase {
         
         private static Settings defaultInstance = ((Settings)(global::System.Configuration.ApplicationSettingsBase.Synchronized(new Settings())));
@@ -134,12 +134,12 @@ namespace Babel.Properties {
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("Google")]
-        public global::Babel.Async.DataSource dataSource {
+        public global::Babel.Async.DataSource OCRDataSource {
             get {
-                return ((global::Babel.Async.DataSource)(this["dataSource"]));
+                return ((global::Babel.Async.DataSource)(this["OCRDataSource"]));
             }
             set {
-                this["dataSource"] = value;
+                this["OCRDataSource"] = value;
             }
         }
         
@@ -176,6 +176,30 @@ namespace Babel.Properties {
             }
             set {
                 this["microsoftTranslatorApiKey"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string DeepLKey {
+            get {
+                return ((string)(this["DeepLKey"]));
+            }
+            set {
+                this["DeepLKey"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("Google")]
+        public global::Babel.Async.DataSource TranslationDataSource {
+            get {
+                return ((global::Babel.Async.DataSource)(this["TranslationDataSource"]));
+            }
+            set {
+                this["TranslationDataSource"] = value;
             }
         }
     }

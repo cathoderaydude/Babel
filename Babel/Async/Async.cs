@@ -11,7 +11,7 @@ namespace Babel.Async
 
         public static IAsyncOCR MakeOCR(Image input, OCRCallback callback)
         {
-            switch (Properties.Settings.Default.dataSource)
+            switch (Properties.Settings.Default.OCRDataSource)
             {
                 case DataSource.Google:
                     return new GoogleImpl.AsyncOCR(input, callback);
@@ -26,13 +26,16 @@ namespace Babel.Async
 
         public static IAsyncTranslation MakeTranslation(string input, TranslationCallback callback)
         {
-            switch (Properties.Settings.Default.dataSource)
+            switch (Properties.Settings.Default.TranslationDataSource)
             {
                 case DataSource.Google:
                     return new GoogleImpl.AsyncTranslation(input, callback);
 
                 case DataSource.Microsoft:
                     return new MicrosoftImpl.AsyncTranslation(input, callback);
+
+                case DataSource.DeepL:
+                    return new DeepLImpl.AsyncTranslation(input, callback);
 
                 default:
                     return new DummyImpl.AsyncTranslation(input, callback);
@@ -41,13 +44,17 @@ namespace Babel.Async
 
         public static IAsyncGSL MakeGSL(GSLCallback callback)
         {
-            switch (Properties.Settings.Default.dataSource)
+            switch (Properties.Settings.Default.OCRDataSource)
             {
                 case DataSource.Google:
                     return new GoogleImpl.AsyncGSL(callback);
 
                 case DataSource.Microsoft:
                     return new MicrosoftImpl.AsyncGSL(callback);
+
+                // TODO: Replace this with working code
+                case DataSource.DeepL:
+                    return new GoogleImpl.AsyncGSL(callback);
 
                 default:
                     return new DummyImpl.AsyncGSL(callback);
@@ -201,5 +208,6 @@ namespace Babel.Async
         Dummy,
         Google,
         Microsoft,
+        DeepL
     }
 }

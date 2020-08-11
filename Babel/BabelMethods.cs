@@ -254,7 +254,7 @@ namespace Babel
             }
             else
             {
-                if (Properties.Settings.Default.dataSource != DataSource.Dummy) // Don't increment odometer if we're not really sending requests
+                if (Properties.Settings.Default.OCRDataSource != DataSource.Dummy) // Don't increment odometer if we're not really sending requests
                 {
                     SnapsTaken += snaps;
                     CharsTranslated += chars;

@@ -29,7 +29,7 @@
     <Setting Name="reqsPerSecond" Type="System.Int32" Scope="User">
       <Value Profile="(Default)">50</Value>
     </Setting>
-    <Setting Name="dataSource" Type="Babel.Async.DataSource" Scope="User">
+    <Setting Name="OCRDataSource" Type="Babel.Async.DataSource" Scope="User">
       <Value Profile="(Default)">Google</Value>
     </Setting>
     <Setting Name="microsoftOcrApiKey" Type="System.String" Scope="User">
@@ -40,6 +40,12 @@
     </Setting>
     <Setting Name="microsoftTranslatorApiKey" Type="System.String" Scope="User">
       <Value Profile="(Default)" />
+    </Setting>
+    <Setting Name="DeepLKey" Type="System.String" Scope="User">
+      <Value Profile="(Default)" />
+    </Setting>
+    <Setting Name="TranslationDataSource" Type="Babel.Async.DataSource" Scope="User">
+      <Value Profile="(Default)">Google</Value>
     </Setting>
   </Settings>
 </SettingsFile>

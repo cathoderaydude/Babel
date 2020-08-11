@@ -159,6 +159,7 @@
     <Compile Include="About.Designer.cs">
       <DependentUpon>About.cs</DependentUpon>
     </Compile>
+    <Compile Include="Async\DeepLAsync.cs" />
     <Compile Include="Async\MicrosoftAsync.cs" />
     <Compile Include="Async\DummyAsync.cs" />
     <Compile Include="BabelMethods.cs">
