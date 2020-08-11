@@ -47,5 +47,8 @@
     <Setting Name="TranslationDataSource" Type="Babel.Async.DataSource" Scope="User">
       <Value Profile="(Default)">Google</Value>
     </Setting>
+    <Setting Name="TTSDataSource" Type="Babel.Async.DataSource" Scope="User">
+      <Value Profile="(Default)">Google</Value>
+    </Setting>
   </Settings>
 </SettingsFile>

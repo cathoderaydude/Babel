@@ -52,7 +52,7 @@ namespace Babel.Async.DeepLImpl
         private string _timeStamp;
         public string timeStamp => isDone ? _timeStamp : "";
 
-        string IAsyncTranslation.name => "DeepL";
+        string IAsync.name => "DeepL";
 
         // boy I hate this a lot
         private object WrapText(string text) => new { Text = text };
@@ -117,6 +117,8 @@ namespace Babel.Async.DeepLImpl
 
     public class AsyncGSL : IAsyncGSL
     {
+        string IAsync.name => "DeepL";
+
         // pre-GSL
         private GSLCallback callback;
 

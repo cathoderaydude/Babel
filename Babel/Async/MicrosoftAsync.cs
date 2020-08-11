@@ -15,10 +15,11 @@ namespace Babel.Async.MicrosoftImpl
 {
     public class AsyncOCR : IAsyncOCR
     {
+        string IAsync.name => "Azure";
+
         // pre-OCR
         public Image image { get; private set; }
         private OCRCallback callback;
-        string IAsyncOCR.name => "Azure";
 
         public AsyncOCR(Image image, OCRCallback callback = null)
         {
@@ -122,10 +123,11 @@ namespace Babel.Async.MicrosoftImpl
 
     public class AsyncTranslation : IAsyncTranslation
     {
+        string IAsync.name => "Azure";
+
         // pre-translation
         public string rawText { get; private set; }
         private TranslationCallback callback;
-        string IAsyncTranslation.name => "Azure";
 
         public AsyncTranslation(string text, TranslationCallback callback = null)
         {
@@ -228,6 +230,8 @@ namespace Babel.Async.MicrosoftImpl
 
     public class AsyncGSL : IAsyncGSL
     {
+        string IAsync.name => "Azure";
+
         // pre-GSL
         private GSLCallback callback;
 

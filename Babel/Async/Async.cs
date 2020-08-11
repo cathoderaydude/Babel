@@ -61,7 +61,7 @@ namespace Babel.Async
                 case DataSource.Microsoft:
                     return new MicrosoftImpl.AsyncGSL(callback);
 
-                // TODO: Replace this with working code
+                // TODO: Fill out the implementation in DeepLAsync.cs
                 case DataSource.DeepL:
                     return new GoogleImpl.AsyncGSL(callback);
 
@@ -74,10 +74,29 @@ namespace Babel.Async
 
         #region TTS
 
-        // Coming soon...
+        public static IAsyncTTS MakeTTS(string text, TTSCallback callback)
+        {
+            switch (Properties.Settings.Default.TTSDataSource)
+            {
+                case DataSource.Google:
+                    return new GoogleImpl.AsyncTTS(text, callback);
+
+                default:
+                    return new DummyImpl.AsyncTTS(callback);
+            }
+        }
 
         #endregion
     }
+
+    public interface IAsync
+    {
+        bool isDone { get; }
+        string timeStamp { get; }
+        string name { get; }
+    }
+
+    #region OCR
 
     public class OCRBox
     {
@@ -152,6 +171,26 @@ namespace Babel.Async
         #endregion
     }
 
+    public delegate void OCRCallback(IAsyncOCR result);
+
+    public interface IAsyncOCR : IAsync
+    {
+        OCRBox bigBox { get; }
+        OCRBox[] smallBoxes { get; }
+    }
+
+    #endregion
+
+    #region Translation
+
+    public delegate void TranslationCallback(IAsyncTranslation result);
+
+    public interface IAsyncTranslation : IAsync
+    {
+        string rawText { get; }
+        string translatedText { get; }
+    }
+
     public class LanguageItem : ComboBoxItem<string>
     {
         // Google data
@@ -165,7 +204,7 @@ namespace Babel.Async
         public LanguageItem(string code, JToken lang)
         {
             name = (string)lang["name"];
-            this.data = code;
+            data = code;
         }
 
         #region Dummy data
@@ -173,7 +212,7 @@ namespace Babel.Async
         private LanguageItem(string name, string code)
         {
             this.name = name;
-            this.data = code;
+            data = code;
         }
 
         // Dummy data
@@ -185,36 +224,26 @@ namespace Babel.Async
         #endregion
     }
 
-    public interface IAsync
-    {
-        bool isDone { get; }
-        string timeStamp { get; }
-    }
-
-    public delegate void OCRCallback(IAsyncOCR result);
-
-    public interface IAsyncOCR : IAsync
-    {
-        OCRBox bigBox { get; }
-        OCRBox[] smallBoxes { get; }
-        string name { get; }
-    }
-
-    public delegate void TranslationCallback(IAsyncTranslation result);
-
-    public interface IAsyncTranslation : IAsync
-    {
-        string rawText { get; }
-        string translatedText { get; }
-        string name { get; }
-    }
-
     public delegate void GSLCallback(IAsyncGSL result);
 
     public interface IAsyncGSL : IAsync
     {
         LanguageItem[] languages { get; }
     }
+
+    #endregion
+
+    #region TTS
+
+    public delegate void TTSCallback(IAsyncTTS result);
+
+    public interface IAsyncTTS : IAsync
+    {
+        string text { get; }
+        byte[] audioData { get; }
+    }
+
+    #endregion
 
     public enum DataSource
     {

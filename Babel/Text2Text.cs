@@ -1,7 +1,8 @@
 ﻿using Babel.Async;
-//using Babel.Async.GoogleImpl;
 using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Media;
 using System.Windows.Forms;
 
 namespace Babel
@@ -51,6 +52,20 @@ namespace Babel
 
             if (ts.Count > 0)
                 Invalidate();
+        }
+
+        private void toolStripButton1_Click_1(object sender, EventArgs e)
+        {
+            AsyncStatic.MakeTTS(txtOutput.Text, AsyncTTS_PlaySound);
+        }
+
+        private void AsyncTTS_PlaySound(IAsyncTTS tts)
+        {
+            using (MemoryStream ms = new MemoryStream(tts.audioData))
+            using (SoundPlayer sp = new SoundPlayer(ms))
+            {
+                sp.Play();
+            }
         }
     }
 }

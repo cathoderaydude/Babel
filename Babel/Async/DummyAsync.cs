@@ -2,7 +2,8 @@
 {
     public class AsyncOCR : IAsyncOCR
     {
-        string IAsyncOCR.name => "Dummy";
+        string IAsync.name => "Dummy";
+
         public AsyncOCR(OCRCallback callback)
         {
             callback?.Invoke(this);
@@ -17,7 +18,8 @@
 
     public class AsyncTranslation : IAsyncTranslation
     {
-        string IAsyncTranslation.name => "Dummy";
+        string IAsync.name => "Dummy";
+
         public AsyncTranslation(string text, TranslationCallback callback)
         {
             rawText = text;
@@ -33,6 +35,8 @@
 
     public class AsyncGSL : IAsyncGSL
     {
+        string IAsync.name => "Dummy";
+
         public AsyncGSL(GSLCallback callback)
         {
             callback?.Invoke(this);
@@ -42,5 +46,21 @@
 
         public LanguageItem[] languages => LanguageItem.DummyLanguages();
         public string timeStamp => "[dummy]";
+    }
+
+    public class AsyncTTS : IAsyncTTS
+    {
+        string IAsync.name => "Dummy";
+
+        public AsyncTTS(TTSCallback callback)
+        {
+            callback?.Invoke(this);
+        }
+
+        public bool isDone => true;
+        public string text { get; private set; }
+        public byte[] audioData => new byte[0];
+        public string timeStamp => "[dummy]";
+
     }
 }

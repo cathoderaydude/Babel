@@ -14,15 +14,17 @@ using SImage = System.Drawing.Image;
 using GImage = Google.Cloud.Vision.V1.Image;
 
 using System.Text.RegularExpressions;
+using Google.Cloud.TextToSpeech.V1;
 
 namespace Babel.Async.GoogleImpl
 {
     public class AsyncOCR : IAsyncOCR
     {
+        string IAsync.name => "Google";
+
         // pre-OCR
         public SImage image { get; private set; }
         private OCRCallback callback;
-        string IAsyncOCR.name => "Google";
 
         public AsyncOCR(SImage image, OCRCallback callback = null)
         {
@@ -142,10 +144,11 @@ namespace Babel.Async.GoogleImpl
 
     public class AsyncTranslation : IAsyncTranslation
     {
+        string IAsync.name => "Google";
+
         // pre-translation
         public string rawText { get; private set; }
         private TranslationCallback callback;
-        string IAsyncTranslation.name => "Google";
 
         public AsyncTranslation(string text, TranslationCallback callback = null)
         {
@@ -247,6 +250,8 @@ namespace Babel.Async.GoogleImpl
 
     public class AsyncGSL : IAsyncGSL
     {
+        string IAsync.name => "Google";
+
         // pre-GSL
         private GSLCallback callback;
 
@@ -319,7 +324,140 @@ namespace Babel.Async.GoogleImpl
             }
             catch (Grpc.Core.RpcException e)
             {
+                string url = "";
+
+                // Define a regular expression for repeated words.
+                Regex rx = new Regex(@"(http\S*)",
+                  RegexOptions.Compiled | RegexOptions.IgnoreCase);
+
+                // Find matches.
+                MatchCollection matches = rx.Matches(e.Message);
+
+                if (matches.Count > 0)
+                {
+                    url = matches[0].Groups[0].Value;
+                }
+
+                frmBabel.LogWorkerError(e.Message, url);
+            }
+            catch (Exception e)
+            {
                 frmBabel.LogWorkerError(e.Message, "");
+            }
+        }
+    }
+
+    public class AsyncTTS : IAsyncTTS
+    {
+        string IAsync.name => "Google";
+
+        // pre-TTS
+        public string text { get; private set; }
+        private TTSCallback callback;
+
+        public AsyncTTS(string text, TTSCallback callback)
+        {
+            this.text = text;
+            this.callback = callback;
+
+            if (text == null || text == "")
+            {
+                _timeStamp = "[empty]";
+                isDone = true;
+                this.callback?.Invoke(this);
+            }
+            else
+            {
+                task = Task.Run(DoTTS);
+            }
+        }
+
+        // do the request
+        private Task task;
+        public bool isDone { get; private set; }
+
+        // post-TTS
+        private byte[] _audioData;
+        public byte[] audioData => isDone ? _audioData : new byte[0];
+        private string _timeStamp;
+        public string timeStamp => isDone ? _timeStamp : "";
+
+        private async Task DoTTS()
+        {
+            try
+            {
+                string Identifer = Utility.RandomHex();
+                DebugLog.Log("Making Google text-to-speech request [" + Identifer + "]: " + this.text);
+
+                if (!File.Exists(Properties.Settings.Default.googleApiKeyPath))
+                    throw new FileNotFoundException("Keyfile not present at " + Properties.Settings.Default.googleApiKeyPath);
+
+                // Wait for rate limiter before starting the clock
+                AsyncStatic.rate.Check();
+                Stopwatch sw = new Stopwatch();
+
+                // Make our connection client
+                TextToSpeechClient client = new TextToSpeechClientBuilder
+                {
+                    CredentialsPath = Properties.Settings.Default.googleApiKeyPath,
+                }.Build();
+
+                // Build the translation request
+                SynthesizeSpeechRequest request = new SynthesizeSpeechRequest
+                {
+                    Input = new SynthesisInput
+                    {
+                        Text = text
+                    },
+
+                    Voice = new VoiceSelectionParams
+                    {
+                        LanguageCode = "ja-JP",
+                        SsmlGender = SsmlVoiceGender.Female,
+                    },
+
+                    AudioConfig = new AudioConfig
+                    {
+                        AudioEncoding = AudioEncoding.Linear16,
+                    },
+                };
+
+                // Send request
+                sw.Start();
+                SynthesizeSpeechResponse response = await client.SynthesizeSpeechAsync(request);
+                sw.Stop();
+
+                // Save off the bytes
+                _audioData = response.AudioContent.ToArray();
+
+                _timeStamp = string.Format("{0:00}:{1:00}:{2:00}.{3:000}",
+                    sw.Elapsed.Hours,
+                    sw.Elapsed.Minutes,
+                    sw.Elapsed.Seconds,
+                    sw.Elapsed.Milliseconds);
+
+                isDone = true;
+                callback?.Invoke(this);
+
+                DebugLog.Log("Finishing Google text-to-speech [" + Identifer + "]");
+            }
+            catch (Grpc.Core.RpcException e)
+            {
+                string url = "";
+
+                // Define a regular expression for repeated words.
+                Regex rx = new Regex(@"(http\S*)",
+                  RegexOptions.Compiled | RegexOptions.IgnoreCase);
+
+                // Find matches.
+                MatchCollection matches = rx.Matches(e.Message);
+
+                if (matches.Count > 0)
+                {
+                    url = matches[0].Groups[0].Value;
+                }
+
+                frmBabel.LogWorkerError(e.Message, url);
             }
             catch (Exception e)
             {
