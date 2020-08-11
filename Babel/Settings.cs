@@ -33,23 +33,55 @@ namespace Babel
 
         }
 
-        private DataSource DecodeDataSource(string value)
+        private static ComboBoxItem<DataSource> dummy => new ComboBoxItem<DataSource>
         {
-            switch (value) {
-                case "Google":
-                    return DataSource.Google;
-                case "Microsoft":
-                    return DataSource.Microsoft;
-                case "DeepL":
-                    return DataSource.DeepL;
-                default:
-                    return DataSource.Dummy;
-            }
-        }
+            name = "Dummy",
+            data = DataSource.Dummy,
+        };
+
+        private static ComboBoxItem<DataSource> google => new ComboBoxItem<DataSource>
+        {
+            name = "Google",
+            data = DataSource.Google,
+        };
+
+        private static ComboBoxItem<DataSource> microsoft => new ComboBoxItem<DataSource>
+        {
+            name = "Microsoft",
+            data = DataSource.Microsoft,
+        };
+
+        private static ComboBoxItem<DataSource> deepl => new ComboBoxItem<DataSource>
+        {
+            name = "DeepL",
+            data = DataSource.DeepL,
+        };
+
+        private static ComboBoxItem<DataSource>[] ocrSources =
+        {
+            dummy,
+            google,
+            microsoft,
+        };
+
+        private static ComboBoxItem<DataSource>[] translationSources =
+        {
+            dummy,
+            google,
+            microsoft,
+            deepl,
+        };
 
         private void btnOk_Click(object sender, EventArgs e)
         {
-            Properties.Settings.Default.targetLocale = (cmbLocale.SelectedItem == null) ? "en" : ((LanguageItem)cmbLocale.SelectedItem).code;
+            // (object as type).member pattern will null-reference on accessing the member if
+            // * object was null
+            // * object could not be converted to type
+            //
+            // (object as type)?.member uses the object?.member syntax, so that if object is null,
+            // instead of null-referencing, we just also return a null. this only works for nullable
+            // types; strings are nullable, 
+            Properties.Settings.Default.targetLocale = cmbLocale.SelectedData<string>();
             Properties.Settings.Default.displayTimes = cbxDisplayTimes.Checked;
 
             Properties.Settings.Default.googleApiKeyPath = txtGoogleKeyFile.Text;
@@ -61,8 +93,8 @@ namespace Babel
 
             Properties.Settings.Default.DeepLKey = txtDeepLKey.Text;
 
-            Properties.Settings.Default.OCRDataSource = DecodeDataSource(cboOCR.Text);
-            Properties.Settings.Default.TranslationDataSource = DecodeDataSource(cboTranslation.Text);
+            Properties.Settings.Default.OCRDataSource = cboOCR.SelectedData<DataSource>();
+            Properties.Settings.Default.TranslationDataSource = cboTranslation.SelectedData<DataSource>();
 
             if (Properties.Settings.Default.reqsPerSecond != (int)numRateLimit.Value)
             {
@@ -100,39 +132,17 @@ namespace Babel
 
             txtDeepLKey.Text = Properties.Settings.Default.DeepLKey;
 
-            switch (Properties.Settings.Default.OCRDataSource)
-            {
-                case DataSource.Google:
-                    cboOCR.Text = "Google";
-                    break;
+            cboOCR.Items.Clear();
+            cboOCR.Items.AddRange(ocrSources);
+            cboOCR.SelectedItem = cboOCR.Items
+                .Cast<ComboBoxItem<DataSource>>()
+                .First(item => item.data == Properties.Settings.Default.OCRDataSource);
 
-                case DataSource.Microsoft:
-                    cboOCR.Text = "Microsoft";
-                    break;
-
-                default:
-                    cboOCR.Text = "Dummy";
-                    break;
-            }
-
-            switch (Properties.Settings.Default.TranslationDataSource)
-            {
-                case DataSource.Google:
-                    cboTranslation.Text = "Google";
-                    break;
-
-                case DataSource.Microsoft:
-                    cboTranslation.Text = "Microsoft";
-                    break;
-
-                case DataSource.DeepL:
-                    cboTranslation.Text = "DeepL";
-                    break;
-
-                default:
-                    cboTranslation.Text = "Dummy";
-                    break;
-            }
+            cboTranslation.Items.Clear();
+            cboTranslation.Items.AddRange(translationSources);
+            cboTranslation.SelectedItem = cboTranslation.Items
+                .Cast<ComboBoxItem<DataSource>>()
+                .First(item => item.data == Properties.Settings.Default.TranslationDataSource);
 
             cbxDisplayTimes.Checked = Properties.Settings.Default.displayTimes;
             numRateLimit.Value = Properties.Settings.Default.reqsPerSecond;
@@ -156,7 +166,7 @@ namespace Babel
                     cmbLocale.Items.AddRange(gsl.languages);
                     cmbLocale.SelectedItem = cmbLocale.Items
                         .Cast<LanguageItem>()
-                        .FirstOrDefault(item => item.code == Properties.Settings.Default.targetLocale);
+                        .FirstOrDefault(item => item.data == Properties.Settings.Default.targetLocale);
                 }
                 else
                 {
@@ -165,6 +175,8 @@ namespace Babel
             }
         }
 
+        // This setting needs to be split across each translation data source.
+        // Some re-engineering may be involved.
         private void btnRefreshGSL_Click(object sender, EventArgs e)
         {
             gsl = AsyncStatic.MakeGSL(LoadLanguages);

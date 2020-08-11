@@ -94,8 +94,27 @@ namespace Babel
         }
     }
 
+    // Interface for a class that has data of a specific type
+    public interface IHasData<T>
+    {
+        T ToData();
+    }
+
+    // Objects of this class will display nicely on combo boxes,
+    // and work well with the helper method SelectedData<T>
+    public class ComboBoxItem<T> : IHasData<T>
+    {
+        public string name;
+        public T data;
+
+        public override string ToString() => name;
+        public T ToData() => data;
+    }
+
     public static class Utility
     {
+        #region Randomization stuff
+
         public static Random HexRNG = new Random();
         public static string RandomHex()
         {
@@ -110,6 +129,22 @@ namespace Babel
                 return (hexStr.ToLower());
             }
         }
+
+        #endregion
+
+        // Extension on ComboBox
+        public static T SelectedData<T>(this ComboBox c)
+        {
+            // Try to turn the SelectedItem object into an IHasData<T> and then retrieve its data
+            if (c.SelectedItem == null)
+                throw new ArgumentException("c.SelectedItem was null");
+            else if (!(c.SelectedItem is IHasData<T>))
+                throw new ArgumentException("c.SelectedItem was not a ComboBoxItem<T>");
+            else
+                return (c.SelectedItem as IHasData<T>).ToData();
+        }
+
+        #region Geometry stuff
 
         public static Rectangle RectTo(this Point p1, Point p2)
         {
@@ -181,13 +216,7 @@ namespace Babel
             yield return new Point(rect.Left, rect.Bottom);
         }
 
-        public static IEnumerable<Vertex> VCorners(this Rectangle rect)
-        {
-            yield return new Vertex { X = rect.Left, Y = rect.Top };
-            yield return new Vertex { X = rect.Right, Y = rect.Top };
-            yield return new Vertex { X = rect.Right, Y = rect.Bottom };
-            yield return new Vertex { X = rect.Left, Y = rect.Bottom };
-        }
+        #endregion
 
         #region Autophrasing helpers
 
@@ -224,12 +253,5 @@ namespace Babel
         }
 
         #endregion
-
-        // Lord have mercy on this terrible man, I just want to index into an array.
-        public static int WrapFor<T>(this int idx, T[] array)
-        {
-            if (idx < 0) return (idx % array.Length) + idx;
-            else return idx % array.Length;
-        }
     }
 }

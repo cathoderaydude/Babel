@@ -73,27 +73,17 @@ namespace Babel.Async.DeepLImpl
                 // Make our connection client
                 HttpClient client = new HttpClient();
 
-                // Laboriously hand-package our translation request strings into JSON
-                string[] splitters = new string[] { Environment.NewLine };
-                string[] body = new string[]
-                {
-                    "auth_key=" + Properties.Settings.Default.DeepLKey,
-                    "text=" + Uri.EscapeDataString(rawText),
-                    "target_lang=EN"
-                };
-
-                List<KeyValuePair<string, string>> fields = new List<KeyValuePair<string, string>>();
-                fields.Add(new KeyValuePair<string, string>("auth_key", Properties.Settings.Default.DeepLKey));
-                fields.Add(new KeyValuePair<string, string>("text", rawText));
-                fields.Add(new KeyValuePair<string, string>("target_lang", "EN"));
-
-                FormUrlEncodedContent fue = new FormUrlEncodedContent(fields);
+                // Laboriously hand-package our translation request strings into a POST body
+                Dictionary<string, string> fields = new Dictionary<string, string>();
+                fields["auth_key"] = Properties.Settings.Default.DeepLKey;
+                fields["text"] = rawText;
+                fields["target_lang"] = "EN";
 
                 // Build the translation request
                 HttpRequestMessage request = new HttpRequestMessage();
                 request.RequestUri = new Uri("https://api.deepl.com/v2/translate");
                 request.Method = HttpMethod.Post;
-                request.Content = fue;
+                request.Content = new FormUrlEncodedContent(fields);
 
                 // Send request
                 sw.Start();
@@ -147,51 +137,13 @@ namespace Babel.Async.DeepLImpl
         public string timeStamp => isDone ? _timeStamp : "";
 
         private LanguageItem ConvertLanguage(string name, JToken lang) => new LanguageItem(name, lang);
-
+        
+        // Obviously this will be an async method when it has code in it
         private async Task DoGSL()
         {
             try
             {
-                string Identifer = Utility.RandomHex();
-                DebugLog.Log("Making DeepL get supported languages request [" + Identifer + "]");
-
-                // No keyfile to check - maybe somehow validate the API key?
-
-                // Wait for rate limiter before starting the clock
-                AsyncStatic.rate.Check();
-                Stopwatch sw = new Stopwatch();
-
-                // Make our connection client
-                HttpClient client = new HttpClient();
-
-                // Build the GSL request
-                HttpRequestMessage request = new HttpRequestMessage();
-                request.RequestUri = new Uri("https://api.cognitive.microsofttranslator.com/languages?api-version=3.0");
-                request.Method = HttpMethod.Get;
-
-                // Send request
-                sw.Start();
-                HttpResponseMessage response = await client.SendAsync(request);
-                var json = JToken.Parse(await response.Content.ReadAsStringAsync());
-                sw.Stop();
-
-                // Convert these to a format the combo box will like
-                _languages = json["translation"]
-                    .Children<JProperty>()
-                    .Select(child => child.Name)
-                    .Select(name => ConvertLanguage(name, json["translation"][name]))
-                    .ToArray();
-
-                _timeStamp = string.Format("{0:00}:{1:00}:{2:00}.{3:000}",
-                    sw.Elapsed.Hours,
-                    sw.Elapsed.Minutes,
-                    sw.Elapsed.Seconds,
-                    sw.Elapsed.Milliseconds);
-
-                isDone = true;
-                callback?.Invoke(this);
-
-                DebugLog.Log("Finishing DeepL getting supported languages [" + Identifer + "]");
+                throw new NotImplementedException("DeepL doesn't have a working GSL request yet.");
             }
             catch (Grpc.Core.RpcException e)
             {

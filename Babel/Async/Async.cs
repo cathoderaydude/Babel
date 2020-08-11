@@ -9,6 +9,8 @@ namespace Babel.Async
     {
         public static RateLimiter rate = new RateLimiter { size = Properties.Settings.Default.reqsPerSecond };
 
+        #region OCR
+
         public static IAsyncOCR MakeOCR(Image input, OCRCallback callback)
         {
             switch (Properties.Settings.Default.OCRDataSource)
@@ -23,6 +25,10 @@ namespace Babel.Async
                     return new DummyImpl.AsyncOCR(callback);
             }
         }
+
+        #endregion
+
+        #region Translation
 
         public static IAsyncTranslation MakeTranslation(string input, TranslationCallback callback)
         {
@@ -42,9 +48,12 @@ namespace Babel.Async
             }
         }
 
+        // For now this is only used to determine what language to translate to, so it
+        // follows the datasource used by translation.
+        // If we need to support scan-for languages under OCR, that should be parallel.
         public static IAsyncGSL MakeGSL(GSLCallback callback)
         {
-            switch (Properties.Settings.Default.OCRDataSource)
+            switch (Properties.Settings.Default.TranslationDataSource)
             {
                 case DataSource.Google:
                     return new GoogleImpl.AsyncGSL(callback);
@@ -60,6 +69,14 @@ namespace Babel.Async
                     return new DummyImpl.AsyncGSL(callback);
             }
         }
+
+        #endregion
+
+        #region TTS
+
+        // Coming soon...
+
+        #endregion
     }
 
     public class OCRBox
@@ -135,26 +152,20 @@ namespace Babel.Async
         #endregion
     }
 
-    public class LanguageItem
+    public class LanguageItem : ComboBoxItem<string>
     {
-        public string name;
-        public string code;
-
-        public override string ToString() => name + " (" + code + ")";
-
-
         // Google data
         public LanguageItem(Google.Cloud.Translate.V3.SupportedLanguage lang)
         {
             name = lang.DisplayName;
-            code = lang.LanguageCode;
+            data = lang.LanguageCode;
         }
 
         // Microsoft data
         public LanguageItem(string code, JToken lang)
         {
             name = (string)lang["name"];
-            this.code = code;
+            this.data = code;
         }
 
         #region Dummy data
@@ -162,7 +173,7 @@ namespace Babel.Async
         private LanguageItem(string name, string code)
         {
             this.name = name;
-            this.code = code;
+            this.data = code;
         }
 
         // Dummy data

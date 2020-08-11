@@ -36,8 +36,8 @@
             this.cmbLocale = new System.Windows.Forms.ComboBox();
             this.btnRefreshGSL = new System.Windows.Forms.Button();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
-            this.cbxDisplayTimes = new System.Windows.Forms.CheckBox();
             this.label1 = new System.Windows.Forms.Label();
+            this.cbxDisplayTimes = new System.Windows.Forms.CheckBox();
             this.numRateLimit = new System.Windows.Forms.NumericUpDown();
             this.lblMaxReq = new System.Windows.Forms.Label();
             this.txtGoogleKeyFile = new System.Windows.Forms.TextBox();
@@ -46,6 +46,10 @@
             this.lblKeyFile = new System.Windows.Forms.Label();
             this.lblProjectName = new System.Windows.Forms.Label();
             this.groupBox4 = new System.Windows.Forms.GroupBox();
+            this.cboTranslation = new System.Windows.Forms.ComboBox();
+            this.label7 = new System.Windows.Forms.Label();
+            this.label6 = new System.Windows.Forms.Label();
+            this.cboOCR = new System.Windows.Forms.ComboBox();
             this.txtMsTranslatorApiKey = new System.Windows.Forms.TextBox();
             this.label4 = new System.Windows.Forms.Label();
             this.txtMsOcrEndpoint = new System.Windows.Forms.TextBox();
@@ -54,28 +58,24 @@
             this.label2 = new System.Windows.Forms.Label();
             this.tabControl1 = new System.Windows.Forms.TabControl();
             this.tabPage1 = new System.Windows.Forms.TabPage();
-            this.tabPage2 = new System.Windows.Forms.TabPage();
-            this.tabPage3 = new System.Windows.Forms.TabPage();
-            this.groupBox5 = new System.Windows.Forms.GroupBox();
-            this.groupBox6 = new System.Windows.Forms.GroupBox();
             this.groupBox7 = new System.Windows.Forms.GroupBox();
+            this.tabPage2 = new System.Windows.Forms.TabPage();
+            this.groupBox6 = new System.Windows.Forms.GroupBox();
+            this.groupBox5 = new System.Windows.Forms.GroupBox();
+            this.tabPage3 = new System.Windows.Forms.TabPage();
             this.groupBox8 = new System.Windows.Forms.GroupBox();
-            this.txtDeepLKey = new System.Windows.Forms.TextBox();
             this.label5 = new System.Windows.Forms.Label();
-            this.cboOCR = new System.Windows.Forms.ComboBox();
-            this.label6 = new System.Windows.Forms.Label();
-            this.label7 = new System.Windows.Forms.Label();
-            this.cboTranslation = new System.Windows.Forms.ComboBox();
+            this.txtDeepLKey = new System.Windows.Forms.TextBox();
             this.groupBox2.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.numRateLimit)).BeginInit();
             this.groupBox4.SuspendLayout();
             this.tabControl1.SuspendLayout();
             this.tabPage1.SuspendLayout();
-            this.tabPage2.SuspendLayout();
-            this.tabPage3.SuspendLayout();
-            this.groupBox5.SuspendLayout();
-            this.groupBox6.SuspendLayout();
             this.groupBox7.SuspendLayout();
+            this.tabPage2.SuspendLayout();
+            this.groupBox6.SuspendLayout();
+            this.groupBox5.SuspendLayout();
+            this.tabPage3.SuspendLayout();
             this.groupBox8.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -114,12 +114,14 @@
             // 
             // cmbLocale
             // 
+            this.cmbLocale.DisplayMember = "source";
             this.cmbLocale.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cmbLocale.FormattingEnabled = true;
             this.cmbLocale.Location = new System.Drawing.Point(88, 76);
             this.cmbLocale.Name = "cmbLocale";
             this.cmbLocale.Size = new System.Drawing.Size(178, 21);
             this.cmbLocale.TabIndex = 10;
+            this.cmbLocale.ValueMember = "code";
             this.cmbLocale.SelectedIndexChanged += new System.EventHandler(this.comboBox1_SelectedIndexChanged);
             // 
             // btnRefreshGSL
@@ -145,6 +147,15 @@
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "Misc";
             // 
+            // label1
+            // 
+            this.label1.AutoSize = true;
+            this.label1.Location = new System.Drawing.Point(201, 16);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(109, 13);
+            this.label1.TabIndex = 18;
+            this.label1.Text = "(requests per second)";
+            // 
             // cbxDisplayTimes
             // 
             this.cbxDisplayTimes.AutoSize = true;
@@ -154,15 +165,6 @@
             this.cbxDisplayTimes.TabIndex = 11;
             this.cbxDisplayTimes.Text = "Display translation round-trip times";
             this.cbxDisplayTimes.UseVisualStyleBackColor = true;
-            // 
-            // label1
-            // 
-            this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(201, 16);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(109, 13);
-            this.label1.TabIndex = 18;
-            this.label1.Text = "(requests per second)";
             // 
             // numRateLimit
             // 
@@ -198,9 +200,9 @@
             // 
             this.txtGoogleProjectName.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.txtGoogleProjectName.Location = new System.Drawing.Point(89, 50);
+            this.txtGoogleProjectName.Location = new System.Drawing.Point(88, 50);
             this.txtGoogleProjectName.Name = "txtGoogleProjectName";
-            this.txtGoogleProjectName.Size = new System.Drawing.Size(337, 20);
+            this.txtGoogleProjectName.Size = new System.Drawing.Size(338, 20);
             this.txtGoogleProjectName.TabIndex = 11;
             // 
             // btnBrowseKeyFile
@@ -243,6 +245,44 @@
             this.groupBox4.TabIndex = 15;
             this.groupBox4.TabStop = false;
             this.groupBox4.Text = "Backend Services";
+            // 
+            // cboTranslation
+            // 
+            this.cboTranslation.DisplayMember = "name";
+            this.cboTranslation.FormattingEnabled = true;
+            this.cboTranslation.Location = new System.Drawing.Point(118, 48);
+            this.cboTranslation.Name = "cboTranslation";
+            this.cboTranslation.Size = new System.Drawing.Size(182, 21);
+            this.cboTranslation.TabIndex = 7;
+            this.cboTranslation.ValueMember = "source";
+            // 
+            // label7
+            // 
+            this.label7.AutoSize = true;
+            this.label7.Location = new System.Drawing.Point(11, 53);
+            this.label7.Name = "label7";
+            this.label7.Size = new System.Drawing.Size(101, 13);
+            this.label7.TabIndex = 6;
+            this.label7.Text = "Translation Service:";
+            // 
+            // label6
+            // 
+            this.label6.AutoSize = true;
+            this.label6.Location = new System.Drawing.Point(40, 26);
+            this.label6.Name = "label6";
+            this.label6.Size = new System.Drawing.Size(72, 13);
+            this.label6.TabIndex = 5;
+            this.label6.Text = "OCR Service:";
+            // 
+            // cboOCR
+            // 
+            this.cboOCR.DisplayMember = "name";
+            this.cboOCR.FormattingEnabled = true;
+            this.cboOCR.Location = new System.Drawing.Point(118, 21);
+            this.cboOCR.Name = "cboOCR";
+            this.cboOCR.Size = new System.Drawing.Size(182, 21);
+            this.cboOCR.TabIndex = 4;
+            this.cboOCR.ValueMember = "source";
             // 
             // txtMsTranslatorApiKey
             // 
@@ -316,53 +356,6 @@
             this.tabPage1.Text = "Google";
             this.tabPage1.UseVisualStyleBackColor = true;
             // 
-            // tabPage2
-            // 
-            this.tabPage2.Controls.Add(this.groupBox6);
-            this.tabPage2.Controls.Add(this.groupBox5);
-            this.tabPage2.Location = new System.Drawing.Point(4, 22);
-            this.tabPage2.Name = "tabPage2";
-            this.tabPage2.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage2.Size = new System.Drawing.Size(444, 165);
-            this.tabPage2.TabIndex = 1;
-            this.tabPage2.Text = "Microsoft";
-            this.tabPage2.UseVisualStyleBackColor = true;
-            // 
-            // tabPage3
-            // 
-            this.tabPage3.Controls.Add(this.groupBox8);
-            this.tabPage3.Location = new System.Drawing.Point(4, 22);
-            this.tabPage3.Margin = new System.Windows.Forms.Padding(5);
-            this.tabPage3.Name = "tabPage3";
-            this.tabPage3.Size = new System.Drawing.Size(444, 165);
-            this.tabPage3.TabIndex = 2;
-            this.tabPage3.Text = "DeepL";
-            this.tabPage3.UseVisualStyleBackColor = true;
-            // 
-            // groupBox5
-            // 
-            this.groupBox5.Controls.Add(this.label2);
-            this.groupBox5.Controls.Add(this.txtMsOcrApiKey);
-            this.groupBox5.Controls.Add(this.txtMsOcrEndpoint);
-            this.groupBox5.Controls.Add(this.label3);
-            this.groupBox5.Location = new System.Drawing.Point(9, 17);
-            this.groupBox5.Name = "groupBox5";
-            this.groupBox5.Size = new System.Drawing.Size(429, 73);
-            this.groupBox5.TabIndex = 9;
-            this.groupBox5.TabStop = false;
-            this.groupBox5.Text = "OCR";
-            // 
-            // groupBox6
-            // 
-            this.groupBox6.Controls.Add(this.label4);
-            this.groupBox6.Controls.Add(this.txtMsTranslatorApiKey);
-            this.groupBox6.Location = new System.Drawing.Point(9, 96);
-            this.groupBox6.Name = "groupBox6";
-            this.groupBox6.Size = new System.Drawing.Size(429, 59);
-            this.groupBox6.TabIndex = 10;
-            this.groupBox6.TabStop = false;
-            this.groupBox6.Text = "Translation";
-            // 
             // groupBox7
             // 
             this.groupBox7.Controls.Add(this.lblTargetLocale);
@@ -380,6 +373,53 @@
             this.groupBox7.TabStop = false;
             this.groupBox7.Text = "OCR && Translation";
             // 
+            // tabPage2
+            // 
+            this.tabPage2.Controls.Add(this.groupBox6);
+            this.tabPage2.Controls.Add(this.groupBox5);
+            this.tabPage2.Location = new System.Drawing.Point(4, 22);
+            this.tabPage2.Name = "tabPage2";
+            this.tabPage2.Padding = new System.Windows.Forms.Padding(3);
+            this.tabPage2.Size = new System.Drawing.Size(444, 165);
+            this.tabPage2.TabIndex = 1;
+            this.tabPage2.Text = "Microsoft";
+            this.tabPage2.UseVisualStyleBackColor = true;
+            // 
+            // groupBox6
+            // 
+            this.groupBox6.Controls.Add(this.label4);
+            this.groupBox6.Controls.Add(this.txtMsTranslatorApiKey);
+            this.groupBox6.Location = new System.Drawing.Point(9, 96);
+            this.groupBox6.Name = "groupBox6";
+            this.groupBox6.Size = new System.Drawing.Size(429, 59);
+            this.groupBox6.TabIndex = 10;
+            this.groupBox6.TabStop = false;
+            this.groupBox6.Text = "Translation";
+            // 
+            // groupBox5
+            // 
+            this.groupBox5.Controls.Add(this.label2);
+            this.groupBox5.Controls.Add(this.txtMsOcrApiKey);
+            this.groupBox5.Controls.Add(this.txtMsOcrEndpoint);
+            this.groupBox5.Controls.Add(this.label3);
+            this.groupBox5.Location = new System.Drawing.Point(9, 17);
+            this.groupBox5.Name = "groupBox5";
+            this.groupBox5.Size = new System.Drawing.Size(429, 73);
+            this.groupBox5.TabIndex = 9;
+            this.groupBox5.TabStop = false;
+            this.groupBox5.Text = "OCR";
+            // 
+            // tabPage3
+            // 
+            this.tabPage3.Controls.Add(this.groupBox8);
+            this.tabPage3.Location = new System.Drawing.Point(4, 22);
+            this.tabPage3.Margin = new System.Windows.Forms.Padding(5);
+            this.tabPage3.Name = "tabPage3";
+            this.tabPage3.Size = new System.Drawing.Size(444, 165);
+            this.tabPage3.TabIndex = 2;
+            this.tabPage3.Text = "DeepL";
+            this.tabPage3.UseVisualStyleBackColor = true;
+            // 
             // groupBox8
             // 
             this.groupBox8.Controls.Add(this.label5);
@@ -391,15 +431,6 @@
             this.groupBox8.TabStop = false;
             this.groupBox8.Text = "Translation";
             // 
-            // txtDeepLKey
-            // 
-            this.txtDeepLKey.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.txtDeepLKey.Location = new System.Drawing.Point(68, 23);
-            this.txtDeepLKey.Name = "txtDeepLKey";
-            this.txtDeepLKey.Size = new System.Drawing.Size(344, 20);
-            this.txtDeepLKey.TabIndex = 11;
-            // 
             // label5
             // 
             this.label5.AutoSize = true;
@@ -409,48 +440,14 @@
             this.label5.TabIndex = 12;
             this.label5.Text = "API Key:";
             // 
-            // cboOCR
+            // txtDeepLKey
             // 
-            this.cboOCR.FormattingEnabled = true;
-            this.cboOCR.Items.AddRange(new object[] {
-            "Google",
-            "Microsoft",
-            "Dummy"});
-            this.cboOCR.Location = new System.Drawing.Point(118, 21);
-            this.cboOCR.Name = "cboOCR";
-            this.cboOCR.Size = new System.Drawing.Size(182, 21);
-            this.cboOCR.TabIndex = 4;
-            // 
-            // label6
-            // 
-            this.label6.AutoSize = true;
-            this.label6.Location = new System.Drawing.Point(40, 26);
-            this.label6.Name = "label6";
-            this.label6.Size = new System.Drawing.Size(72, 13);
-            this.label6.TabIndex = 5;
-            this.label6.Text = "OCR Service:";
-            // 
-            // label7
-            // 
-            this.label7.AutoSize = true;
-            this.label7.Location = new System.Drawing.Point(11, 53);
-            this.label7.Name = "label7";
-            this.label7.Size = new System.Drawing.Size(101, 13);
-            this.label7.TabIndex = 6;
-            this.label7.Text = "Translation Service:";
-            // 
-            // cboTranslation
-            // 
-            this.cboTranslation.FormattingEnabled = true;
-            this.cboTranslation.Items.AddRange(new object[] {
-            "Google",
-            "Microsoft",
-            "DeepL",
-            "Dummy"});
-            this.cboTranslation.Location = new System.Drawing.Point(118, 48);
-            this.cboTranslation.Name = "cboTranslation";
-            this.cboTranslation.Size = new System.Drawing.Size(182, 21);
-            this.cboTranslation.TabIndex = 7;
+            this.txtDeepLKey.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.txtDeepLKey.Location = new System.Drawing.Point(68, 23);
+            this.txtDeepLKey.Name = "txtDeepLKey";
+            this.txtDeepLKey.Size = new System.Drawing.Size(344, 20);
+            this.txtDeepLKey.TabIndex = 11;
             // 
             // Settings
             // 
@@ -477,14 +474,14 @@
             this.groupBox4.PerformLayout();
             this.tabControl1.ResumeLayout(false);
             this.tabPage1.ResumeLayout(false);
-            this.tabPage2.ResumeLayout(false);
-            this.tabPage3.ResumeLayout(false);
-            this.groupBox5.ResumeLayout(false);
-            this.groupBox5.PerformLayout();
-            this.groupBox6.ResumeLayout(false);
-            this.groupBox6.PerformLayout();
             this.groupBox7.ResumeLayout(false);
             this.groupBox7.PerformLayout();
+            this.tabPage2.ResumeLayout(false);
+            this.groupBox6.ResumeLayout(false);
+            this.groupBox6.PerformLayout();
+            this.groupBox5.ResumeLayout(false);
+            this.groupBox5.PerformLayout();
+            this.tabPage3.ResumeLayout(false);
             this.groupBox8.ResumeLayout(false);
             this.groupBox8.PerformLayout();
             this.ResumeLayout(false);
