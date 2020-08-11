@@ -1,7 +1,7 @@
-﻿using Babel.Google;
-using System;
+﻿using System;
 using System.Windows.Forms;
 using System.Linq;
+using Babel.Async;
 
 namespace Babel
 {
@@ -25,7 +25,7 @@ namespace Babel
         private void btnBrowseKeyFile_Click(object sender, EventArgs e)
         {
             if (ofdKeyFile.ShowDialog() == DialogResult.OK)
-                txtKeyFile.Text = ofdKeyFile.FileName;
+                txtGoogleKeyFile.Text = ofdKeyFile.FileName;
         }
 
         private void txtProjectName_TextChanged(object sender, EventArgs e)
@@ -33,17 +33,37 @@ namespace Babel
 
         }
 
+        private DataSource DecodeDataSource()
+        {
+            if (rbGoogle.Checked)
+                return DataSource.Google;
+            else if (rbMicrosoft.Checked)
+                return DataSource.Microsoft;
+            else // covers rbDummy, plus anything that slips through the cracks
+                return DataSource.Dummy;
+        }
+
         private void btnOk_Click(object sender, EventArgs e)
         {
-            Properties.Settings.Default.targetLocale = ((LanguageItem)cmbLocale.SelectedItem).code;
-            Properties.Settings.Default.apiKeyPath = txtKeyFile.Text;
-            Properties.Settings.Default.projectName = txtProjectName.Text;
-            Properties.Settings.Default.dummyData = cbxDummy.Checked;
+            Properties.Settings.Default.targetLocale = (cmbLocale.SelectedItem == null) ? "en" : ((LanguageItem)cmbLocale.SelectedItem).code;
             Properties.Settings.Default.displayTimes = cbxDisplayTimes.Checked;
             Properties.Settings.Default.autoOCR = cbxAutoOCR.Checked;
-            Properties.Settings.Default.reqsPerSecond = (int)numRateLimit.Value;
-            // Gotta reset this thing by hand
-            Google.GoogleAsyncStatic.rate.size = Properties.Settings.Default.reqsPerSecond;
+
+            Properties.Settings.Default.googleApiKeyPath = txtGoogleKeyFile.Text;
+            Properties.Settings.Default.googleProjectName = txtGoogleProjectName.Text;
+
+            Properties.Settings.Default.microsoftOcrApiKey = txtMsOcrApiKey.Text;
+            Properties.Settings.Default.microsoftOcrEndpoint = txtMsOcrEndpoint.Text;
+            Properties.Settings.Default.microsoftTranslatorApiKey = txtMsTranslatorApiKey.Text;
+            
+            Properties.Settings.Default.dataSource = DecodeDataSource();
+
+            if (Properties.Settings.Default.reqsPerSecond != (int)numRateLimit.Value)
+            {
+                Properties.Settings.Default.reqsPerSecond = (int)numRateLimit.Value;
+                // Gotta reset this thing by hand
+                AsyncStatic.rate.size = Properties.Settings.Default.reqsPerSecond;
+            }
 
             Properties.Settings.Default.Save();
             Close();
@@ -62,21 +82,40 @@ namespace Babel
         private void Settings_Load(object sender, EventArgs e)
         {
             SafeLoadLanguages = LoadLanguages;
-            if (gsl == null) gsl = new AsyncGSL(LoadLanguages);
+            if (gsl == null) gsl = AsyncStatic.MakeGSL(LoadLanguages);
             else LoadLanguages(gsl);
 
-            txtKeyFile.Text = Properties.Settings.Default.apiKeyPath;
-            txtProjectName.Text = Properties.Settings.Default.projectName;
-            cbxDummy.Checked = Properties.Settings.Default.dummyData;
+            txtGoogleKeyFile.Text = Properties.Settings.Default.googleApiKeyPath;
+            txtGoogleProjectName.Text = Properties.Settings.Default.googleProjectName;
+
+            txtMsOcrApiKey.Text = Properties.Settings.Default.microsoftOcrApiKey;
+            txtMsOcrEndpoint.Text = Properties.Settings.Default.microsoftOcrEndpoint;
+            txtMsTranslatorApiKey.Text = Properties.Settings.Default.microsoftTranslatorApiKey;
+
+            switch (Properties.Settings.Default.dataSource)
+            {
+                case DataSource.Google:
+                    rbGoogle.Checked = true;
+                    break;
+
+                case DataSource.Microsoft:
+                    rbMicrosoft.Checked = true;
+                    break;
+
+                default:
+                    rbDummy.Checked = true;
+                    break;
+            }
+
             cbxDisplayTimes.Checked = Properties.Settings.Default.displayTimes;
             cbxAutoOCR.Checked = Properties.Settings.Default.autoOCR;
             numRateLimit.Value = Properties.Settings.Default.reqsPerSecond;
         }
 
-        private static AsyncGSL gsl = null;
+        private static IAsyncGSL gsl = null;
 
-        private Action<AsyncGSL> SafeLoadLanguages;
-        private void LoadLanguages(AsyncGSL gsl)
+        private GSLCallback SafeLoadLanguages;
+        private void LoadLanguages(IAsyncGSL gsl)
         {
             if (InvokeRequired)
             {
@@ -102,7 +141,7 @@ namespace Babel
 
         private void btnRefreshGSL_Click(object sender, EventArgs e)
         {
-            gsl = new AsyncGSL(LoadLanguages);
+            gsl = AsyncStatic.MakeGSL(LoadLanguages);
         }
     }
 }

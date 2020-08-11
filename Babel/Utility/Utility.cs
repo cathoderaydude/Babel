@@ -1,13 +1,12 @@
-﻿using Babel.Google;
-using Google.Cloud.Vision.V1;
+﻿using Google.Cloud.Vision.V1;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using System.Threading;
-using static Babel.frmBabel;
 using System.IO;
 using System.Windows.Forms;
+using Babel.Async;
 
 namespace Babel
 {

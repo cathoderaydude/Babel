@@ -1,11 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace Babel
@@ -19,24 +12,33 @@ namespace Babel
         
         private void ErrorLog_Load(object sender, EventArgs e)
         {
+            SafeUpdateLog = UpdateLog;
             UpdateLog();
         }
 
+        private Action SafeUpdateLog;
         public void UpdateLog()
         {
-            foreach(frmBabel.WorkerError WE in frmBabel.WorkerErrors)
+            if (InvokeRequired)
+            {
+                Invoke(SafeUpdateLog);
+            }
+            else
             {
                 dataGridView1.Rows.Clear();
-                DataGridViewRow NewRow = new DataGridViewRow();
-                NewRow.CreateCells(dataGridView1);
-                NewRow.Cells[0].Value = WE.timestamp;
-                NewRow.Cells[1].Value = WE.message;
-                if (WE.url != "")
+                foreach (frmBabel.WorkerError WE in frmBabel.WorkerErrors)
                 {
-                    NewRow.Cells[2].Value = "Link";
-                    NewRow.Cells[2].Tag = WE.url;
+                    DataGridViewRow NewRow = new DataGridViewRow();
+                    NewRow.CreateCells(dataGridView1);
+                    NewRow.Cells[0].Value = WE.timestamp;
+                    NewRow.Cells[1].Value = WE.message;
+                    if (WE.url != "")
+                    {
+                        NewRow.Cells[2].Value = "Link";
+                        NewRow.Cells[2].Tag = WE.url;
+                    }
+                    dataGridView1.Rows.Add(NewRow);
                 }
-                dataGridView1.Rows.Add(NewRow);
             }
         }
 
