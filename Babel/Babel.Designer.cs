@@ -88,6 +88,7 @@
             this.verticallyToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.horizontallyToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.tsmiBreakLines = new System.Windows.Forms.ToolStripMenuItem();
+            this.tsbClear = new System.Windows.Forms.ToolStripButton();
             ((System.ComponentModel.ISupportInitialize)(this.pbxDisplay)).BeginInit();
             this.tscMain.BottomToolStripPanel.SuspendLayout();
             this.tscMain.ContentPanel.SuspendLayout();
@@ -208,6 +209,7 @@
             this.toolStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.tsbSnap,
             this.tsbSave,
+            this.tsbClear,
             this.toolStripSeparator8,
             this.tsbVFW,
             this.tsbCrosshair,
@@ -232,6 +234,7 @@
             this.toolStrip1.Location = new System.Drawing.Point(3, 0);
             this.toolStrip1.Name = "toolStrip1";
             this.toolStrip1.Size = new System.Drawing.Size(531, 31);
+            this.toolStrip1.Size = new System.Drawing.Size(588, 31);
             this.toolStrip1.TabIndex = 1;
             this.toolStrip1.Text = "toolStrip1";
             // 
@@ -657,6 +660,16 @@
             this.tsmiBreakLines.Text = "Break Lines";
             this.tsmiBreakLines.Click += new System.EventHandler(this.tsmiBreakLines_Click);
             // 
+            // tsbClear
+            // 
+            this.tsbClear.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.tsbClear.Image = ((System.Drawing.Image)(resources.GetObject("tsbClear.Image")));
+            this.tsbClear.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.tsbClear.Name = "tsbClear";
+            this.tsbClear.Size = new System.Drawing.Size(28, 28);
+            this.tsbClear.Text = "Clear all";
+            this.tsbClear.Click += new System.EventHandler(this.tsbClear_Click);
+            // 
             // frmBabel
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -756,6 +769,7 @@
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator9;
         private System.Windows.Forms.ToolStripMenuItem saveForStreamingToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem tsmiBreakLines;
+        private System.Windows.Forms.ToolStripButton tsbClear;
     }
 }
 

@@ -14,6 +14,7 @@ namespace Babel
     {
 
         // Contains a rectangle the user has drawn around one or more words to be translated as a single phrase
+        // Put this in another file
         public class PhraseRect
         {
             public Rectangle Location;
@@ -218,6 +219,7 @@ namespace Babel
                     tsbSave.Enabled = true;
                     break;
             }
+            SaveForStreaming();
         }
 
         // Called whenever settings should be reevaluated
@@ -292,6 +294,15 @@ namespace Babel
 
             try
             {
+                if ((int) TrackingWindow != 0)
+                {
+                    // Put this into a general function later
+                    Rectangle WindowLoc = WindowFunctions.GetRectFromHwnd(TrackingWindow);
+                    vfw.Location = new Point(WindowLoc.Left, WindowLoc.Top);
+                    vfw.Size = new Size(WindowLoc.Width, WindowLoc.Height);
+                    vfw.Flicker();
+                }
+
                 Image result = GDI32.Grab(SnapRegion);
 
                 if (VfwWasVisible) vfw.Visible = true; // Reshow viewfinder if appropriate
@@ -356,6 +367,7 @@ namespace Babel
 
         public void AsyncTranslation_callback(AsyncTranslation result)
         {
+            if(PhraseRects.All(x => x.atrans.isDone == true)) SaveForStreaming();
             pbxDisplay.Invalidate();
         }
 

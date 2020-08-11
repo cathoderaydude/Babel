@@ -54,6 +54,8 @@ namespace Babel
             TooSmall
         }
 
+        public IntPtr TrackingWindow;
+
         public enum State
         {
             ready,
@@ -92,6 +94,7 @@ namespace Babel
                 return (Assembly.LoadFile(AssPath));
             } else
             {
+                // This may be a problem if we actually can compile on Mac or Linux
                 String[] IgnoredModules =
                 {
                     "Xamarin",
@@ -154,6 +157,8 @@ namespace Babel
             SafeIncrementOdometer = new SafeIncrementOdometer_Delegate(IncrementOdometer);
 
             ErrorWindow = new ErrorLog();
+
+            TrackingWindow = (IntPtr) 0;
 
             DebugLog.Log("Babel started");
 
@@ -241,22 +246,38 @@ namespace Babel
                 snap.Save(sfdDisplay.FileName);
             }
         }
-        private void saveForStreamingToolStripMenuItem_Click(object sender, EventArgs e)
+
+        private void SaveForStreaming()
         {
-            // Copy the current snap, run the graphics draw routine on it and save it
-            Image tempImage = new Bitmap(snap.Width, snap.Height, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
-            Graphics g = Graphics.FromImage(tempImage);
-            g.FillRectangle(new SolidBrush(Color.FromArgb(50, 0, 0, 0)), 50, 50, 100, 100);
-            DrawOBS(g);
+            Image tempImage;
+
+            if (snap != null)
+            {
+                // Copy the current snap, run the graphics draw routine on it and save it
+                tempImage = new Bitmap(snap.Width, snap.Height, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
+                Graphics g = Graphics.FromImage(tempImage);
+                DrawOBS(g);
+            } else
+            {
+                tempImage = new Bitmap(1, 1);
+            }
 
             string streampath = Application.StartupPath + "\\stream.png";
             try
             {
                 tempImage.Save(streampath);
-            } catch (Exception err)
-            {
-                MessageBox.Show("Failed to write file to " + streampath + ".\r\n\r\nThe file may be in use. Wait a moment and try again.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
+            catch (Exception err)
+            {
+                if (snap != null)
+                {
+                    MessageBox.Show("Failed to write file to " + streampath + ".\r\n\r\nThe file may be in use. Wait a moment and try again.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+            }
+        }
+        private void saveForStreamingToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            SaveForStreaming();
         }
 
         private void settingsToolStripMenuItem_Click(object sender, EventArgs e)
@@ -315,6 +336,7 @@ namespace Babel
                 {
                     vfw.Size = Picker.Size;
                     vfw.Location = Picker.Location;
+                    this.TrackingWindow = Picker.TrackedWindow;
                     Picker.Hide();
                     vfw.Flicker();
                     t.Dispose();
@@ -760,6 +782,14 @@ namespace Babel
             DebugLog.Log("Babel exiting.");
             DebugLog.Log("Odometer: " + SnapsTaken + "/" + CharsTranslated);
             DebugLog.Log("==============================================");
+        }
+
+        private void tsbClear_Click(object sender, EventArgs e)
+        {
+            OCRResult = null;
+            PhraseRects.Clear();
+            pbxDisplay.Image = snap = edit = null;
+            ChangeState(State.ready);
         }
     }
 }
