@@ -2,6 +2,7 @@
 {
     public class AsyncOCR : IAsyncOCR
     {
+        string IAsyncOCR.name => "Dummy";
         public AsyncOCR(OCRCallback callback)
         {
             callback?.Invoke(this);
@@ -16,6 +17,7 @@
 
     public class AsyncTranslation : IAsyncTranslation
     {
+        string IAsyncTranslation.name => "Dummy";
         public AsyncTranslation(string text, TranslationCallback callback)
         {
             rawText = text;

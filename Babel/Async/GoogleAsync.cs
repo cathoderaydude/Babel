@@ -22,6 +22,7 @@ namespace Babel.Async.GoogleImpl
         // pre-OCR
         public SImage image { get; private set; }
         private OCRCallback callback;
+        string IAsyncOCR.name => "Google";
 
         public AsyncOCR(SImage image, OCRCallback callback = null)
         {
@@ -59,7 +60,7 @@ namespace Babel.Async.GoogleImpl
             try
             {
                 string Identifer = Utility.RandomHex();
-                DebugLog.Log("Making OCR request [" + Identifer + "]");
+                DebugLog.Log("Making Google OCR request [" + Identifer + "]");
 
                 if (!File.Exists(Properties.Settings.Default.googleApiKeyPath))
                     throw new FileNotFoundException("Keyfile not present at " + Properties.Settings.Default.googleApiKeyPath);
@@ -113,7 +114,7 @@ namespace Babel.Async.GoogleImpl
                 isDone = true;
                 callback?.Invoke(this);
 
-                DebugLog.Log("Finished OCR request [" + Identifer + "]");
+                DebugLog.Log("Finished Google OCR request [" + Identifer + "]");
             }
             catch (Grpc.Core.RpcException e)
             {
@@ -144,6 +145,7 @@ namespace Babel.Async.GoogleImpl
         // pre-translation
         public string rawText { get; private set; }
         private TranslationCallback callback;
+        string IAsyncTranslation.name => "Google";
 
         public AsyncTranslation(string text, TranslationCallback callback = null)
         {
@@ -181,7 +183,7 @@ namespace Babel.Async.GoogleImpl
             try
             {
                 string Identifer = Utility.RandomHex();
-                DebugLog.Log("Making translation request ["+Identifer+"]: " + this.rawText);
+                DebugLog.Log("Making Google translation request ["+Identifer+"]: " + this.rawText);
 
                 if (!File.Exists(Properties.Settings.Default.googleApiKeyPath))
                     throw new FileNotFoundException("Keyfile not present at " + Properties.Settings.Default.googleApiKeyPath);
@@ -230,7 +232,7 @@ namespace Babel.Async.GoogleImpl
                 isDone = true;
                 callback?.Invoke(this);
 
-                DebugLog.Log("Finishing translation ["+Identifer+"]: " + this._translatedText);
+                DebugLog.Log("Finishing Google translation ["+Identifer+"]: " + this._translatedText);
             }
             catch(Grpc.Core.RpcException e)
             {
@@ -271,7 +273,7 @@ namespace Babel.Async.GoogleImpl
             try
             {
                 string Identifer = Utility.RandomHex();
-                DebugLog.Log("Making get supported languages request [" + Identifer + "]");
+                DebugLog.Log("Making Google get supported languages request [" + Identifer + "]");
 
                 if (!File.Exists(Properties.Settings.Default.googleApiKeyPath))
                     throw new FileNotFoundException("Keyfile not present at " + Properties.Settings.Default.googleApiKeyPath);
@@ -313,7 +315,7 @@ namespace Babel.Async.GoogleImpl
                 isDone = true;
                 callback?.Invoke(this);
 
-                DebugLog.Log("Finishing getting supported languages [" + Identifer + "]");
+                DebugLog.Log("Finishing google getting supported languages [" + Identifer + "]");
             }
             catch (Grpc.Core.RpcException e)
             {

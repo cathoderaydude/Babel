@@ -442,6 +442,11 @@
             // cboTranslation
             // 
             this.cboTranslation.FormattingEnabled = true;
+            this.cboTranslation.Items.AddRange(new object[] {
+            "Google",
+            "Microsoft",
+            "DeepL",
+            "Dummy"});
             this.cboTranslation.Location = new System.Drawing.Point(118, 48);
             this.cboTranslation.Name = "cboTranslation";
             this.cboTranslation.Size = new System.Drawing.Size(182, 21);

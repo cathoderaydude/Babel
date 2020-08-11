@@ -61,8 +61,8 @@ namespace Babel
 
             Properties.Settings.Default.DeepLKey = txtDeepLKey.Text;
 
-            Properties.Settings.Default.OCRDataSource = DecodeDataSource(cboOCR.SelectedValue.ToString());
-            Properties.Settings.Default.TranslationDataSource = DecodeDataSource(cboTranslation.SelectedValue.ToString());
+            Properties.Settings.Default.OCRDataSource = DecodeDataSource(cboOCR.Text);
+            Properties.Settings.Default.TranslationDataSource = DecodeDataSource(cboTranslation.Text);
 
             if (Properties.Settings.Default.reqsPerSecond != (int)numRateLimit.Value)
             {
@@ -103,15 +103,34 @@ namespace Babel
             switch (Properties.Settings.Default.OCRDataSource)
             {
                 case DataSource.Google:
-                    cboOCR.SelectedValue = "Google";
+                    cboOCR.Text = "Google";
                     break;
 
                 case DataSource.Microsoft:
-                    cboOCR.SelectedValue = "Microsoft";
+                    cboOCR.Text = "Microsoft";
                     break;
 
                 default:
-                    cboOCR.SelectedValue = "Dummy";
+                    cboOCR.Text = "Dummy";
+                    break;
+            }
+
+            switch (Properties.Settings.Default.TranslationDataSource)
+            {
+                case DataSource.Google:
+                    cboTranslation.Text = "Google";
+                    break;
+
+                case DataSource.Microsoft:
+                    cboTranslation.Text = "Microsoft";
+                    break;
+
+                case DataSource.DeepL:
+                    cboTranslation.Text = "DeepL";
+                    break;
+
+                default:
+                    cboTranslation.Text = "Dummy";
                     break;
             }
 

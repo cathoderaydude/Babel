@@ -186,6 +186,7 @@ namespace Babel.Async
     {
         OCRBox bigBox { get; }
         OCRBox[] smallBoxes { get; }
+        string name { get; }
     }
 
     public delegate void TranslationCallback(IAsyncTranslation result);
@@ -194,6 +195,7 @@ namespace Babel.Async
     {
         string rawText { get; }
         string translatedText { get; }
+        string name { get; }
     }
 
     public delegate void GSLCallback(IAsyncGSL result);

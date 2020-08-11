@@ -611,6 +611,21 @@ namespace Babel
                         Brushes.Gray,
                         new Point(PRect.Location.Right - (int)TimeLength.Width, PRect.Location.Bottom - (int)TimeLength.Height));
                 }
+
+                // Write name of translation service
+                Font SvcFont = new Font(FontFamily.GenericSansSerif, 8.0f);
+                SizeF SvcLength = g.MeasureString(PRect.atrans.name, SvcFont);
+                g.DrawString(PRect.atrans.name, SvcFont, Brushes.Gray, 
+                    new Point(PRect.Location.Right - (int)SvcLength.Width, PRect.Location.Top));
+            }
+
+            if (OCRResult != null)
+            {
+                // Write name of OCR service
+                Font OCRFont = new Font(FontFamily.GenericSansSerif, 8.0f);
+                SizeF OCRLength = g.MeasureString(OCRResult.name, OCRFont);
+                g.DrawString(OCRResult.name, OCRFont, Brushes.Gray,
+                    new Point((int)(g.ClipBounds.Width - OCRLength.Width), 0));
             }
         }
 

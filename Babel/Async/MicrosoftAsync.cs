@@ -18,6 +18,7 @@ namespace Babel.Async.MicrosoftImpl
         // pre-OCR
         public Image image { get; private set; }
         private OCRCallback callback;
+        string IAsyncOCR.name => "Azure";
 
         public AsyncOCR(Image image, OCRCallback callback = null)
         {
@@ -55,7 +56,7 @@ namespace Babel.Async.MicrosoftImpl
             try
             {
                 string Identifer = Utility.RandomHex();
-                DebugLog.Log("Making OCR request [" + Identifer + "]");
+                DebugLog.Log("Making MS OCR request [" + Identifer + "]");
 
                 // No keyfile to check - maybe somehow validate the API key?
 
@@ -110,7 +111,7 @@ namespace Babel.Async.MicrosoftImpl
                 isDone = true;
                 callback?.Invoke(this);
 
-                DebugLog.Log("Finished OCR request [" + Identifer + "]");
+                DebugLog.Log("Finished MS OCR request [" + Identifer + "]");
             }
             catch (Exception e)
             {
@@ -124,6 +125,7 @@ namespace Babel.Async.MicrosoftImpl
         // pre-translation
         public string rawText { get; private set; }
         private TranslationCallback callback;
+        string IAsyncTranslation.name => "Azure";
 
         public AsyncTranslation(string text, TranslationCallback callback = null)
         {
@@ -164,7 +166,7 @@ namespace Babel.Async.MicrosoftImpl
             try
             {
                 string Identifer = Utility.RandomHex();
-                DebugLog.Log("Making translation request [" + Identifer + "]: " + this.rawText);
+                DebugLog.Log("Making MS translation request [" + Identifer + "]: " + this.rawText);
 
                 // No keyfile to check - maybe somehow validate the API key?
 
@@ -215,7 +217,7 @@ namespace Babel.Async.MicrosoftImpl
                 isDone = true;
                 callback?.Invoke(this);
 
-                DebugLog.Log("Finishing translation [" + Identifer + "]: " + this._translatedText);
+                DebugLog.Log("Finishing MS translation [" + Identifer + "]: " + this._translatedText);
             }
             catch (Exception e)
             {
@@ -252,7 +254,7 @@ namespace Babel.Async.MicrosoftImpl
             try
             {
                 string Identifer = Utility.RandomHex();
-                DebugLog.Log("Making get supported languages request [" + Identifer + "]");
+                DebugLog.Log("Making MS get supported languages request [" + Identifer + "]");
 
                 // No keyfile to check - maybe somehow validate the API key?
 
@@ -290,7 +292,7 @@ namespace Babel.Async.MicrosoftImpl
                 isDone = true;
                 callback?.Invoke(this);
 
-                DebugLog.Log("Finishing getting supported languages [" + Identifer + "]");
+                DebugLog.Log("Finishing MS getting supported languages [" + Identifer + "]");
             }
             catch (Grpc.Core.RpcException e)
             {
